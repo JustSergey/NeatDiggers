@@ -11,6 +11,7 @@ namespace NeatDiggersPrototype
 
         public Server()
         {
+            users = new Dictionary<int, User>();
             rooms = new Dictionary<string, Room>();
         }
 

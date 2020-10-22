@@ -8,7 +8,7 @@ namespace NeatDiggersPrototype
     class RoomInfo
     {
         public string Code;
-        public List<PlayerInfo> PlayersInfo;
+        public List<PlayerInfo> Players;
     }
 
     class Room
@@ -49,7 +49,7 @@ namespace NeatDiggersPrototype
             return new RoomInfo
             {
                 Code = code,
-                PlayersInfo = players.Values.Select(p => p.GetInfo()).ToList()
+                Players = players.Values.Select(p => p.GetInfo()).ToList()
             };
         }
 

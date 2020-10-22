@@ -8,8 +8,8 @@ namespace NeatDiggersPrototype
     {
         public string Prefix;
         public string Name;
-        public Character Character;
-        public InventoryInfo InventoryInfo;
+        public CharacterInfo Character;
+        public InventoryInfo Inventory;
     }
 
     class Player
@@ -35,8 +35,8 @@ namespace NeatDiggersPrototype
             {
                 Prefix = prefix,
                 Name = name,
-                Character = character,
-                InventoryInfo = inventory.GetInfo()
+                Character = character.GetInfo(),
+                Inventory = inventory.GetInfo()
             };
         }
     }
