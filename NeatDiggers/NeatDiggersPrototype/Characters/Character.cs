@@ -18,13 +18,6 @@ namespace NeatDiggersPrototype
 
     abstract class Character
     {
-        delegate Character CreateCharacter();
-        static Dictionary<CharacterName, CreateCharacter> characters = new Dictionary<CharacterName, CreateCharacter>
-        {
-            { CharacterName.Empty, () => new EmptyCharacter() },
-            { CharacterName.Pandora, () => new PandoraCharacter() }
-        };
-
         CharacterName name;
         int health;
 
@@ -34,12 +27,13 @@ namespace NeatDiggersPrototype
             this.health = health;
         }
 
-        public static Character NewCharacter(CharacterName name)
-        {
-            if (characters.TryGetValue(name, out CreateCharacter creator))
-                return creator.Invoke();
-            return null;
-        }
+        public static Character CreateCharacter(CharacterName name) =>
+            name switch
+            {
+                CharacterName.Empty => new EmptyCharacter(),
+                CharacterName.Pandora => new PandoraCharacter(),
+                _ => null
+            };
 
         public CharacterInfo GetInfo()
         {

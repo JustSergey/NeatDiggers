@@ -61,7 +61,7 @@ namespace NeatDiggersPrototype
 
         public bool ChangeCharacter(int userId, CharacterName characterName)
         {
-            Character character = Character.NewCharacter(characterName);
+            Character character = Character.CreateCharacter(characterName);
             if (players.TryGetValue(userId, out Player player))
             {
                 player.SetCharacter(character);
