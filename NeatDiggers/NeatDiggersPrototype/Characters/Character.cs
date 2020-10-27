@@ -14,17 +14,20 @@ namespace NeatDiggersPrototype
     {
         public CharacterName Name;
         public int Health;
+        public int Level;
     }
 
     abstract class Character
     {
         CharacterName name;
         int health;
+        int level;
 
         public Character(CharacterName name, int health)
         {
             this.name = name;
             this.health = health;
+            level = 0;
         }
 
         public static Character CreateCharacter(CharacterName name) =>
@@ -35,13 +38,12 @@ namespace NeatDiggersPrototype
                 _ => null
             };
 
-        public CharacterInfo GetInfo()
-        {
-            return new CharacterInfo
+        public CharacterInfo GetInfo() =>
+            new CharacterInfo
             {
                 Name = name,
-                Health = health
+                Health = health,
+                Level = level
             };
-        }
     }
 }

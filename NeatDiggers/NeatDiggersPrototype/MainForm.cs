@@ -13,6 +13,8 @@ namespace NeatDiggersPrototype
     public partial class MainForm : Form
     {
         Server server;
+        UserInfo user1, user2;
+        RoomPrepareInfo room;
 
         public MainForm()
         {
@@ -23,29 +25,32 @@ namespace NeatDiggersPrototype
 
         private void createRoomButton_Click(object sender, EventArgs e)
         {
-            UserInfo userInfo = server.ConnectToServer("Oleg");
-            RoomInfo roomInfo = server.CreateRoom(userInfo.Id);
-            codeLabel.Text = roomInfo.Code;
-            //roomInfo
+            user1 = server.ConnectToServer("Oleg");
+            room = server.CreateRoom(user1.Id);
+            codeLabel.Text = room.Code;
+            server.SetReady(room.Code, user1.Id);
         }
 
         private void connectButton_Click(object sender, EventArgs e)
         {
-            UserInfo userInfo = server.ConnectToServer("Debil");
-            RoomInfo roomInfo = server.ConnectToRoom(codeLabel.Text, userInfo.Id);
+            user2 = server.ConnectToServer("Debil");
+            RoomPrepareInfo roomInfo = server.ConnectToRoom(codeLabel.Text, user2.Id);
             if (roomInfo == null)
             {
                 MessageBox.Show("Can not connect");
                 return;
             }
-            if (server.ChangeCharacter(roomInfo.Code, userInfo.Id, CharacterName.Pandora))
-            {
+            if (server.ChangeCharacter(roomInfo.Code, user2.Id, CharacterName.Pandora))
                 ChangeCharacter();
-            }
-            //roomInfo
+            server.SetReady(roomInfo.Code, user2.Id);
         }
 
         private void ChangeCharacter() { }
+
+        private void startGameButton_Click(object sender, EventArgs e)
+        {
+            server.StartTheGame(room.Code, user1.Id);
+        }
 
         private void serverTimer_Tick(object sender, EventArgs e)
         {

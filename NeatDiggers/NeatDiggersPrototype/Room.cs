@@ -5,6 +5,12 @@ using System.Text;
 
 namespace NeatDiggersPrototype
 {
+    class RoomPrepareInfo
+    {
+        public string Code;
+        public List<PlayerPrepareInfo> Players;
+    }
+
     class RoomInfo
     {
         public string Code;
@@ -19,6 +25,7 @@ namespace NeatDiggersPrototype
         int creatorId;
         Dictionary<int, Player> players;
         Random random;
+        bool isPrepare;
 
         public string GetCode() => code;
 
@@ -34,6 +41,7 @@ namespace NeatDiggersPrototype
             {
                 { creatorId, new Player("Creator", userInfo.Name) }
             };
+            isPrepare = true;
         }
 
         string GenerateCode(Random random, int codeLength)
@@ -42,6 +50,15 @@ namespace NeatDiggersPrototype
             for (int i = 0; i < codeLength; i++)
                 code.Append((char)random.Next('A', 'Z' + 1));
             return code.ToString();
+        }
+
+        public RoomPrepareInfo GetPrepareInfo()
+        {
+            return new RoomPrepareInfo
+            {
+                Code = code,
+                Players = players.Values.Select(p => p.GetPrepareInfo()).ToList()
+            };
         }
 
         public RoomInfo GetInfo()
@@ -66,6 +83,29 @@ namespace NeatDiggersPrototype
             {
                 player.SetCharacter(character);
                 return true;
+            }
+            return false;
+        }
+
+        public bool SetReady(int userId)
+        {
+            if (players.TryGetValue(userId, out Player player))
+            {
+                player.SetReady();
+                return true;
+            }
+            return false;
+        }
+
+        public bool StartTheGame(int creatorId)
+        {
+            if (this.creatorId == creatorId)
+            {
+                if (players.Values.All(p => p.GetPrepareInfo().IsReady))
+                {
+                    isPrepare = false;
+                    return true;
+                }
             }
             return false;
         }

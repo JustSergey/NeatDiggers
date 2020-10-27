@@ -33,12 +33,12 @@
             this.connectButton = new System.Windows.Forms.Button();
             this.serverTimer = new System.Windows.Forms.Timer(this.components);
             this.codeLabel = new System.Windows.Forms.Label();
-            this.nickNameTextBox = new System.Windows.Forms.TextBox();
+            this.startGameButton = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // createRoomButton
             // 
-            this.createRoomButton.Location = new System.Drawing.Point(109, 170);
+            this.createRoomButton.Location = new System.Drawing.Point(108, 38);
             this.createRoomButton.Name = "createRoomButton";
             this.createRoomButton.Size = new System.Drawing.Size(105, 29);
             this.createRoomButton.TabIndex = 0;
@@ -47,7 +47,7 @@
             // 
             // connectButton
             // 
-            this.connectButton.Location = new System.Drawing.Point(109, 250);
+            this.connectButton.Location = new System.Drawing.Point(108, 118);
             this.connectButton.Name = "connectButton";
             this.connectButton.Size = new System.Drawing.Size(105, 29);
             this.connectButton.TabIndex = 0;
@@ -61,26 +61,27 @@
             // codeLabel
             // 
             this.codeLabel.AutoSize = true;
-            this.codeLabel.Location = new System.Drawing.Point(143, 218);
+            this.codeLabel.Location = new System.Drawing.Point(142, 86);
             this.codeLabel.Name = "codeLabel";
             this.codeLabel.Size = new System.Drawing.Size(35, 15);
             this.codeLabel.TabIndex = 1;
             this.codeLabel.Text = "Code";
             // 
-            // nickNameTextBox
+            // startGameButton
             // 
-            this.nickNameTextBox.Location = new System.Drawing.Point(109, 109);
-            this.nickNameTextBox.Name = "nickNameTextBox";
-            this.nickNameTextBox.Size = new System.Drawing.Size(100, 23);
-            this.nickNameTextBox.TabIndex = 2;
-            this.nickNameTextBox.Text = "Alex228";
+            this.startGameButton.Location = new System.Drawing.Point(108, 232);
+            this.startGameButton.Name = "startGameButton";
+            this.startGameButton.Size = new System.Drawing.Size(105, 29);
+            this.startGameButton.TabIndex = 0;
+            this.startGameButton.Text = "StartGame";
+            this.startGameButton.Click += new System.EventHandler(this.startGameButton_Click);
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(342, 429);
-            this.Controls.Add(this.nickNameTextBox);
+            this.ClientSize = new System.Drawing.Size(342, 296);
+            this.Controls.Add(this.startGameButton);
             this.Controls.Add(this.codeLabel);
             this.Controls.Add(this.connectButton);
             this.Controls.Add(this.createRoomButton);
@@ -99,7 +100,7 @@
         private System.Windows.Forms.Button connectButton;
         private System.Windows.Forms.Timer serverTimer;
         private System.Windows.Forms.Label codeLabel;
-        private System.Windows.Forms.TextBox nickNameTextBox;
+        private System.Windows.Forms.Button startGameButton;
     }
 }
 

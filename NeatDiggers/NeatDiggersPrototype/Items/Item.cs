@@ -35,13 +35,11 @@ namespace NeatDiggersPrototype
                 _ => null
             };
 
-        public ItemInfo GetInfo()
-        {
-            return new ItemInfo
+        public ItemInfo GetInfo() =>
+            new ItemInfo
             {
                 IsOpen = isOpen,
                 Name = name
             };
-        }
     }
 }
