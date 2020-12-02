@@ -13,9 +13,9 @@ namespace NeatDiggers.GameServer
 
     public class Character
     {
-        public CharacterName Name { get; set; }
-        public int Health { get; set; }
-        public int Level { get; set; }
+        public CharacterName Name { get; protected set; }
+        public string Title { get; protected set; }
+        public int MaxHealth { get; protected set; }
 
         public static Character CreateCharacter(CharacterName name) =>
             name switch
@@ -27,11 +27,6 @@ namespace NeatDiggers.GameServer
 
     public class EmptyCharacter : Character
     {
-        public EmptyCharacter()
-        {
-            Name = CharacterName.Empty;
-            Health = 0;
-            Level = 0;
-        }
+        public EmptyCharacter() => Name = CharacterName.Empty;
     }
 }

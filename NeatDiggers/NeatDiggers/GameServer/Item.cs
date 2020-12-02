@@ -5,6 +5,13 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer
 {
+    public enum ItemName
+    {
+        Empty,
+        Rain,
+        Vest
+    }
+
     public enum ItemType
     {
         Event,
@@ -29,21 +36,26 @@ namespace NeatDiggers.GameServer
 
     public class Item
     {
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public ItemType Type { get; set; }
-        public WeaponHanded WeaponHanded { get; set; }
-        public WeaponType WeaponType { get; set; }
+        public ItemName Name { get; protected set; }
+        public string Title { get; protected set; }
+        public string Description { get; protected set; }
+        public ItemType Type { get; protected set; }
+        public WeaponHanded WeaponHanded { get; protected set; }
+        public WeaponType WeaponType { get; protected set; }
 
         public virtual void Use(Room room, Player targetPlayer, Vector targetPosition) { }
     }
 
-    public class EmptyItem : Item { }
+    public class EmptyItem : Item
+    {
+        public EmptyItem() => Name = ItemName.Empty;
+    }
 
     public class RainItem : Item
     {
         public RainItem()
         {
+            Name = ItemName.Rain;
             Title = "Дождь";
             Description = "-2 скорость у всех игроков на 2 круга";
             Type = ItemType.Event;

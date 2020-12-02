@@ -15,7 +15,9 @@ namespace NeatDiggers.GameServer
         public Vector Position { get; set; }
         public Character Character { get; set; }
         public Inventory Inventory { get; set; }
+        public int Level { get; set; }
         public int Speed { get; set; }
+        public int Health { get; set; }
 
         public Player(string id, string name, Vector position)
         {

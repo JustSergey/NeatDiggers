@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer
 {
-    public enum ActionType
+    public enum GameActionType
     {
         Move,
         Dig,
@@ -15,8 +15,12 @@ namespace NeatDiggers.GameServer
         UseAbility
     }
 
-    public class Action
+    public class GameAction
     {
-
+        public Player CurrentPlayer;
+        public GameActionType Type;
+        public Item Item;
+        public Player TargetPlayer;
+        public Vector TargetPosition;
     }
 }

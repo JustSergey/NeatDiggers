@@ -71,7 +71,7 @@ namespace NeatDiggers.Hubs
             return dice;
         }
 
-        public void DoAction(string code, ActionType actionType, Item item, Player targetPlayer, Vector targetPosition)
+        public async Task DoAction(string code, GameAction gameAction)
         {
             Room room = Server.GetRoom(code);
             if (room != null && room.IsStarted)
