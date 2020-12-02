@@ -11,7 +11,6 @@ namespace NeatDiggers.Hubs
     {
         public async Task<Room> ConnectToRoom(string code, string name)
         {
-            Context.Items["Name"] = name;
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
@@ -72,9 +71,31 @@ namespace NeatDiggers.Hubs
             return dice;
         }
 
-        public void DoAction(ActionType actionType, Player targetPlayer, Vector targetPosition)
+        public void DoAction(string code, ActionType actionType, Item item, Player targetPlayer, Vector targetPosition)
         {
+            Room room = Server.GetRoom(code);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player.IsTurn)
+                {
 
+                }
+            }
+        }
+
+        public async Task EndTurn(string code)
+        {
+            Room room = Server.GetRoom(code);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player.IsTurn)
+                {
+                    room.NextTurn();
+                    await Clients.Group(code).SendAsync("ChangeState", room);
+                }
+            }
         }
     }
 }

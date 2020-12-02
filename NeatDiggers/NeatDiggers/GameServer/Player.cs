@@ -10,16 +10,19 @@ namespace NeatDiggers.GameServer
         public string Id { get; }
         public string Name { get; }
         public bool IsReady { get; private set; }
+        public bool IsTurn { get; set; }
         public Vector SpawnPoint { get; }
         public Vector Position { get; set; }
         public Character Character { get; set; }
         public Inventory Inventory { get; set; }
+        public int Speed { get; set; }
 
         public Player(string id, string name, Vector position)
         {
             Id = id;
             Name = name;
             IsReady = false;
+            IsTurn = false;
             SpawnPoint = position;
             Position = position;
             Character = new EmptyCharacter();

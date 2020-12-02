@@ -5,16 +5,6 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer
 {
-    public class Item
-    {
-
-    }
-
-    public class EmptyItem : Item
-    {
-
-    }
-
     public class Inventory
     {
         public Item LeftWeapon { get; set; }
