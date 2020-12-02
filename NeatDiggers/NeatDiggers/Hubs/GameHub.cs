@@ -79,9 +79,53 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn)
                 {
-
+                    Func<Room> action = gameAction.Type switch
+                    {
+                        GameActionType.Move => () => Move(room, player, gameAction.TargetPosition),
+                        GameActionType.Dig => () => Dig(room, player),
+                        GameActionType.Attack => () => Attack(room, player, gameAction.TargetPlayer),
+                        GameActionType.UseItem => () => UseItem(room, player, gameAction.Item, gameAction.TargetPlayer, gameAction.TargetPosition),
+                        GameActionType.DropItem => () => DropItem(room, player, gameAction.Item),
+                        GameActionType.UseAbility => () => UseAbility(room, player, gameAction.TargetPlayer, gameAction.TargetPosition),
+                        _ => null
+                    };
+                    if (action != null)
+                    {
+                        room = action();
+                        await Clients.Group(code).SendAsync("ChangeStateWithAction", room, gameAction);
+                    }
                 }
             }
+        }
+
+        public Room Move(Room room, Player currentPlayer, Vector targetPosition)
+        {
+            return room;
+        }
+
+        public Room Dig(Room room, Player currentPlayer)
+        {
+            return room;
+        }
+
+        public Room Attack(Room room, Player currentPlayer, Player targetPlayer)
+        {
+            return room;
+        }
+
+        public Room UseItem(Room room, Player currentPlayer, Item item, Player targetPlayer, Vector targetPosition)
+        {
+            return room;
+        }
+
+        public Room DropItem(Room room, Player currentPlayer, Item item)
+        {
+            return room;
+        }
+
+        public Room UseAbility(Room room, Player currentPlayer, Player targetPlayer, Vector targetPosition)
+        {
+            return room;
         }
 
         public async Task EndTurn(string code)
