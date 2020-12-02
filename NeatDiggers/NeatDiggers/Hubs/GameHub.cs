@@ -98,32 +98,32 @@ namespace NeatDiggers.Hubs
             }
         }
 
-        public Room Move(Room room, Player currentPlayer, Vector targetPosition)
+        private Room Move(Room room, Player currentPlayer, Vector targetPosition)
         {
             return room;
         }
 
-        public Room Dig(Room room, Player currentPlayer)
+        private Room Dig(Room room, Player currentPlayer)
         {
             return room;
         }
 
-        public Room Attack(Room room, Player currentPlayer, Player targetPlayer)
+        private Room Attack(Room room, Player currentPlayer, Player targetPlayer)
         {
             return room;
         }
 
-        public Room UseItem(Room room, Player currentPlayer, Item item, Player targetPlayer, Vector targetPosition)
+        private Room UseItem(Room room, Player currentPlayer, Item item, Player targetPlayer, Vector targetPosition)
         {
             return room;
         }
 
-        public Room DropItem(Room room, Player currentPlayer, Item item)
+        private Room DropItem(Room room, Player currentPlayer, Item item)
         {
             return room;
         }
 
-        public Room UseAbility(Room room, Player currentPlayer, Player targetPlayer, Vector targetPosition)
+        private Room UseAbility(Room room, Player currentPlayer, Player targetPlayer, Vector targetPosition)
         {
             return room;
         }

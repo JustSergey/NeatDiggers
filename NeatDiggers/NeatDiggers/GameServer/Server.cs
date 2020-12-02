@@ -33,6 +33,11 @@ namespace NeatDiggers.GameServer
             return null;
         }
 
+        public static List<Room> GetRooms()
+        {
+            return rooms.Values.ToList();
+        }
+
         public static bool RemoveRoom(string code)
         {
             return rooms.Remove(code);

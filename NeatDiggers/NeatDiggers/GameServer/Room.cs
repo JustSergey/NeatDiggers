@@ -23,6 +23,7 @@ namespace NeatDiggers.GameServer
             GameMap = gameMap;
             Players = new List<Player>();
             Round = 0;
+            cancelingActions = new Dictionary<(int, int), List<Action<Room>>>();
         }
 
         public bool AddPlayer(string id, string name)
