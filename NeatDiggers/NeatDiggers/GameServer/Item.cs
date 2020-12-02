@@ -9,7 +9,8 @@ namespace NeatDiggers.GameServer
     {
         Empty,
         Rain,
-        Vest
+        Vest,
+        length
     }
 
     public enum ItemType
@@ -44,6 +45,14 @@ namespace NeatDiggers.GameServer
         public WeaponType WeaponType { get; protected set; }
 
         public virtual void Use(Room room, Player targetPlayer, Vector targetPosition) { }
+
+        public static Item CreateItem(ItemName name) =>
+            name switch
+            {
+                ItemName.Empty => new EmptyItem(),
+                ItemName.Rain => new RainItem(),
+                _ => null
+            };
     }
 
     public class EmptyItem : Item
