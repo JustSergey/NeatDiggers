@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Decks;
 using NeatDiggers.GameServer.Items;
+using NeatDiggers.GameServer.Maps;
 
 namespace NeatDiggers.GameServer
 {
