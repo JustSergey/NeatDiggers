@@ -16,6 +16,7 @@ namespace NeatDiggers.GameServer
         public CharacterName Name { get; protected set; }
         public string Title { get; protected set; }
         public int MaxHealth { get; protected set; }
+        public WeaponType WeaponType { get; set; }
 
         public static Character CreateCharacter(CharacterName name) =>
             name switch
