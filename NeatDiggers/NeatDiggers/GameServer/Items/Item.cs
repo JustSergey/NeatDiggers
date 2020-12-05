@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NeatDiggers.GameServer
+namespace NeatDiggers.GameServer.Items
 {
     public enum ItemName
     {
@@ -21,20 +21,6 @@ namespace NeatDiggers.GameServer
         Armor
     }
 
-    public enum WeaponHanded
-    {
-        None,
-        One,
-        Two
-    }
-
-    public enum WeaponType
-    {
-        None,
-        Melee,
-        Ranged
-    }
-
     public class Item
     {
         public ItemName Name { get; protected set; }
@@ -44,7 +30,7 @@ namespace NeatDiggers.GameServer
         public WeaponHanded WeaponHanded { get; protected set; }
         public WeaponType WeaponType { get; protected set; }
 
-        public virtual void Use(Room room, Player targetPlayer, Vector targetPosition) { }
+        public virtual void Use(Room room, GameAction gameAction) { }
 
         public static Item CreateItem(ItemName name) =>
             name switch
@@ -58,25 +44,5 @@ namespace NeatDiggers.GameServer
     public class EmptyItem : Item
     {
         public EmptyItem() => Name = ItemName.Empty;
-    }
-
-    public class RainItem : Item
-    {
-        public RainItem()
-        {
-            Name = ItemName.Rain;
-            Title = "Дождь";
-            Description = "-2 скорость у всех игроков на 2 круга";
-            Type = ItemType.Event;
-            WeaponHanded = WeaponHanded.None;
-            WeaponType = WeaponType.None;
-        }
-
-        public override void Use(Room room, Player targetPlayer, Vector targetPosition)
-        {
-            room.Players.ForEach(p => p.Speed -= 2);
-            Action<Room> cancelingAction = (Room room) => room.Players.ForEach(p => p.Speed += 2);
-            room.AddCancelingAction(room.PlayerTurn, room.Round + 2, cancelingAction);
-        }
     }
 }

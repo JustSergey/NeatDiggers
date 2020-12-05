@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NeatDiggers.GameServer
+namespace NeatDiggers.GameServer.Characters
 {
     public enum CharacterName
     {
@@ -16,7 +16,8 @@ namespace NeatDiggers.GameServer
         public CharacterName Name { get; protected set; }
         public string Title { get; protected set; }
         public int MaxHealth { get; protected set; }
-        public WeaponType WeaponType { get; set; }
+        public WeaponType WeaponType { get; protected set; }
+        public List<Ability> Abilities { get; protected set; }
 
         public static Character CreateCharacter(CharacterName name) =>
             name switch

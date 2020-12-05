@@ -4,21 +4,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeatDiggers.GameServer;
+using NeatDiggers.GameServer.Characters;
 
 namespace NeatDiggers.Hubs
 {
     public class GameHub : Hub
     {
-        public async Task<Room> ConnectToRoom(string code, string name)
+        public async Task<string> ConnectToRoom(string code, string name)
         {
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
                 if (room.AddPlayer(Context.ConnectionId, name))
                 {
-                    await Clients.Group(code).SendAsync("UserConnected", name);
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    return room;
+                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    return Context.ConnectionId;
                 }
             }
             return null;
@@ -79,14 +80,15 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn)
                 {
+                    gameAction.CurrentPlayer = player;
                     Func<Room> action = gameAction.Type switch
                     {
-                        GameActionType.Move => () => Move(room, player, gameAction.TargetPosition),
+                        GameActionType.Move => () => Move(room, gameAction),
                         GameActionType.Dig => () => Dig(room, player),
-                        GameActionType.Attack => () => Attack(room, player, gameAction.TargetPlayer),
-                        GameActionType.UseItem => () => UseItem(room, player, gameAction.Item, gameAction.TargetPlayer, gameAction.TargetPosition),
-                        GameActionType.DropItem => () => DropItem(room, player, gameAction.Item),
-                        GameActionType.UseAbility => () => UseAbility(room, player, gameAction.TargetPlayer, gameAction.TargetPosition),
+                        GameActionType.Attack => () => Attack(room, gameAction),
+                        GameActionType.UseItem => () => UseItem(room, gameAction),
+                        GameActionType.DropItem => () => DropItem(room, gameAction),
+                        GameActionType.UseAbility => () => UseAbility(room, gameAction),
                         _ => null
                     };
                     if (action != null)
@@ -98,7 +100,7 @@ namespace NeatDiggers.Hubs
             }
         }
 
-        private Room Move(Room room, Player currentPlayer, Vector targetPosition)
+        private Room Move(Room room, GameAction gameAction)
         {
             return room;
         }
@@ -108,22 +110,22 @@ namespace NeatDiggers.Hubs
             return room;
         }
 
-        private Room Attack(Room room, Player currentPlayer, Player targetPlayer)
+        private Room Attack(Room room, GameAction gameAction)
         {
             return room;
         }
 
-        private Room UseItem(Room room, Player currentPlayer, Item item, Player targetPlayer, Vector targetPosition)
+        private Room UseItem(Room room, GameAction gameAction)
         {
             return room;
         }
 
-        private Room DropItem(Room room, Player currentPlayer, Item item)
+        private Room DropItem(Room room, GameAction gameAction)
         {
             return room;
         }
 
-        private Room UseAbility(Room room, Player currentPlayer, Player targetPlayer, Vector targetPosition)
+        private Room UseAbility(Room room, GameAction gameAction)
         {
             return room;
         }
