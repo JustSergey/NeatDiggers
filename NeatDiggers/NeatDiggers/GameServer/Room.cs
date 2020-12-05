@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NeatDiggers.GameServer.Characters;
+using NeatDiggers.GameServer.Decks;
+using NeatDiggers.GameServer.Items;
 
 namespace NeatDiggers.GameServer
 {
@@ -16,8 +18,11 @@ namespace NeatDiggers.GameServer
         public GameMap GameMap { get; }
 
         Dictionary<(int, int), List<Action<Room>>> cancelingActions;
+        Deck deck;
+        List<Item> items;
+        int nextItem;
 
-        public Room(string code, GameMap gameMap)
+        public Room(string code, GameMap gameMap, Deck deck)
         {
             IsStarted = false;
             Code = code;
@@ -25,6 +30,9 @@ namespace NeatDiggers.GameServer
             Players = new List<Player>();
             Round = 0;
             cancelingActions = new Dictionary<(int, int), List<Action<Room>>>();
+            this.deck = deck;
+            items = deck.Shuffle();
+            nextItem = items.Count - 1;
         }
 
         public bool AddPlayer(string id, string name)
@@ -78,6 +86,16 @@ namespace NeatDiggers.GameServer
                 cancelingActions[(playerTurn, round)].Add(action);
             else
                 cancelingActions[(playerTurn, round)] = new List<Action<Room>> { action };
+        }
+
+        public Item Dig()
+        {
+            if (nextItem < 0)
+            {
+                items = deck.Shuffle();
+                nextItem = items.Count - 1;
+            }
+            return items[nextItem--];
         }
     }
 }

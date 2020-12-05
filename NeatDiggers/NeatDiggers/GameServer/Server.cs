@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NeatDiggers.GameServer.Decks;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,7 +12,7 @@ namespace NeatDiggers.GameServer
         const int codeLength = 5;
         static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
-        public static string CreateRoom(GameMap gameMap)
+        public static string CreateRoom(GameMap gameMap, Deck deck)
         {
             Random random = new Random();
             string code;
@@ -22,7 +23,7 @@ namespace NeatDiggers.GameServer
                     code += (char)random.Next('A', 'Z' + 1);
             } while (rooms.ContainsKey(code));
 
-            rooms.Add(code, new Room(code, gameMap));
+            rooms.Add(code, new Room(code, gameMap, deck));
             return code;
         }
 

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeatDiggers.GameServer.Items;
 
-namespace NeatDiggers.GameServer
+namespace NeatDiggers.GameServer.Decks
 {
     public abstract class Deck
     {
@@ -27,18 +27,6 @@ namespace NeatDiggers.GameServer
                 result[index] = temp;
             }
             return result;
-        }
-    }
-
-    public class StandartDeck : Deck
-    {
-        public StandartDeck()
-        {
-            deck = new List<(ItemName, int)>
-            {
-                (ItemName.Rain, 2),
-                (ItemName.Vest, 1)
-            };
         }
     }
 }
