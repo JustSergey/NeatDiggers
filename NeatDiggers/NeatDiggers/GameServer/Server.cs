@@ -11,7 +11,7 @@ namespace NeatDiggers.GameServer
         const int codeLength = 5;
         static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
-        public static Room CreateRoom(GameMap gameMap)
+        public static string CreateRoom(GameMap gameMap)
         {
             Random random = new Random();
             string code;
@@ -22,9 +22,8 @@ namespace NeatDiggers.GameServer
                     code += (char)random.Next('A', 'Z' + 1);
             } while (rooms.ContainsKey(code));
 
-            Room room = new Room(code, gameMap);
-            rooms.Add(code, room);
-            return room;
+            rooms.Add(code, new Room(code, gameMap));
+            return code;
         }
 
         public static Room GetRoom(string code)
