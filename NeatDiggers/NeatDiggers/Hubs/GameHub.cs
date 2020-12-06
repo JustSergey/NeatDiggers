@@ -11,16 +11,29 @@ namespace NeatDiggers.Hubs
 {
     public class GameHub : Hub
     {
+        public async Task ConnectToRoomAsSpectator(string code)
+        {
+            Room room = Server.GetRoom(code);
+            if (room != null)
+            {
+                if (room.AddSpectator(Context.UserIdentifier))
+                {
+                    await Groups.AddToGroupAsync(Context.UserIdentifier, code);
+                    await Clients.Group(code).SendAsync("ChangeState", room);
+                }
+            }
+        }
+
         public async Task<string> ConnectToRoom(string code, string name)
         {
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
-                if (room.AddPlayer(Context.ConnectionId, name))
+                if (room.AddPlayer(Context.UserIdentifier, name))
                 {
-                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                    await Groups.AddToGroupAsync(Context.UserIdentifier, code);
                     await Clients.Group(code).SendAsync("ChangeState", room);
-                    return Context.ConnectionId;
+                    return Context.UserIdentifier;
                 }
             }
             return null;
@@ -31,7 +44,7 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player != null && !player.IsReady)
                 {
                     player.ChangeCharacter(characterName);
@@ -45,7 +58,7 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player != null)
                 {
                     player.ChangeReady();
@@ -59,7 +72,7 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player != null && room.Start())
                     await Clients.Group(code).SendAsync("ChangeState", room);
             }
@@ -78,7 +91,7 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null && room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player.IsTurn)
                 {
                     gameAction.CurrentPlayer = player;
@@ -156,7 +169,7 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null && room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player.IsTurn)
                 {
                     room.NextTurn();

@@ -14,6 +14,7 @@ namespace NeatDiggers.GameServer
         public bool IsStarted { get; private set; }
         public string Code { get; }
         public List<Player> Players { get; }
+        public List<string> Spectators { get; set; }
         public int PlayerTurn { get; private set; }
         public int Round { get; private set; }
         public GameMap GameMap { get; }
@@ -34,6 +35,14 @@ namespace NeatDiggers.GameServer
             this.deck = deck;
             items = deck.Shuffle();
             nextItem = items.Count - 1;
+        }
+
+        public bool AddSpectator(string id)
+        {
+            if (Spectators.Contains(id))
+                return false;
+            Spectators.Add(id);
+            return true;
         }
 
         public bool AddPlayer(string id, string name)
