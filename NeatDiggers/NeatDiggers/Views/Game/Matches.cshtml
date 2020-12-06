@@ -12,22 +12,29 @@
         </div>
     </div>
     <div class="row form-group pt-3">
-        <div class="col-9">
-            <input type="text" class="form-control" placeholder="Enter lobby code" aria-describedby="lobby-code">
-        </div>
-        <div class="col-3">
-            <button type="submit" class="col btn btn-info">Watch</button>
-        </div>
+        <form class="form-inline" method="post">
+            <div class="col-9">
+                <input class="form-control" type="search" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required="True">
+            </div>
+            @*<div class="col-3">
+                    <button type="submit" class="col btn btn-info" asp-controller="Game" asp-action="Connect">Connect</button>
+                </div>*@
+            <div class="col-3">
+                <button type="submit" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
+            </div>
+        </form>
     </div>
 </form>
 <hr>
 @foreach (var room in Model)
 {
-<div class="border">
-    <img src="" alt="map"> | @room.Code | @room.Players.Count | @room.Round | Deck| <a class="btn btn-info" asp-route-code="@room.Code" asp-area="" asp-controller="Game" asp-action="Watch">Watch</a>
-</div>
+    @if (room.IsStarted)
+    {
+        <div class="border">
+            <img src="" alt="map"> | @room.Code | @room.Players.Count | @room.Round | Deck| <a class="btn btn-info" asp-route-code="@room.Code" asp-controller="Game" asp-action="Watch">Watch</a>
+        </div>
+    }
 }
-
 <!-- Modal -->
 <div class="modal fade" id="CreateLobbyModal" tabindex="-1" aria-labelledby="CreateLobbyModal" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
@@ -56,7 +63,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form class="form-inline" asp-controller="Game" asp-action="CreateLobby" method="post">
+                <form class="form-inline" asp-controller="Game" asp-action="Lobby" method="post">
                     <button class="btn btn-primary" type="submit">Create</button>
                 </form>
             </div>
