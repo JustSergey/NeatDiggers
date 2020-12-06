@@ -1,24 +1,19 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
+﻿@{
     ViewData["Title"] = "Game";
 }
+@model IEnumerable<NeatDiggers.GameServer.Room>
 <form action="" class="my-3">
     <div class="row">
         <div class="col-12 px-3">
             <img class="img-fluid w-100 " src="~/img/match-cap.jpg" alt="First slide">
         </div>
         <div class="col pt-1">
-            <button type="submit" class="col btn btn-success">Create lobby</button>
+            <button type="button" class="col btn btn-success" data-toggle="modal" data-target="#CreateLobbyModal">Create lobby</button>
         </div>
     </div>
     <div class="row form-group pt-3">
-        <div class="col-6">
+        <div class="col-9">
             <input type="text" class="form-control" placeholder="Enter lobby code" aria-describedby="lobby-code">
-        </div>
-        <div class="col-3">
-            <button type="submit" class="col btn btn-primary">Сonnect</button>
         </div>
         <div class="col-3">
             <button type="submit" class="col btn btn-info">Watch</button>
@@ -26,14 +21,44 @@
     </div>
 </form>
 <hr>
-<div class="row">
-    <div class="col-2">
-        <div class="card mt-3">
-            <div class="card-body">
-                <h5 class="card-title">Code</h5>
-                <p class="card-text">Players: 4</p>
-                <p>Round: 17</p>
-                <a href="#" class="btn btn-info">Watch</a>
+@foreach (var room in Model)
+{
+<div class="border">
+    <img src="" alt="map"> | @room.Code | @room.Players.Count | @room.Round | Deck| <a class="btn btn-info" asp-route-code="@room.Code" asp-area="" asp-controller="Game" asp-action="Watch">Watch</a>
+</div>
+}
+
+<!-- Modal -->
+<div class="modal fade" id="CreateLobbyModal" tabindex="-1" aria-labelledby="CreateLobbyModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="CreateLobbyModal">Create lobby</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-6">
+                        <h4>Select Map</h4>
+                        <select class="form-control">
+                            <option>Map 1</option>
+                        </select>
+                    </div>
+                    <div class="col-6">
+                        <h4>Select Deck</h4>
+                        <select class="form-control">
+                            <option>Deck 1</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <form class="form-inline" asp-controller="Game" asp-action="CreateLobby" method="post">
+                    <button class="btn btn-primary" type="submit">Create</button>
+                </form>
             </div>
         </div>
     </div>
