@@ -11,16 +11,16 @@ namespace NeatDiggers.Hubs
 {
     public class GameHub : Hub
     {
-        public async Task<Room> ConnectToRoom(string code, string name)
+        public async Task<string> ConnectToRoom(string code, string name)
         {
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
                 if (room.AddPlayer(Context.ConnectionId, name))
                 {
-                    await Clients.Group(code).SendAsync("UserConnected", name);
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    return room;
+                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    return Context.ConnectionId;
                 }
             }
             return null;

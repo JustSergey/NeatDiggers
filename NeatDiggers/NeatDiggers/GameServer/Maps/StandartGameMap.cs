@@ -25,8 +25,8 @@ NEEEENENEEEEN
 NEDEEESEEEDEN".Replace("\r", "").Split('\n');
             Width = 13;
             Height = 13;
-            Map = new Cell[Width, Height];
             SpawnPoints = new List<Vector>();
+            Map = new Cell[Width, Height];
             for (int x = 0; x < Width; x++)
             {
                 for (int y = 0; y < Height; y++)
