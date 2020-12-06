@@ -12,6 +12,7 @@ namespace NeatDiggers.GameServer
         public string Name { get; }
         public bool IsReady { get; private set; }
         public bool IsTurn { get; set; }
+        public bool WithFlag { get; set; }
         public Vector SpawnPoint { get; }
         public Vector Position { get; set; }
         public Character Character { get; set; }
@@ -20,6 +21,7 @@ namespace NeatDiggers.GameServer
         public int Speed { get; set; }
         public int Health { get; set; }
         public int Damage { get; set; }
+        public int Armor { get; set; }
 
         public Player(string id, string name, Vector position)
         {
@@ -27,6 +29,7 @@ namespace NeatDiggers.GameServer
             Name = name;
             IsReady = false;
             IsTurn = false;
+            WithFlag = false;
             SpawnPoint = position;
             Position = position;
             Character = new EmptyCharacter();
