@@ -9,7 +9,7 @@ using NeatDiggers.GameServer.Items;
 
 namespace NeatDiggers.Hubs
 {
-    public class GameHub : Hub
+    public class GameHub : Hub<IGameClient>
     {
         public async Task ConnectToRoomAsSpectator(string code)
         {
@@ -19,7 +19,7 @@ namespace NeatDiggers.Hubs
                 if (room.AddSpectator(Context.UserIdentifier))
                 {
                     await Groups.AddToGroupAsync(Context.UserIdentifier, code);
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
                 }
             }
         }
@@ -32,7 +32,7 @@ namespace NeatDiggers.Hubs
                 if (room.AddPlayer(Context.UserIdentifier, name))
                 {
                     await Groups.AddToGroupAsync(Context.UserIdentifier, code);
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
                     return Context.UserIdentifier;
                 }
             }
@@ -48,7 +48,7 @@ namespace NeatDiggers.Hubs
                 if (player != null && !player.IsReady)
                 {
                     player.ChangeCharacter(characterName);
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
                 }
             }
         }
@@ -62,7 +62,7 @@ namespace NeatDiggers.Hubs
                 if (player != null)
                 {
                     player.ChangeReady();
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
                 }
             }
         }
@@ -74,7 +74,7 @@ namespace NeatDiggers.Hubs
             {
                 Player player = room.GetPlayer(Context.UserIdentifier);
                 if (player != null && room.Start())
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
             }
         }
 
@@ -108,7 +108,7 @@ namespace NeatDiggers.Hubs
                     if (action != null)
                     {
                         room = action();
-                        await Clients.Group(code).SendAsync("ChangeStateWithAction", room, gameAction);
+                        await Clients.Group(code).ChangeStateWithAction(room, gameAction);
                     }
                 }
             }
@@ -173,7 +173,7 @@ namespace NeatDiggers.Hubs
                 if (player.IsTurn)
                 {
                     room.NextTurn();
-                    await Clients.Group(code).SendAsync("ChangeState", room);
+                    await Clients.Group(code).ChangeState(room);
                 }
             }
         }
