@@ -16,7 +16,7 @@ namespace NeatDiggers.Controllers
             return View(rooms);
         }
 
-        public IActionResult CreateLobby() 
+        public IActionResult Lobby() 
         {
             string code = Server.CreateRoom(new StandartGameMap(), new StandartDeck());
             Room room = Server.GetRoom(code);
@@ -26,8 +26,7 @@ namespace NeatDiggers.Controllers
         public IActionResult Watch(string code)
         {
             Room room = Server.GetRoom(code);
-            
-            return View("./CreateLobby", room);
+            return View(room);
         }
     }
 }
