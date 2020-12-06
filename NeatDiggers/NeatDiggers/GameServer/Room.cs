@@ -17,7 +17,7 @@ namespace NeatDiggers.GameServer
         public int PlayerTurn { get; private set; }
         public int Round { get; private set; }
         public GameMap GameMap { get; }
-
+        
         Dictionary<(int, int), List<Action<Room>>> cancelingActions;
         Deck deck;
         List<Item> items;

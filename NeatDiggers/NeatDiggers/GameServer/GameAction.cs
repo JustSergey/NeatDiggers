@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using NeatDiggers.GameServer.Abilities;
 using NeatDiggers.GameServer.Items;
 
 namespace NeatDiggers.GameServer
@@ -18,10 +20,11 @@ namespace NeatDiggers.GameServer
 
     public class GameAction
     {
-        public Player CurrentPlayer;
-        public GameActionType Type;
-        public Item Item;
-        public Player TargetPlayer;
-        public Vector TargetPosition;
+        public Player CurrentPlayer { get; set; }
+        public GameActionType Type { get; set; }
+        public Item Item { get; set; }
+        public Ability Ability { get; set; }
+        public Player TargetPlayer { get; set; }
+        public Vector TargetPosition { get; set; }
     }
 }

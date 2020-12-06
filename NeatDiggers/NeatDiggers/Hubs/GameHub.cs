@@ -5,21 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using NeatDiggers.GameServer;
 using NeatDiggers.GameServer.Characters;
+using NeatDiggers.GameServer.Items;
 
 namespace NeatDiggers.Hubs
 {
     public class GameHub : Hub
     {
-        public async Task<string> ConnectToRoom(string code, string name)
+        public async Task<Room> ConnectToRoom(string code, string name)
         {
             Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
                 if (room.AddPlayer(Context.ConnectionId, name))
                 {
+                    await Clients.Group(code).SendAsync("UserConnected", name);
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    await Clients.Group(code).SendAsync("ChangeState", room);
-                    return Context.ConnectionId;
+                    return room;
                 }
             }
             return null;
@@ -102,31 +103,51 @@ namespace NeatDiggers.Hubs
 
         private Room Move(Room room, GameAction gameAction)
         {
+            gameAction.CurrentPlayer.Position = gameAction.TargetPosition;
             return room;
         }
 
         private Room Dig(Room room, Player currentPlayer)
         {
-            return room;
+            int diceRollResult = (int) Context.Items["Dice"];
+            if (diceRollResult % 2 == 0)
+            {
+                int i = diceRollResult / 2;
+                while (diceRollResult > 0)
+                {
+                    Item dugItem = room.Dig();
+                    room.GetPlayer(currentPlayer.Id).Inventory.Items.Add(dugItem);
+                    diceRollResult -= 1;
+                }
+
+                return room;
+            }
+            else
+                return room;
         }
 
         private Room Attack(Room room, GameAction gameAction)
         {
+            gameAction.TargetPlayer.Health -= gameAction.CurrentPlayer.Damage;
             return room;
         }
 
         private Room UseItem(Room room, GameAction gameAction)
         {
+            gameAction.Item.Use(room, gameAction);
             return room;
         }
 
         private Room DropItem(Room room, GameAction gameAction)
         {
+            gameAction.CurrentPlayer.Inventory.Items.Remove(gameAction.Item);
+            gameAction.CurrentPlayer.Inventory.Drop++;
             return room;
         }
 
         private Room UseAbility(Room room, GameAction gameAction)
         {
+            gameAction.Ability.Use(room, gameAction);
             return room;
         }
 
