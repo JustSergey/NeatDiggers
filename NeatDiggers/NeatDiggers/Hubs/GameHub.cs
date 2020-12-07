@@ -117,7 +117,8 @@ namespace NeatDiggers.Hubs
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
             if (playerPosition.CheckAvailability(targetPosition, diceRollResult))
-                gameAction.CurrentPlayer.Position = targetPosition;
+                room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
+
             return true;
         }
 
@@ -146,7 +147,7 @@ namespace NeatDiggers.Hubs
             int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
-                gameAction.TargetPlayer.Health -= gameAction.CurrentPlayer.Damage;
+                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
             return true;
         }
 
