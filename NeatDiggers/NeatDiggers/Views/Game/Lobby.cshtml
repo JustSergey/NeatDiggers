@@ -1,26 +1,37 @@
 ﻿@{
-    ViewData["Title"] = "Create lobby";
+    ViewData["Title"] = "Watch";
 }
 @model NeatDiggers.GameServer.Room
+
 <div class="jumbotron my-3">
     <div class="row">
         <div class="col-8">
-            <h2>Code: @Html.DisplayFor(model => model.Code)</h2>
+            <div class="row">
+                <div class="col"><h2>Code: </h2></div>
+                <div class="col"><h2 id="code">@Html.DisplayFor(model => model.Code)</h2></div>
+            </div>
         </div>
-        <div class="col-4">isStarted: @Html.DisplayFor(model => model.IsStarted)</div>
+        <div class="col-4">
+            <div class="row">
+                <div class="col"><p>isStarted: </p></div>
+                <div class="col"><p id="isStarted"></p></div>
+            </div>
+        </div>
     </div>
     <hr class="my-4">
     <div class="row">
         <div class="col-6">
             <h3>Players:</h3>
-            @Html.DisplayFor(model => model.Players)
+            <div id="players"></div>
             <h3>Spectators:</h3>
-            @Html.DisplayFor(model => model.Spectators)
+            <div id="spectators"></div>
         </div>
         <div class="col-6">
             <h3>Map:</h3>
-            @Html.DisplayFor(model => model.GameMap.Map);
+            <div id="map"></div>
         </div>
     </div>
-    <button class="btn btn-success btn-block" id="startButton">Start</button>
 </div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/lobby.js"></script>
