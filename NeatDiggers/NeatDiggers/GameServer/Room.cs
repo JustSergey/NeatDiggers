@@ -14,7 +14,7 @@ namespace NeatDiggers.GameServer
         public bool IsStarted { get; private set; }
         public string Code { get; }
         public List<Player> Players { get; }
-        public List<string> Spectators { get; set; }
+        public List<string> Spectators { get; }
         public int PlayerTurn { get; private set; }
         public int Round { get; private set; }
         public GameMap GameMap { get; }
@@ -30,6 +30,7 @@ namespace NeatDiggers.GameServer
             Code = code;
             GameMap = gameMap;
             Players = new List<Player>();
+            Spectators = new List<string>();
             Round = 0;
             cancelingActions = new Dictionary<(int, int), List<Action<Room>>>();
             this.deck = deck;
@@ -106,6 +107,14 @@ namespace NeatDiggers.GameServer
                 nextItem = items.Count - 1;
             }
             return items[nextItem--];
+        }
+
+        public void Disconnected(string id)
+        {
+            Spectators.Remove(id);
+            Player player = Players.Find(p => p.Id == id);
+            if (player != null)
+                Players.Remove(player);
         }
     }
 }
