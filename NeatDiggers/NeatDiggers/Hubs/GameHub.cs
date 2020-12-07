@@ -82,7 +82,7 @@ namespace NeatDiggers.Hubs
             return dice;
         }
 
-        public async Task DoAction(GameAction gameAction)
+        public async Task<bool> DoAction(GameAction gameAction)
         {
             Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && room.IsStarted)
@@ -91,7 +91,7 @@ namespace NeatDiggers.Hubs
                 if (player.IsTurn)
                 {
                     gameAction.CurrentPlayer = player;
-                    Func<Room> action = gameAction.Type switch
+                    Func<bool> action = gameAction.Type switch
                     {
                         GameActionType.Move => () => Move(room, gameAction),
                         GameActionType.Dig => () => Dig(room, player),
@@ -101,26 +101,27 @@ namespace NeatDiggers.Hubs
                         GameActionType.UseAbility => () => UseAbility(room, gameAction),
                         _ => null
                     };
-                    if (action != null)
+                    if (action != null && action())
                     {
-                        room = action();
                         await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
+                        return true;
                     }
                 }
             }
+            return false;
         }
 
-        private Room Move(Room room, GameAction gameAction)
+        private bool Move(Room room, GameAction gameAction)
         {
             int diceRollResult = (int) Context.Items["Dice"];
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
             if (playerPosition.CheckAvailability(targetPosition, diceRollResult))
                 gameAction.CurrentPlayer.Position = targetPosition;
-            return room;
+            return true;
         }
 
-        private Room Dig(Room room, Player currentPlayer)
+        private bool Dig(Room room, Player currentPlayer)
         {
             int diceRollResult = (int) Context.Items["Dice"];
             if (diceRollResult % 2 == 0)
@@ -133,40 +134,39 @@ namespace NeatDiggers.Hubs
                     diceRollResult -= 1;
                 }
 
-                return room;
+                return true;
             }
             else
-                return room;
+                return true;
         }
 
-        private Room Attack(Room room, GameAction gameAction)
+        private bool Attack(Room room, GameAction gameAction)
         {
-            int diceRollResult = (int) Context.Items["Dice"];
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
                 gameAction.TargetPlayer.Health -= gameAction.CurrentPlayer.Damage;
-            return room;
+            return true;
         }
 
-        private Room UseItem(Room room, GameAction gameAction)
+        private bool UseItem(Room room, GameAction gameAction)
         {
             gameAction.Item.Use(room, gameAction);
-            return room;
+            return true;
         }
 
-        private Room DropItem(Room room, GameAction gameAction)
+        private bool DropItem(Room room, GameAction gameAction)
         {
             gameAction.CurrentPlayer.Inventory.Items.Remove(gameAction.Item);
             gameAction.CurrentPlayer.Inventory.Drop++;
-            return room;
+            return true;
         }
 
-        private Room UseAbility(Room room, GameAction gameAction)
+        private bool UseAbility(Room room, GameAction gameAction)
         {
             gameAction.Ability.Use(room, gameAction);
-            return room;
+            return true;
         }
 
         public async Task EndTurn()
@@ -192,7 +192,6 @@ namespace NeatDiggers.Hubs
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
-
             await base.OnDisconnectedAsync(exception);
         }
     }
