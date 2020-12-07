@@ -14,13 +14,10 @@
     <div class="row form-group pt-3">
         <form class="form-inline" method="post">
             <div class="col-9">
-                <input class="form-control" type="search" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required="True">
+                <input class="form-control" type="search" id="codeInput" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required="True">
             </div>
-            @*<div class="col-3">
-                    <button type="submit" class="col btn btn-info" asp-controller="Game" asp-action="Connect">Connect</button>
-                </div>*@
             <div class="col-3">
-                <button type="submit" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
+                <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
             </div>
         </form>
     </div>

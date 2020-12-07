@@ -4,7 +4,7 @@
 @model NeatDiggers.GameServer.Room
 <br />
 @Html.DisplayNameFor(model => model.Code)
-@Html.DisplayFor(model => model.Code)
+<div id="code">@Html.DisplayFor(model => model.Code)</div>
 <br />
 @Html.DisplayNameFor(model => model.GameMap)
 @Html.DisplayFor(model => model.GameMap)
@@ -15,9 +15,21 @@
 @Html.DisplayNameFor(model => model.Players)
 @Html.DisplayFor(model => model.Players)
 <br />
+@Html.DisplayNameFor(model => model.Spectators)
+@Html.DisplayFor(model => model.Spectators)
+<br />
 @Html.DisplayNameFor(model => model.PlayerTurn)
 @Html.DisplayFor(model => model.PlayerTurn)
 <br />
 @Html.DisplayNameFor(model => model.Round)
 @Html.DisplayFor(model => model.Round)
 <br />
+
+<div class="row">
+    <div class="col-6">
+        <ul id="SpectatorsList"></ul>
+    </div>
+</div>
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/lobby.js"></script>
