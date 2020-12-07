@@ -21,6 +21,7 @@ namespace NeatDiggers.GameServer
         public int Speed { get; set; }
         public int Health { get; set; }
         public int Damage { get; set; }
+        public int AttackRadius { get; set; }
         public int Armor { get; set; }
 
         public Player(string id, string name, Vector position)

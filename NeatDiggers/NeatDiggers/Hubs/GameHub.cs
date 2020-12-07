@@ -31,6 +31,7 @@ namespace NeatDiggers.Hubs
                 await Clients.Group(code).ChangeState(room);
                 return Context.ConnectionId;
             }
+
             return null;
         }
 
@@ -111,7 +112,11 @@ namespace NeatDiggers.Hubs
 
         private Room Move(Room room, GameAction gameAction)
         {
-            gameAction.CurrentPlayer.Position = gameAction.TargetPosition;
+            int diceRollResult = (int) Context.Items["Dice"];
+            Vector playerPosition = gameAction.CurrentPlayer.Position;
+            Vector targetPosition = gameAction.TargetPosition;
+            if (playerPosition.CheckAvailability(targetPosition, diceRollResult))
+                gameAction.CurrentPlayer.Position = targetPosition;
             return room;
         }
 
@@ -136,7 +141,12 @@ namespace NeatDiggers.Hubs
 
         private Room Attack(Room room, GameAction gameAction)
         {
-            gameAction.TargetPlayer.Health -= gameAction.CurrentPlayer.Damage;
+            int diceRollResult = (int) Context.Items["Dice"];
+            Vector playerPosition = gameAction.CurrentPlayer.Position;
+            int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
+            Vector targetPosition = gameAction.TargetPosition;
+            if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+                gameAction.TargetPlayer.Health -= gameAction.CurrentPlayer.Damage;
             return room;
         }
 
@@ -182,6 +192,7 @@ namespace NeatDiggers.Hubs
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
+
             await base.OnDisconnectedAsync(exception);
         }
     }
