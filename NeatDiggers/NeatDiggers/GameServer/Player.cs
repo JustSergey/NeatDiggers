@@ -35,6 +35,9 @@ namespace NeatDiggers.GameServer
             Position = position;
             Character = new EmptyCharacter();
             Inventory = new Inventory();
+            Level = 1;
+            Speed = 0;
+            AttackRadius = 0;
         }
 
         public void ChangeCharacter(CharacterName characterName)

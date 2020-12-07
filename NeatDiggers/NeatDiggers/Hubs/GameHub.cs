@@ -169,18 +169,20 @@ namespace NeatDiggers.Hubs
             return true;
         }
 
-        public async Task EndTurn()
+        public async Task<bool> EndTurn()
         {
             Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player.IsTurn)
+                if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
                     room.NextTurn();
                     await Clients.Group(room.Code).ChangeState(room);
+                    return true;
                 }
             }
+            return false;
         }
 
         public override async Task OnDisconnectedAsync(Exception exception)

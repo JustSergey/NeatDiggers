@@ -8,6 +8,7 @@ namespace NeatDiggers.GameServer
 {
     public class Inventory
     {
+        public const int MaxItems = 6;
         public Item LeftWeapon { get; set; }
         public Item RightWeapon { get; set; }
         public List<Item> Items { get; set; }
