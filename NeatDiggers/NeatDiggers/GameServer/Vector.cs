@@ -17,7 +17,7 @@ namespace NeatDiggers.GameServer
             // Определяем стороны прямоугольного треугольника с гипотенузой между координатами этой точки и targetPoint
             double a = Math.Abs(targetPoint.X - X);
             double b = Math.Abs(targetPoint.Y - Y);
-            double c = (double) Math.Sqrt(a * a + b * b);
+            double c = Math.Sqrt(a * a + b * b);
             
             double sinAlpha = a / c;
             double cosAlpha = b / c;
@@ -26,7 +26,7 @@ namespace NeatDiggers.GameServer
             double x = sinAlpha * radius;
             double y = cosAlpha * radius;
 
-            return (targetPoint.X - x <= 0.5f && targetPoint.Y - y <= 0.5f);
+            return (a - x <= 0.5f && b - y <= 0.5f);
         }
     }
 }
