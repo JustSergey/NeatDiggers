@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using NeatDiggers.GameServer;
 using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Items;
+using Microsoft.AspNetCore.Authorization;
 
 namespace NeatDiggers.Hubs
 {
@@ -13,68 +14,62 @@ namespace NeatDiggers.Hubs
     {
         public async Task ConnectToRoomAsSpectator(string code)
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.AddUser(null, Context.ConnectionId, code, true);
             if (room != null)
             {
-                if (room.AddSpectator(Context.ConnectionId))
-                {
-                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    await Clients.Group(code).ChangeState(room);
-                }
+                await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                await Clients.Group(code).ChangeState(room);
             }
         }
 
         public async Task<string> ConnectToRoom(string code, string name)
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.AddUser(name, Context.ConnectionId, code, false);
             if (room != null && !room.IsStarted)
             {
-                if (room.AddPlayer(Context.ConnectionId, name))
-                {
-                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    await Clients.Group(code).ChangeState(room);
-                    return Context.ConnectionId;
-                }
+                await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                await Clients.Group(code).ChangeState(room);
+                return Context.ConnectionId;
             }
             return null;
         }
 
-        public async Task ChangeCharacter(string code, CharacterName characterName)
+        public async Task ChangeCharacter(CharacterName characterName)
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && !room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null && !player.IsReady)
                 {
                     player.ChangeCharacter(characterName);
-                    await Clients.Group(code).ChangeState(room);
+                    await Clients.Group(room.Code).ChangeState(room);
                 }
             }
         }
 
-        public async Task ChangeReady(string code)
+        public async Task ChangeReady()
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && !room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null)
                 {
                     player.ChangeReady();
-                    await Clients.Group(code).ChangeState(room);
+                    await Clients.Group(room.Code).ChangeState(room);
                 }
             }
         }
 
-        public async Task StartGame(string code)
+        public async Task StartGame()
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && !room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null && room.Start())
-                    await Clients.Group(code).ChangeState(room);
+                    await Clients.Group(room.Code).ChangeState(room);
             }
         }
 
@@ -86,9 +81,9 @@ namespace NeatDiggers.Hubs
             return dice;
         }
 
-        public async Task DoAction(string code, GameAction gameAction)
+        public async Task DoAction(GameAction gameAction)
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
@@ -108,7 +103,7 @@ namespace NeatDiggers.Hubs
                     if (action != null)
                     {
                         room = action();
-                        await Clients.Group(code).ChangeStateWithAction(room, gameAction);
+                        await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                     }
                 }
             }
@@ -164,24 +159,30 @@ namespace NeatDiggers.Hubs
             return room;
         }
 
-        public async Task EndTurn(string code)
+        public async Task EndTurn()
         {
-            Room room = Server.GetRoom(code);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn)
                 {
                     room.NextTurn();
-                    await Clients.Group(code).ChangeState(room);
+                    await Clients.Group(room.Code).ChangeState(room);
                 }
             }
         }
 
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
-
-            return base.OnDisconnectedAsync(exception);
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null)
+            {
+                room.Disconnect(Context.ConnectionId);
+                await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
+                await Clients.Group(room.Code).ChangeState(room);
+            }
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }

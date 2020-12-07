@@ -11,6 +11,7 @@ namespace NeatDiggers.GameServer
     public static class Server
     {
         const int codeLength = 5;
+        static Dictionary<string, string> users = new Dictionary<string, string>();
         static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
 
         public static string CreateRoom(GameMap gameMap, Deck deck)
@@ -43,6 +44,30 @@ namespace NeatDiggers.GameServer
         public static bool RemoveRoom(string code)
         {
             return rooms.Remove(code);
+        }
+
+        public static Room AddUser(string name, string id, string code, bool asSpectator)
+        {
+            Room room = GetRoom(code);
+            if (room != null)
+            {
+                if (!users.ContainsKey(id))
+                {
+                    users.Add(id, code);
+                    if (asSpectator)
+                        room.AddSpectator(id);
+                    else
+                        room.AddPlayer(id, name);
+                }
+            }
+            return room;
+        }
+
+        public static Room GetRoomByUserId(string id)
+        {
+            if (users.ContainsKey(id))
+                return GetRoom(users[id]);
+            return null;
         }
     }
 }

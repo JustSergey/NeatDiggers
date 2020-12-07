@@ -109,7 +109,7 @@ namespace NeatDiggers.GameServer
             return items[nextItem--];
         }
 
-        public void Disconnected(string id)
+        public void Disconnect(string id)
         {
             Spectators.Remove(id);
             Player player = Players.Find(p => p.Id == id);
