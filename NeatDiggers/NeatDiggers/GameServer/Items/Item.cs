@@ -31,7 +31,9 @@ namespace NeatDiggers.GameServer.Items
         public WeaponHanded WeaponHanded { get; protected set; }
         public WeaponType WeaponType { get; protected set; }
 
+        public virtual void Get(Room room, GameAction gameAction) { }
         public virtual void Use(Room room, GameAction gameAction) { }
+        public virtual void Drop(Room room, GameAction gameAction) { }
 
         public static Item CreateItem(ItemName name) =>
             name switch

@@ -31,7 +31,6 @@ namespace NeatDiggers.Hubs
                 await Clients.Group(code).ChangeState(room);
                 return Context.ConnectionId;
             }
-
             return null;
         }
 
@@ -76,8 +75,11 @@ namespace NeatDiggers.Hubs
 
         public int RollTheDice()
         {
+            if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
+                return (int)Context.Items["Dice"];
             Random random = new Random();
             int dice = random.Next(1, 7);
+            Context.Items["IsDice"] = true;
             Context.Items["Dice"] = dice;
             return dice;
         }
@@ -94,7 +96,7 @@ namespace NeatDiggers.Hubs
                     Func<bool> action = gameAction.Type switch
                     {
                         GameActionType.Move => () => Move(room, gameAction),
-                        GameActionType.Dig => () => Dig(room, player),
+                        GameActionType.Dig => () => Dig(room, gameAction),
                         GameActionType.Attack => () => Attack(room, gameAction),
                         GameActionType.UseItem => () => UseItem(room, gameAction),
                         GameActionType.DropItem => () => DropItem(room, gameAction),
@@ -103,6 +105,7 @@ namespace NeatDiggers.Hubs
                     };
                     if (action != null && action())
                     {
+                        Context.Items["IsDice"] = false;
                         await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                         return true;
                     }
@@ -122,23 +125,29 @@ namespace NeatDiggers.Hubs
             return true;
         }
 
-        private bool Dig(Room room, Player currentPlayer)
+        private bool Dig(Room room, GameAction gameAction)
         {
-            int diceRollResult = (int) Context.Items["Dice"];
-            if (diceRollResult % 2 == 0)
+            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
             {
-                int i = diceRollResult / 2;
-                while (diceRollResult > 0)
+                if (dice % 2 == 0)
                 {
-                    Item dugItem = room.Dig();
-                    room.GetPlayer(currentPlayer.Id).Inventory.Items.Add(dugItem);
-                    diceRollResult -= 1;
+                    int count = dice / 2 + gameAction.CurrentPlayer.DigPower;
+                    for (int i = 0; i < count; i++)
+                    {
+                        Item item = room.Dig();
+                        if (item.Type == ItemType.Event)
+                        {
+                            item.Use(room, gameAction);
+                            continue;
+                        }
+                        else if (item.Type == ItemType.Passive)
+                            item.Get(room, gameAction);
+                        room.GetPlayer(gameAction.CurrentPlayer.Id).Inventory.Items.Add(item);
+                    }
+                    return true;
                 }
-
-                return true;
             }
-            else
-                return true;
+            return false;
         }
 
         private bool Attack(Room room, GameAction gameAction)
@@ -178,6 +187,7 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
+                    Context.Items["IsDice"] = false;
                     room.NextTurn();
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;

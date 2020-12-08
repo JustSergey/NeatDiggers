@@ -20,9 +20,10 @@ namespace NeatDiggers.GameServer
         public int Level { get; set; }
         public int Speed { get; set; }
         public int Health { get; set; }
-        public int Damage { get; set; }
+        public int MeleeDamage { get; set; }
+        public int RangedDamage { get; set; }
         public int AttackRadius { get; set; }
-        public int Armor { get; set; }
+        public int DigPower { get; set; }
 
         public Player(string id, string name, Vector position)
         {
@@ -38,6 +39,9 @@ namespace NeatDiggers.GameServer
             Level = 1;
             Speed = 0;
             AttackRadius = 0;
+            DigPower = 0;
+            MeleeDamage = 0;
+            RangedDamage = 0;
         }
 
         public void ChangeCharacter(CharacterName characterName)
