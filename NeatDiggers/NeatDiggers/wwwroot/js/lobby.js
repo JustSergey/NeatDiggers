@@ -18,7 +18,7 @@ function ChangeState(room) {
     document.getElementById("isStarted").innerText = room.isStarted;
     document.getElementById("players").innerText = room.players;
     document.getElementById("spectators").innerText = room.spectators;
-    document.getElementById("map").innerText = room.gameMap.map;
+    DrawMap(document.getElementById("map"), room.gameMap);
 }
 
 connection.on("ChangeState", function (room) {
@@ -28,3 +28,21 @@ connection.on("ChangeState", function (room) {
 connection.on("ChangeStateWithAction", function (room, gameAction) {
     ChangeState(room);
 });
+
+function DrawMap(canvas, map) {
+    let ctx = canvas.getContext("2d");
+    var widthStep = canvas.width / map.width;
+    var heightStep = canvas.height / map.height;
+    ctx.font = '48px serif';
+    ctx.fillRect(0, 0, map.height, map.width);
+    for (var i = 0; i < map.width; i++) {
+        for (var j = 0; j < map.height; j++) {
+            let index = map.height * j + i;
+            let text = map.map[index];
+            ctx.fillStyle = 'rgb(' + map.map[index] * 50 +',0,0)'; 
+            ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
+            ctx.fillStyle = 'rgb(255,255,255)'; 
+            ctx.fillText(text, i * widthStep, j * heightStep + heightStep);
+        }
+    }
+}
