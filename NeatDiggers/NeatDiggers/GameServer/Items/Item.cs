@@ -16,7 +16,8 @@ namespace NeatDiggers.GameServer.Items
     public enum ItemType
     {
         Event,
-        Artifact,
+        Passive,
+        Active,
         Weapon,
         Armor
     }
