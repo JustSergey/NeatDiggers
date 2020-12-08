@@ -41,8 +41,13 @@ function DrawMap(canvas, map) {
             let text = map.map[index];
             ctx.fillStyle = 'rgb(' + map.map[index] * 50 +',0,0)'; 
             ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
-            ctx.fillStyle = 'rgb(255,255,255)'; 
-            ctx.fillText(text, i * widthStep, j * heightStep + heightStep);
         }
     }
+
+    ctx.fillStyle = 'rgb(255,255,0)'; 
+    for (var i = 0; i < map.spawnPoints.lenght; i++) {
+        let point = map.spawnPoints[i];
+        ctx.fillRect(point[0] * widthStep, point[1] * heightStep, widthStep, heightStep);
+    }
+    
 }
