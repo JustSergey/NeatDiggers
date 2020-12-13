@@ -119,7 +119,7 @@ namespace NeatDiggers.Hubs
             int diceRollResult = (int) Context.Items["Dice"];
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, diceRollResult))
+            if (playerPosition.CheckAvailability(targetPosition, diceRollResult) && targetPosition.IsInMap(room.GameMap))
                 room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
 
             return true;
@@ -155,8 +155,8 @@ namespace NeatDiggers.Hubs
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
-                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
+            //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+                //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
             return true;
         }
 
