@@ -73,6 +73,61 @@ namespace NeatDiggers.Hubs
             }
         }
 
+        public async Task<bool> ChangeInventory(Inventory inventory)
+        {
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player != null && player.IsTurn)
+                {
+                    List<Item> newItems = inventory.Items;
+                    int hands = 0;
+                    WeaponType weaponType = WeaponType.None;
+                    if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
+                    {
+                        newItems.Add(inventory.LeftWeapon);
+                        hands += (int)inventory.LeftWeapon.WeaponHanded;
+                        weaponType = inventory.LeftWeapon.WeaponType;
+                    }
+                    if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
+                    {
+                        if (weaponType == WeaponType.None || inventory.RightWeapon.WeaponType == weaponType)
+                        {
+                            newItems.Add(inventory.RightWeapon);
+                            hands += (int)inventory.RightWeapon.WeaponHanded;
+                        }
+                        else
+                            return false;
+                    }
+                    if (hands > player.Hands)
+                        return false;
+
+                    List<Item> oldItems = new List<Item>(player.Inventory.Items)
+                    {
+                        player.Inventory.LeftWeapon,
+                        player.Inventory.RightWeapon
+                    };
+
+                    if (oldItems.Count != newItems.Count)
+                        return false;
+
+                    newItems.Sort((item1, item2) => item2.Name - item1.Name);
+                    oldItems.Sort((item1, item2) => item2.Name - item1.Name);
+
+                    for (int i = 0; i < newItems.Count; i++)
+                    {
+                        if (newItems[i] != oldItems[i])
+                            return false;
+                    }
+                    player.Inventory = inventory;
+                    await Clients.Group(room.Code).ChangeState(room);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public int RollTheDice()
         {
             if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
@@ -90,7 +145,7 @@ namespace NeatDiggers.Hubs
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player.IsTurn)
+                if (player != null && player.IsTurn)
                 {
                     gameAction.CurrentPlayer = player;
                     Func<bool> action = gameAction.Type switch

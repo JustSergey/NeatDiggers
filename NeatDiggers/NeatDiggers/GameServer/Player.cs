@@ -24,6 +24,7 @@ namespace NeatDiggers.GameServer
         public int RangedDamage { get; set; }
         public int AttackRadius { get; set; }
         public int DigPower { get; set; }
+        public int Hands { get; set; }
 
         public Player(string id, string name, Vector position)
         {
@@ -42,6 +43,7 @@ namespace NeatDiggers.GameServer
             DigPower = 0;
             MeleeDamage = 0;
             RangedDamage = 0;
+            Hands = 2;
         }
 
         public void ChangeCharacter(CharacterName characterName)
