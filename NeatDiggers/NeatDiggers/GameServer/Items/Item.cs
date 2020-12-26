@@ -90,6 +90,12 @@ namespace NeatDiggers.GameServer.Items
 
     public class EmptyItem : Item
     {
-        public EmptyItem() => Name = ItemName.Empty;
+        public EmptyItem()
+        {
+            Name = ItemName.Empty;
+            Type = ItemType.Active;
+            WeaponHanded = WeaponHanded.None;
+            WeaponType = WeaponType.None;
+        }
     }
 }

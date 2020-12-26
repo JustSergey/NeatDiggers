@@ -12,7 +12,7 @@ namespace NeatDiggers.GameServer
         public Item LeftWeapon { get; set; }
         public Item RightWeapon { get; set; }
         public List<Item> Items { get; set; }
-        public int Drop { get; set; }
+        public int Drop { get; private set; }
 
         public Inventory()
         {
@@ -20,6 +20,25 @@ namespace NeatDiggers.GameServer
             RightWeapon = new EmptyItem();
             Items = new List<Item>();
             Drop = 0;
+        }
+
+        public bool DropItem(Item item, Room room, GameAction gameAction)
+        {
+            Item invItem = Items.Find(i => i.Name == item.Name);
+            if (invItem != null)
+            {
+                if (invItem.Type == ItemType.Passive)
+                    invItem.Drop(room, gameAction);
+                Items.Remove(invItem);
+            }
+            else if (LeftWeapon.Name == item.Name)
+                LeftWeapon = new EmptyItem();
+            else if (RightWeapon.Name == item.Name)
+                RightWeapon = new EmptyItem();
+            else
+                return false;
+            Drop++;
+            return true;
         }
     }
 }

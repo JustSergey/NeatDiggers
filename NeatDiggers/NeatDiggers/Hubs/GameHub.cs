@@ -7,6 +7,7 @@ using NeatDiggers.GameServer;
 using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Items;
 using Microsoft.AspNetCore.Authorization;
+using NeatDiggers.GameServer.Abilities;
 
 namespace NeatDiggers.Hubs
 {
@@ -117,7 +118,7 @@ namespace NeatDiggers.Hubs
 
                     for (int i = 0; i < newItems.Count; i++)
                     {
-                        if (newItems[i] != oldItems[i])
+                        if (newItems[i].Name != oldItems[i].Name)
                             return false;
                     }
                     player.Inventory = inventory;
@@ -180,6 +181,16 @@ namespace NeatDiggers.Hubs
             return true;
         }
 
+        private bool Attack(Room room, GameAction gameAction)
+        {
+            Vector playerPosition = gameAction.CurrentPlayer.Position;
+            int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
+            Vector targetPosition = gameAction.TargetPosition;
+            //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+            //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
+            return true;
+        }
+
         private bool Dig(Room room, GameAction gameAction)
         {
             if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
@@ -197,7 +208,7 @@ namespace NeatDiggers.Hubs
                         }
                         else if (item.Type == ItemType.Passive)
                             item.Get(room, gameAction);
-                        room.GetPlayer(gameAction.CurrentPlayer.Id).Inventory.Items.Add(item);
+                        gameAction.CurrentPlayer.Inventory.Items.Add(item);
                     }
                     return true;
                 }
@@ -205,33 +216,32 @@ namespace NeatDiggers.Hubs
             return false;
         }
 
-        private bool Attack(Room room, GameAction gameAction)
-        {
-            Vector playerPosition = gameAction.CurrentPlayer.Position;
-            int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
-            Vector targetPosition = gameAction.TargetPosition;
-            //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
-                //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
-            return true;
-        }
-
         private bool UseItem(Room room, GameAction gameAction)
         {
-            gameAction.Item.Use(room, gameAction);
-            return true;
+            Item item = gameAction.CurrentPlayer.Inventory.Items.Find(i => i.Name == gameAction.Item.Name);
+            if (item != null && item.Type == ItemType.Active)
+            {
+                item.Use(room, gameAction);
+                gameAction.CurrentPlayer.Inventory.Items.Remove(item);
+                return true;
+            }
+            return false;
         }
 
         private bool DropItem(Room room, GameAction gameAction)
         {
-            gameAction.CurrentPlayer.Inventory.Items.Remove(gameAction.Item);
-            gameAction.CurrentPlayer.Inventory.Drop++;
-            return true;
+            return gameAction.CurrentPlayer.Inventory.DropItem(gameAction.Item, room, gameAction);
         }
 
         private bool UseAbility(Room room, GameAction gameAction)
         {
-            gameAction.Ability.Use(room, gameAction);
-            return true;
+            Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
+            if (ability != null && ability.Type == AbilityType.Active)
+            {
+                gameAction.Ability.Use(room, gameAction);
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> EndTurn()
