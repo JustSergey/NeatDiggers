@@ -17,9 +17,9 @@ namespace NeatDiggers.GameServer.Abilities
             Type = AbilityType.Passive;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override void Get(Player player)
         {
-            room.GetPlayer(gameAction.CurrentPlayer.Id).Speed += speed;
+            player.Speed += speed;
         }
     }
 }

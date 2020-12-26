@@ -14,7 +14,7 @@
 
         public override void Use(Room room, GameAction gameAction)
         {
-            room.GetPlayer(gameAction.CurrentPlayer.Id).Level += 1;
+            gameAction.CurrentPlayer.LevelUp();
         }
     }
 }

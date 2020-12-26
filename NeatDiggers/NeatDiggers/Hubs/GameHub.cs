@@ -236,7 +236,7 @@ namespace NeatDiggers.Hubs
         private bool UseAbility(Room room, GameAction gameAction)
         {
             Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
-            if (ability != null && ability.Type == AbilityType.Active)
+            if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
             {
                 gameAction.Ability.Use(room, gameAction);
                 return true;
