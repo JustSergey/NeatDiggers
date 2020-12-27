@@ -17,7 +17,7 @@ connection.start().then(function () {
 function ChangeState(room) {
     document.getElementById("isStarted").innerText = room.isStarted;
     document.getElementById("players").innerText = room.players;
-    document.getElementById("spectators").innerText = room.spectators;
+    document.getElementById("spectators").innerText = room.spectators.length;
     DrawMap(document.getElementById("map"), room.gameMap);
 }
 
@@ -38,7 +38,6 @@ function DrawMap(canvas, map) {
     for (var i = 0; i < map.width; i++) {
         for (var j = 0; j < map.height; j++) {
             let index = map.height * j + i;
-            let text = map.map[index];
             ctx.fillStyle = 'rgb(' + map.map[index] * 50 +',0,0)'; 
             ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
         }
@@ -49,5 +48,4 @@ function DrawMap(canvas, map) {
         let point = map.spawnPoints[i];
         ctx.fillRect(point[0] * widthStep, point[1] * heightStep, widthStep, heightStep);
     }
-    
 }

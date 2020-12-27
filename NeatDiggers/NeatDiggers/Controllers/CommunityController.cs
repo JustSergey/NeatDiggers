@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.Controllers
 {
-    public class WikiController : Controller
+    public class CommunityController : Controller
     {
         public IActionResult Index()
         {
@@ -17,6 +17,11 @@ namespace NeatDiggers.Controllers
         public IActionResult Search(string query)
         {
             ViewData["Query"] = query;
+            return View();
+        }
+
+        public IActionResult Wiki()
+        {
             return View();
         }
     }
