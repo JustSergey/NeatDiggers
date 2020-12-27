@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NeatDiggers.GameServer.Maps;
 
 namespace NeatDiggers.GameServer
 {
@@ -26,7 +27,12 @@ namespace NeatDiggers.GameServer
             double x = sinAlpha * radius;
             double y = cosAlpha * radius;
 
-            return (a - x <= 0.5f && b - y <= 0.5f);
+            return (a - x <= 0.3f && b - y <= 0.3f);
+        }
+
+        public bool IsInMap(GameMap map)
+        {
+            return X < map.Width && X >= 0 && Y < map.Height && Y >= 0;
         }
     }
 }

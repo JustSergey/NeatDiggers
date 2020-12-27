@@ -7,6 +7,7 @@ using NeatDiggers.GameServer;
 using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Items;
 using Microsoft.AspNetCore.Authorization;
+using NeatDiggers.GameServer.Abilities;
 
 namespace NeatDiggers.Hubs
 {
@@ -31,7 +32,6 @@ namespace NeatDiggers.Hubs
                 await Clients.Group(code).ChangeState(room);
                 return Context.ConnectionId;
             }
-
             return null;
         }
 
@@ -74,10 +74,68 @@ namespace NeatDiggers.Hubs
             }
         }
 
+        public async Task<bool> ChangeInventory(Inventory inventory)
+        {
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player != null && player.IsTurn)
+                {
+                    List<Item> newItems = inventory.Items;
+                    int hands = 0;
+                    WeaponType weaponType = WeaponType.None;
+                    if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
+                    {
+                        newItems.Add(inventory.LeftWeapon);
+                        hands += (int)inventory.LeftWeapon.WeaponHanded;
+                        weaponType = inventory.LeftWeapon.WeaponType;
+                    }
+                    if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
+                    {
+                        if (weaponType == WeaponType.None || inventory.RightWeapon.WeaponType == weaponType)
+                        {
+                            newItems.Add(inventory.RightWeapon);
+                            hands += (int)inventory.RightWeapon.WeaponHanded;
+                        }
+                        else
+                            return false;
+                    }
+                    if (hands > player.Hands)
+                        return false;
+
+                    List<Item> oldItems = new List<Item>(player.Inventory.Items)
+                    {
+                        player.Inventory.LeftWeapon,
+                        player.Inventory.RightWeapon
+                    };
+
+                    if (oldItems.Count != newItems.Count)
+                        return false;
+
+                    newItems.Sort((item1, item2) => item2.Name - item1.Name);
+                    oldItems.Sort((item1, item2) => item2.Name - item1.Name);
+
+                    for (int i = 0; i < newItems.Count; i++)
+                    {
+                        if (newItems[i].Name != oldItems[i].Name)
+                            return false;
+                    }
+                    player.Inventory = inventory;
+                    await Clients.Group(room.Code).ChangeState(room);
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public int RollTheDice()
         {
+            if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
+                return (int)Context.Items["Dice"];
             Random random = new Random();
             int dice = random.Next(1, 7);
+            Context.Items["IsDice"] = true;
             Context.Items["Dice"] = dice;
             return dice;
         }
@@ -88,13 +146,13 @@ namespace NeatDiggers.Hubs
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player.IsTurn)
+                if (player != null && player.IsTurn)
                 {
                     gameAction.CurrentPlayer = player;
                     Func<bool> action = gameAction.Type switch
                     {
                         GameActionType.Move => () => Move(room, gameAction),
-                        GameActionType.Dig => () => Dig(room, player),
+                        GameActionType.Dig => () => Dig(room, gameAction),
                         GameActionType.Attack => () => Attack(room, gameAction),
                         GameActionType.UseItem => () => UseItem(room, gameAction),
                         GameActionType.DropItem => () => DropItem(room, gameAction),
@@ -103,6 +161,7 @@ namespace NeatDiggers.Hubs
                     };
                     if (action != null && action())
                     {
+                        Context.Items["IsDice"] = false;
                         await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                         return true;
                     }
@@ -116,29 +175,10 @@ namespace NeatDiggers.Hubs
             int diceRollResult = (int) Context.Items["Dice"];
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, diceRollResult))
+            if (playerPosition.CheckAvailability(targetPosition, diceRollResult) && targetPosition.IsInMap(room.GameMap))
                 room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
 
             return true;
-        }
-
-        private bool Dig(Room room, Player currentPlayer)
-        {
-            int diceRollResult = (int) Context.Items["Dice"];
-            if (diceRollResult % 2 == 0)
-            {
-                int i = diceRollResult / 2;
-                while (diceRollResult > 0)
-                {
-                    Item dugItem = room.Dig();
-                    room.GetPlayer(currentPlayer.Id).Inventory.Items.Add(dugItem);
-                    diceRollResult -= 1;
-                }
-
-                return true;
-            }
-            else
-                return true;
         }
 
         private bool Attack(Room room, GameAction gameAction)
@@ -146,28 +186,62 @@ namespace NeatDiggers.Hubs
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
-                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
+            //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+            //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
             return true;
+        }
+
+        private bool Dig(Room room, GameAction gameAction)
+        {
+            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
+            {
+                if (dice % 2 == 0)
+                {
+                    int count = dice / 2 + gameAction.CurrentPlayer.DigPower;
+                    for (int i = 0; i < count; i++)
+                    {
+                        Item item = room.Dig();
+                        if (item.Type == ItemType.Event)
+                        {
+                            item.Use(room, gameAction);
+                            continue;
+                        }
+                        else if (item.Type == ItemType.Passive)
+                            item.Get(room, gameAction);
+                        gameAction.CurrentPlayer.Inventory.Items.Add(item);
+                    }
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool UseItem(Room room, GameAction gameAction)
         {
-            gameAction.Item.Use(room, gameAction);
-            return true;
+            Item item = gameAction.CurrentPlayer.Inventory.Items.Find(i => i.Name == gameAction.Item.Name);
+            if (item != null && item.Type == ItemType.Active)
+            {
+                item.Use(room, gameAction);
+                gameAction.CurrentPlayer.Inventory.Items.Remove(item);
+                return true;
+            }
+            return false;
         }
 
         private bool DropItem(Room room, GameAction gameAction)
         {
-            gameAction.CurrentPlayer.Inventory.Items.Remove(gameAction.Item);
-            gameAction.CurrentPlayer.Inventory.Drop++;
-            return true;
+            return gameAction.CurrentPlayer.Inventory.DropItem(gameAction.Item, room, gameAction);
         }
 
         private bool UseAbility(Room room, GameAction gameAction)
         {
-            gameAction.Ability.Use(room, gameAction);
-            return true;
+            Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
+            if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
+            {
+                gameAction.Ability.Use(room, gameAction);
+                return true;
+            }
+            return false;
         }
 
         public async Task<bool> EndTurn()
@@ -178,6 +252,7 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
+                    Context.Items["IsDice"] = false;
                     room.NextTurn();
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;

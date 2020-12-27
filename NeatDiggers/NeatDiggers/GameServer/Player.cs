@@ -17,12 +17,14 @@ namespace NeatDiggers.GameServer
         public Vector Position { get; set; }
         public Character Character { get; set; }
         public Inventory Inventory { get; set; }
-        public int Level { get; set; }
+        public int Level { get; private set; }
         public int Speed { get; set; }
         public int Health { get; set; }
-        public int Damage { get; set; }
+        public int MeleeDamage { get; set; }
+        public int RangedDamage { get; set; }
         public int AttackRadius { get; set; }
-        public int Armor { get; set; }
+        public int DigPower { get; set; }
+        public int Hands { get; set; }
 
         public Player(string id, string name, Vector position)
         {
@@ -35,9 +37,25 @@ namespace NeatDiggers.GameServer
             Position = position;
             Character = new EmptyCharacter();
             Inventory = new Inventory();
-            Level = 1;
+            Level = 0;
+            LevelUp();
             Speed = 0;
             AttackRadius = 0;
+            DigPower = 0;
+            MeleeDamage = 0;
+            RangedDamage = 0;
+            Hands = 2;
+        }
+
+        public void LevelUp()
+        {
+            if (Character.Abilities.Count > Level && 
+                Character.Abilities[Level].Type == Abilities.AbilityType.Passive)
+            {
+                Character.Abilities[Level].Get(this);
+                Character.Abilities[Level].IsActive = true;
+            }
+            Level++;
         }
 
         public void ChangeCharacter(CharacterName characterName)
