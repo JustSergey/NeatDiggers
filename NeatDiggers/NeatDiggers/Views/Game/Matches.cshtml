@@ -13,11 +13,14 @@
     </div>
     <div class="row form-group pt-3">
         <form class="form-inline" method="post">
-            <div class="col-9">
+            <div class="col-6">
                 <input class="form-control" type="search" id="codeInput" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required="True">
             </div>
             <div class="col-3">
                 <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
+            </div>
+            <div class="col-3">
+                <button type="submit" id="watchButton" class="col btn btn-primary" asp-controller="Game" asp-action="PlayersLobby">Play</button>
             </div>
         </form>
     </div>
@@ -60,7 +63,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form class="form-inline" asp-controller="Game" asp-action="Lobby" method="post">
+                <form class="form-inline" asp-controller="Game" asp-action="CreateLobby" method="post">
                     <button class="btn btn-primary" type="submit">Create</button>
                 </form>
             </div>

@@ -24,6 +24,7 @@ namespace NeatDiggers.GameServer.Characters
             name switch
             {
                 CharacterName.Empty => new EmptyCharacter(),
+                CharacterName.Pandora => new PandoraCharacter(),
                 _ => null
             };
     }

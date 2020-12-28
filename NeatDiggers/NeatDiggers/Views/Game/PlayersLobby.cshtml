@@ -1,0 +1,61 @@
+﻿@{
+    ViewData["Title"] = "Play";
+    string[] CharacterNames = ViewData["CharacterNames"] as string[];
+}
+@model NeatDiggers.GameServer.Room
+
+<div class="jumbotron my-3">
+    <div class="row">
+        <div class="col-8">
+            <div class="row">
+                <div class="col"><h2>Code: </h2></div>
+                <div class="col"><h2 id="code">@Html.DisplayFor(model => model.Code)</h2></div>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="row">
+                <div class="col"><p>isStarted: </p></div>
+                <div class="col"><p id="isStarted"></p></div>
+            </div>
+        </div>
+    </div>
+    <hr class="my-4">
+    <div class="row">
+        <div class="col-4">
+            <h3>Players:</h3>
+            <div id="players"></div>
+            <div class="row">
+                <div class="col"><h3>Spectators: </h3></div>
+                <div class="col"><h3 id="spectators"></h3></div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div id="lobby">
+                <h3>Select Character:</h3>
+                <div class="row">
+                    @for (int i = 1; i < CharacterNames.Length; i++)
+                    {
+                        <div class="col-12">
+                            <button onclick="SelectCharacter('@CharacterNames[i]')" type="button" class="btn btn-primary">@CharacterNames[i]</button>
+                        </div>
+                    }
+                    <div class="col-12">
+                        <button id="ChangeReady" onclick="ChangeReady()" type="button" class="btn btn-info">ChangeReady</button>
+                    </div>
+                    <div class="col-12">
+                        <button id="StartGame" onclick="StartGame()" type="button" class="btn btn-success">StartGame</button>
+                    </div>
+                </div>
+            </div>
+            <div id="game">
+                <canvas id="map" class='img-responsive col' width="1314" height="1314">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+<script src="~/js/signalr/dist/browser/signalr.js"></script>
+<script src="~/js/players_lobby.js"></script>

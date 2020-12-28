@@ -38,7 +38,7 @@ namespace NeatDiggers.GameServer
             Character = new EmptyCharacter();
             Inventory = new Inventory();
             Level = 0;
-            LevelUp();
+            //LevelUp();
             Speed = 0;
             AttackRadius = 0;
             DigPower = 0;
