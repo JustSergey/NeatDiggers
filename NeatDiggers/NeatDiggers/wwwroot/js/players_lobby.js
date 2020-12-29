@@ -1,50 +1,63 @@
 ﻿"use strict";
 
-let connection = new signalR.HubConnectionBuilder()
-    .withUrl("/GameHub")
-    .build();
+import * as game from "../js/game.js";
+import { animate } from "../js/game.js";
 
-document.getElementById("StartGame").disabled = true;
-document.getElementById("ChangeReady").disabled = true;
-ToggleRendering('game', false);
+let user_id;
+let connection;
 
+window.onload = async function(){
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("/GameHub")
+        .build();
 
-connection.start().then(function () {
-    let code = document.getElementById("code").innerText;
-    console.log("Start:" + code);
-    connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
+    document.getElementById("StartGame").disabled = true;
+    document.getElementById("ChangeReady").disabled = true;
+    ToggleRendering('game', false);
+
+    connection.start().then(async function () {
+        let code = document.getElementById("code").innerText;
+        user_id = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
+            return console.error(err.toString());
+        });
+        console.log(`Player ${user_id} connected to lobby: ${code}`);
+    }).catch(function (err) {
         return console.error(err.toString());
     });
-}).catch(function (err) {
-    return console.error(err.toString());
-});
 
-function ChangeState(room) {
+    connection.on("ChangeState", function (room) {
+        UpdateRoom(room);
+        console.log("ChangeState");
+    });
+
+    connection.on("ChangeStateWithAction", function (room, gameAction) {
+        UpdateRoom(room);
+        console.log("ChangeStateWithAction");
+    });
+
+    window.SelectCharacter = SelectCharacter;
+    window.ChangeReady = ChangeReady;
+    window.StartGame = StartGame;
+};
+
+function UpdateRoom(room) {
     document.getElementById("isStarted").innerText = room.isStarted;
     ToggleRendering('game', room.isStarted);
     ToggleRendering('lobby', !room.isStarted);
+    ToggleRendering('footer', !room.isStarted);
     document.getElementById("spectators").innerText = room.spectators.length;
     LoadPlayers(room.players);
 
     if (room.isStarted) {
-        DrawMap(document.getElementById("map"), room.gameMap);
+        animate(room);
+        //DrawMap(document.getElementById("map"), room.gameMap);
     }
     else {
         document.getElementById("StartGame").disabled = !PlayersIsReady(room.players);
     }
-    room.gameMap = "";
-    console.log(JSON.stringify(room, null, '\t'));
+    //room.gameMap = "";
+    //console.log(JSON.stringify(room, null, '\t'));
 }
-
-connection.on("ChangeState", function (room) {
-    console.log("ChangeState");
-    ChangeState(room);
-});
-
-connection.on("ChangeStateWithAction", function (room, gameAction) {
-    console.log("ChangeStateWithAction");
-    ChangeState(room);
-});
 
 function LoadPlayers(roomPlayers) {
     var players = document.getElementById("players");
@@ -61,7 +74,7 @@ function LoadPlayers(roomPlayers) {
 }
 
 function PlayersIsReady(roomPlayers) {
-    let ready = roomPlayers.length > 1;
+    let ready = roomPlayers.length > 0;
     for (var i = 0; i < roomPlayers.length; i++) {
         ready = ready && roomPlayers[i].isReady;
     }
@@ -72,8 +85,6 @@ function PlayersIsReady(roomPlayers) {
 
 function SelectCharacter(name) {
     document.getElementById("ChangeReady").disabled = false;
-    console.log("name: " + name);
-    //!!!!!!!!!!! передаю не enum !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     connection.invoke("ChangeCharacter", 1).catch(function (err) {
         return console.error(err.toString());
     });
@@ -83,16 +94,13 @@ function ChangeReady() {
     connection.invoke("ChangeReady").catch(function (err) {
         return console.error(err.toString());
     });
-    console.log("ChangeReady()");
 }
 
 function StartGame() {
     connection.invoke("StartGame").catch(function (err) {
         return console.error(err.toString());
     });
-    console.log("StartGame()");
 }
-
 
 function ToggleRendering(id, bool) {
     var x = document.getElementById(id);
@@ -103,23 +111,23 @@ function ToggleRendering(id, bool) {
     }
 }
 
-function DrawMap(canvas, map) {
-    let ctx = canvas.getContext("2d");
-    var widthStep = canvas.width / map.width;
-    var heightStep = canvas.height / map.height;
-    ctx.font = '48px serif';
-    ctx.fillRect(0, 0, map.height, map.width);
-    for (var i = 0; i < map.width; i++) {
-        for (var j = 0; j < map.height; j++) {
-            let index = map.height * j + i;
-            ctx.fillStyle = 'rgb(' + map.map[index] * 50 + ',0,0)';
-            ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
-        }
-    }
+//function DrawMap(canvas, map) {
+//    let ctx = canvas.getContext("2d");
+//    var widthStep = canvas.width / map.width;
+//    var heightStep = canvas.height / map.height;
+//    ctx.font = '48px serif';
+//    ctx.fillRect(0, 0, map.height, map.width);
+//    for (var i = 0; i < map.width; i++) {
+//        for (var j = 0; j < map.height; j++) {
+//            let index = map.height * j + i;
+//            ctx.fillStyle = 'rgb(' + map.map[index] * 50 + ',0,0)';
+//            ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
+//        }
+//    }
 
-    ctx.fillStyle = 'rgb(255,255,0)';
-    for (var i = 0; i < map.spawnPoints.lenght; i++) {
-        let point = map.spawnPoints[i];
-        ctx.fillRect(point[0] * widthStep, point[1] * heightStep, widthStep, heightStep);
-    }
-}
+//    ctx.fillStyle = 'rgb(255,255,0)';
+//    for (var i = 0; i < map.spawnPoints.lenght; i++) {
+//        let point = map.spawnPoints[i];
+//        ctx.fillRect(point[0] * widthStep, point[1] * heightStep, widthStep, heightStep);
+//    }
+//}
