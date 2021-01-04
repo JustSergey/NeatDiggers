@@ -1,51 +1,58 @@
 ﻿"use strict";
 
-let connection = new signalR.HubConnectionBuilder()
-    .withUrl("/GameHub")
-    .build();
+import * as game from "../js/game.js";
+let connection;
+window.onload = async function () {
+    connection = new signalR.HubConnectionBuilder()
+        .withUrl("/GameHub")
+        .build();
 
-connection.start().then(function () {
-    let code = document.getElementById("code").innerText;
-    console.log(code);
-    connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
+    ToggleRendering('game', false);
+
+    connection.start().then(function () {
+        let code = document.getElementById("code").innerText;
+        console.log(code);
+        connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
+            return console.error(err.toString());
+        });
+        console.log(`Spectator connected to lobby: ${code}`);
+    }).catch(function (err) {
         return console.error(err.toString());
     });
-}).catch(function (err) {
-    return console.error(err.toString());
-});
 
-function ChangeState(room) {
-    document.getElementById("isStarted").innerText = room.isStarted;
-    document.getElementById("players").innerText = room.players;
-    document.getElementById("spectators").innerText = room.spectators.length;
-    DrawMap(document.getElementById("map"), room.gameMap);
+    connection.on("ChangeState", function (room) {
+        UpdateRoom(room);
+        console.log("ChangeState");
+    });
+
+    connection.on("ChangeStateWithAction", function (room, gameAction) {
+        UpdateRoom(room);
+        console.log("ChangeStateWithAction");
+    });
+};
+
+function UpdateRoom(room) {
+    if (room.isStarted) {
+        ToggleRendering('game', true);
+        ToggleRendering('lobby', false);
+        ToggleRendering('footer', false);
+
+        game.animate();
+        game.drawMap(room.gameMap);
+    }
+    else {
+        LoadPlayers(room.players);
+        document.getElementById("isStarted").innerText = room.isStarted;
+        document.getElementById("spectators").innerText = room.spectators.length;
+        document.getElementById("StartGame").disabled = !PlayersIsReady(room.players);
+    }
 }
 
-connection.on("ChangeState", function (room) {
-    ChangeState(room);
-});
-
-connection.on("ChangeStateWithAction", function (room, gameAction) {
-    ChangeState(room);
-});
-
-function DrawMap(canvas, map) {
-    let ctx = canvas.getContext("2d");
-    var widthStep = canvas.width / map.width;
-    var heightStep = canvas.height / map.height;
-    ctx.font = '48px serif';
-    ctx.fillRect(0, 0, map.height, map.width);
-    for (var i = 0; i < map.width; i++) {
-        for (var j = 0; j < map.height; j++) {
-            let index = map.height * j + i;
-            ctx.fillStyle = 'rgb(' + map.map[index] * 50 +',0,0)'; 
-            ctx.fillRect(i * widthStep, j * heightStep, widthStep, heightStep);
-        }
-    }
-
-    ctx.fillStyle = 'rgb(255,255,0)'; 
-    for (var i = 0; i < map.spawnPoints.lenght; i++) {
-        let point = map.spawnPoints[i];
-        ctx.fillRect(point[0] * widthStep, point[1] * heightStep, widthStep, heightStep);
+function ToggleRendering(id, bool) {
+    var x = document.getElementById(id);
+    if (bool) {
+        x.style.display = 'block';
+    } else {
+        x.style.display = 'none';
     }
 }
