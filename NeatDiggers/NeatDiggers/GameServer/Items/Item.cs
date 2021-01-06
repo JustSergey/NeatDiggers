@@ -76,6 +76,7 @@ namespace NeatDiggers.GameServer.Items
         public WeaponType WeaponType { get; protected set; }
         public int WeaponDamage { get; protected set; }
         public int WeaponConsumption { get; protected set; }
+        public int WeaponDistance { get; protected set; }
 
         public virtual void Get(Room room, GameAction gameAction) { }
         public virtual void Use(Room room, GameAction gameAction) { }

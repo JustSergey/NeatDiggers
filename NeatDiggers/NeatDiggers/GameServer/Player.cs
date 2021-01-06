@@ -22,8 +22,9 @@ namespace NeatDiggers.GameServer
         public int Health { get; set; }
         public int MeleeDamage { get; set; }
         public int RangedDamage { get; set; }
-        public int MultiplyDamage { get; set; }
-        public int AttackRadius { get; set; }
+        public double MultiplyDamage { get; set; }
+        public int MeleeDistance { get; set; }
+        public int RangedDistance { get; set; }
         public int DigPower { get; set; }
         public int Hands { get; set; }
 
@@ -41,10 +42,12 @@ namespace NeatDiggers.GameServer
             Level = 0;
             //LevelUp();
             Speed = 0;
-            AttackRadius = 0;
+            MeleeDistance = 0;
+            RangedDistance = 0;
             DigPower = 0;
             MeleeDamage = 0;
             RangedDamage = 0;
+            MultiplyDamage = 1.0;
             Hands = 2;
         }
 
