@@ -32,6 +32,7 @@ namespace NeatDiggers.Hubs
                 await Clients.Group(code).ChangeState(room);
                 return Context.ConnectionId;
             }
+
             return null;
         }
 
@@ -88,19 +89,21 @@ namespace NeatDiggers.Hubs
                     if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
                     {
                         newItems.Add(inventory.LeftWeapon);
-                        hands += (int)inventory.LeftWeapon.WeaponHanded;
+                        hands += (int) inventory.LeftWeapon.WeaponHanded;
                         weaponType = inventory.LeftWeapon.WeaponType;
                     }
+
                     if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
                     {
                         if (weaponType == WeaponType.None || inventory.RightWeapon.WeaponType == weaponType)
                         {
                             newItems.Add(inventory.RightWeapon);
-                            hands += (int)inventory.RightWeapon.WeaponHanded;
+                            hands += (int) inventory.RightWeapon.WeaponHanded;
                         }
                         else
                             return false;
                     }
+
                     if (hands > player.Hands)
                         return false;
 
@@ -121,18 +124,20 @@ namespace NeatDiggers.Hubs
                         if (newItems[i].Name != oldItems[i].Name)
                             return false;
                     }
+
                     player.Inventory = inventory;
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;
                 }
             }
+
             return false;
         }
 
         public int RollTheDice()
         {
-            if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
-                return (int)Context.Items["Dice"];
+            if (Context.Items.ContainsKey("IsDice") && (bool) Context.Items["IsDice"])
+                return (int) Context.Items["Dice"];
             Random random = new Random();
             int dice = random.Next(1, 7);
             Context.Items["IsDice"] = true;
@@ -146,7 +151,7 @@ namespace NeatDiggers.Hubs
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null && player.IsTurn)
+                if (player.IsTurn)
                 {
                     gameAction.CurrentPlayer = player;
                     Func<bool> action = gameAction.Type switch
@@ -167,6 +172,7 @@ namespace NeatDiggers.Hubs
                     }
                 }
             }
+
             return false;
         }
 
@@ -175,8 +181,12 @@ namespace NeatDiggers.Hubs
             int diceRollResult = (int) Context.Items["Dice"];
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, diceRollResult) && targetPosition.IsInMap(room.GameMap))
+            if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
+                targetPosition.IsInMap(room.GameMap))
+            {
                 room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
+            }
+            else return false;
 
             return true;
         }
@@ -184,10 +194,21 @@ namespace NeatDiggers.Hubs
         private bool Attack(Room room, GameAction gameAction)
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
-            //int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
-            //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
-            //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
+            
+            int playerAttackRadius = CalculatedAttackRadius(gameAction.CurrentPlayer);
+            int playerAttackDamage = GetPlayerDamage(gameAction.CurrentPlayer);
+
+            if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+            {
+                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= playerAttackDamage;
+                // TODO когда будет реализована смерть и броня, дополнить метод
+            }
+            else
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -208,11 +229,14 @@ namespace NeatDiggers.Hubs
                         }
                         else if (item.Type == ItemType.Passive)
                             item.Get(room, gameAction);
-                        gameAction.CurrentPlayer.Inventory.Items.Add(item);
+
+                        room.GetPlayer(gameAction.CurrentPlayer.Id).Inventory.Items.Add(item);
                     }
+
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -225,6 +249,7 @@ namespace NeatDiggers.Hubs
                 gameAction.CurrentPlayer.Inventory.Items.Remove(item);
                 return true;
             }
+
             return false;
         }
 
@@ -241,6 +266,7 @@ namespace NeatDiggers.Hubs
                 gameAction.Ability.Use(room, gameAction);
                 return true;
             }
+
             return false;
         }
 
@@ -258,6 +284,7 @@ namespace NeatDiggers.Hubs
                     return true;
                 }
             }
+
             return false;
         }
 
@@ -270,7 +297,128 @@ namespace NeatDiggers.Hubs
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
+
             await base.OnDisconnectedAsync(exception);
+        }
+
+        private int CalculatedAttackRadius(Player player)
+        {
+            Item leftWeapon = player.Inventory.LeftWeapon;
+            Item rightWeapon = player.Inventory.RightWeapon;
+
+
+            if (leftWeapon.WeaponHanded == WeaponHanded.Two)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return leftWeapon.WeaponDistance + player.MeleeDistance;
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return leftWeapon.WeaponDistance + player.RangedDistance;
+                }
+            }
+
+            if (leftWeapon.WeaponType != WeaponType.None && rightWeapon.WeaponType != WeaponType.None)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return Math.Min(leftWeapon.WeaponDistance, rightWeapon.WeaponDistance) + player.MeleeDistance;
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return Math.Min(leftWeapon.WeaponDistance, rightWeapon.WeaponDistance) + player.RangedDistance;
+                }
+            }
+
+            if (leftWeapon.WeaponHanded == WeaponHanded.One)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return leftWeapon.WeaponDistance + player.MeleeDistance;
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return leftWeapon.WeaponDistance + player.RangedDistance;
+                }
+            }
+            else if (rightWeapon.WeaponHanded == WeaponHanded.One)
+            {
+                if (rightWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return rightWeapon.WeaponDistance + player.MeleeDistance;
+                }
+                else if (rightWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return rightWeapon.WeaponDistance + player.RangedDistance;
+                }
+            }
+
+            return player.MeleeDistance;
+        }
+
+        private int GetPlayerDamage(Player player)
+        {
+            int handsAttackDamage = 1;
+
+            Item leftWeapon = player.Inventory.LeftWeapon;
+            Item rightWeapon = player.Inventory.RightWeapon;
+
+            if (leftWeapon.WeaponHanded == WeaponHanded.Two)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage, player.MeleeDamage, player.MultiplyDamage);
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage, player.RangedDamage, player.MultiplyDamage);
+                }
+            }
+
+            if (leftWeapon.WeaponType != WeaponType.None && rightWeapon.WeaponType != WeaponType.None)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage + rightWeapon.WeaponDamage, player.MeleeDamage,
+                        player.MultiplyDamage);
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage + rightWeapon.WeaponDamage,
+                        player.RangedDamage, player.MultiplyDamage);
+                }
+            }
+
+            if (leftWeapon.WeaponHanded == WeaponHanded.One)
+            {
+                if (leftWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage, player.MeleeDamage, player.MultiplyDamage);
+                }
+                else if (leftWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return CalculateAttackDamage(leftWeapon.WeaponDamage, player.RangedDamage, player.MultiplyDamage);
+                }
+            }
+            else if (rightWeapon.WeaponHanded == WeaponHanded.One)
+            {
+                if (rightWeapon.WeaponType == WeaponType.Melee)
+                {
+                    return CalculateAttackDamage(rightWeapon.WeaponDamage, player.MeleeDamage, player.MultiplyDamage);
+                }
+                else if (rightWeapon.WeaponType == WeaponType.Ranged)
+                {
+                    return CalculateAttackDamage(rightWeapon.WeaponDamage, player.RangedDamage, player.MultiplyDamage);
+                }
+            }
+
+            return CalculateAttackDamage(handsAttackDamage, player.MeleeDamage, player.MultiplyDamage);
+        }
+
+        private int CalculateAttackDamage(int weaponDamage, int damageBuff, double damageMultipluyer)
+        {
+            return (int) Math.Round((weaponDamage + damageBuff) * damageMultipluyer);
         }
     }
 }

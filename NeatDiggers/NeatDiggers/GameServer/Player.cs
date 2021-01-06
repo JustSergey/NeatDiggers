@@ -27,6 +27,7 @@ namespace NeatDiggers.GameServer
         public int RangedDistance { get; set; }
         public int DigPower { get; set; }
         public int Hands { get; set; }
+        public int Armor { get; set; }
 
         public Player(string id, string name, Vector position)
         {

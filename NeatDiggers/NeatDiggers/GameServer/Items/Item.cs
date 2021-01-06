@@ -97,6 +97,8 @@ namespace NeatDiggers.GameServer.Items
         {
             Name = ItemName.Empty;
             Type = ItemType.Active;
+            WeaponDamage = 0;
+            WeaponDistance = 0;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }
