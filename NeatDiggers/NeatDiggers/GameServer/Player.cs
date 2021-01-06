@@ -22,6 +22,7 @@ namespace NeatDiggers.GameServer
         public int Health { get; set; }
         public int MeleeDamage { get; set; }
         public int RangedDamage { get; set; }
+        public int MultiplyDamage { get; set; }
         public int AttackRadius { get; set; }
         public int DigPower { get; set; }
         public int Hands { get; set; }
