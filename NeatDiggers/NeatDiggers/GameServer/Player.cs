@@ -40,7 +40,6 @@ namespace NeatDiggers.GameServer
             Character = new EmptyCharacter();
             Inventory = new Inventory();
             Level = 0;
-            //LevelUp();
             Speed = 0;
             MeleeDistance = 0;
             RangedDistance = 0;

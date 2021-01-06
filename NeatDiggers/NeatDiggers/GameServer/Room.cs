@@ -64,6 +64,7 @@ namespace NeatDiggers.GameServer
         {
             if (Players.All(p => p.IsReady && p.Character.Name != CharacterName.Empty))
             {
+                Players.ForEach(p => p.LevelUp());
                 Players.ForEach(p => p.Health = p.Character.MaxHealth);
                 Random random = new Random();
                 PlayerTurn = random.Next(Players.Count);

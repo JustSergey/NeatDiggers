@@ -184,7 +184,7 @@ namespace NeatDiggers.Hubs
         private bool Attack(Room room, GameAction gameAction)
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
-            int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
+            //int playerAttackRadius = gameAction.CurrentPlayer.AttackRadius;
             Vector targetPosition = gameAction.TargetPosition;
             //if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
             //room.GetPlayer(gameAction.TargetPlayer.Id).Health -= room.GetPlayer(gameAction.CurrentPlayer.Id).Damage;
