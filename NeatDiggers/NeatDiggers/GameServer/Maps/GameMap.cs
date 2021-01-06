@@ -11,7 +11,6 @@ namespace NeatDiggers.GameServer.Maps
         Empty,
         Wall,
         Digging,
-        Flag
     }
 
     public class GameMap
@@ -19,6 +18,7 @@ namespace NeatDiggers.GameServer.Maps
         public int Width { get; protected set; }
         public int Height { get; protected set; }
         public List<Vector> SpawnPoints { get; protected set; }
+        public Vector FlagSpawnPoint { get; protected set; }
         public Cell[,] Map { get; protected set; }
     }
 }

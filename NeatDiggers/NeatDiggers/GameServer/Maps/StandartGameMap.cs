@@ -16,7 +16,7 @@ NNNNENENENNNN
 EDENENNNENEDE
 EEEEEEEEEEEEE
 ENNNEDEDENNNE
-SEENEEFEENEES
+SEENEEEEENEES
 ENNNEDEDENNNE
 EEEEEEEEEEEEE
 EDENENNNENEDE
@@ -37,8 +37,6 @@ NEDEEESEEEDEN".Replace("\r", "").Split('\n');
                         Map[x, y] = Cell.Empty;
                     else if (map[y][x] == 'D')
                         Map[x, y] = Cell.Digging;
-                    else if (map[y][x] == 'F')
-                        Map[x, y] = Cell.Flag;
                     else if (map[y][x] == 'W')
                         Map[x, y] = Cell.Wall;
                     else if (map[y][x] == 'S')
