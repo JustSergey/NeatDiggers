@@ -202,7 +202,11 @@ namespace NeatDiggers.Hubs
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
             {
                 room.GetPlayer(gameAction.TargetPlayer.Id).Health -= playerAttackDamage;
-                // TODO когда будет реализована смерть и броня, дополнить метод
+                if (room.GetPlayer(gameAction.TargetPlayer.Id).Health <= 0)
+                {
+                    KillPlayer(room, gameAction.TargetPlayer);
+                }
+                // TODO когда будет реализована броня, дополнить метод
             }
             else
             {
@@ -268,6 +272,13 @@ namespace NeatDiggers.Hubs
             }
 
             return false;
+        }
+
+        private void KillPlayer(Room room, Player player)
+        {
+            room.GetPlayer(player.Id).Health = player.Character.MaxHealth;
+            room.GetPlayer(player.Id).Inventory = new Inventory();
+            room.GetPlayer(player.Id).Position = player.SpawnPoint;
         }
 
         public async Task<bool> EndTurn()
