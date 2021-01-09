@@ -1,6 +1,7 @@
 import * as THREE from '../lib/three/build/three.module.js';
 
 let camera, scene, renderer;
+let isMyTurn;
 let screen = {
     width: 0,
     height: 0,
@@ -11,18 +12,59 @@ let screen = {
 };
 
 const scenePlayers = new THREE.Group();
+const scenePlayer = new THREE.Group();
 const BoxGeometry = new THREE.BoxGeometry();
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+var plane = new THREE.Plane();
+var pNormal = new THREE.Vector3(0, 0, 1); // plane's normal
+var planeIntersect = new THREE.Vector3(); // point of intersection with the plane
+var pIntersect = new THREE.Vector3(); // point of intersection with an object (plane's point)
+var shift = new THREE.Vector3(); // distance between position of an object and points of intersection with the object
+var isDragging = false;
+var dragObject;
+
 init();
+
+function pointerUp(event) {
+    if (!isMyTurn) return;
+    isDragging = false;
+    dragObject = null;
+}
+
+function pointerDown(event) {
+    if (!isMyTurn) return;
+    let intersects = raycaster.intersectObjects(scenePlayer.children);
+    if (intersects.length > 0) {
+        pIntersect.copy(intersects[0].point);
+        plane.setFromNormalAndCoplanarPoint(pNormal, pIntersect);
+        shift.subVectors(intersects[0].object.position, intersects[0].point);
+        isDragging = true;
+        dragObject = intersects[0].object;
+    }
+}
+
+function pointerMove(event) {
+    if (!isMyTurn) return;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - ((event.clientY - 28) / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
+
+    if (isDragging) {
+        raycaster.ray.intersectPlane(plane, planeIntersect);
+        dragObject.position.addVectors(planeIntersect, shift);
+        dragObject.position.set(Math.floor(dragObject.position.x), Math.floor(dragObject.position.y), Math.floor(dragObject.position.z))
+    }
+}
 
 function init() {
     renderInit();
-    cameraInit();
     sceneInit();
-    //window.addEventListener('mousemove', onMouseMove, false);
-    window.addEventListener('mousedown', onMouseMove, false);
+    cameraInit();
+    document.addEventListener('pointerup', pointerUp, false);
+    document.addEventListener('pointerdown', pointerDown, false);
+    document.addEventListener('pointermove', pointerMove, false);
 }
 
 function renderInit() {
@@ -35,10 +77,7 @@ function renderInit() {
 
 function cameraInit() {
     camera = new THREE.PerspectiveCamera(75, screen.width / screen.height, 0.1, 50);
-    camera.rotation.z = Math.PI / 2;
-    camera.position.y = 6;
-    camera.position.x = 6;
-    camera.position.z = 10;
+    camera.position.set(6, 6, 10);
 }
 
 function sceneInit() {
@@ -49,6 +88,7 @@ function sceneInit() {
     scene.add(hemiLight);
 
     scene.add(scenePlayers);
+    scene.add(scenePlayer);
 }
 
 export function animate() {
@@ -57,22 +97,12 @@ export function animate() {
     renderer.render(scene, camera);
 }
 
+export function setTurn(bool) {
+    isMyTurn = bool;
+}
+
 function update() {
 
-}
-
-function onMouseMove(event) {
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - ((event.clientY - 28) / window.innerHeight) * 2 + 1;
-    setRedColorRay();
-}
-
-function setRedColorRay() {
-    raycaster.setFromCamera(mouse, camera);
-    const intersects = raycaster.intersectObjects(scenePlayers.children);
-    for (let i = 0; i < intersects.length; i++) {
-        intersects[i].object.material.color.set(0xff0000);
-    }
 }
 
 export function UpdateRoom(room) {
@@ -80,21 +110,28 @@ export function UpdateRoom(room) {
     AddSpanPounts(room.gameMap.spawnPoints);
     AddFlag(room.gameMap.flagSpawnPoint);
 
-    SpawnPlayers(room.players);
+    SpawnPlayers(room.players, room.userId);
 }
 
-function SpawnPlayers(players) {
+function SpawnPlayers(players, userId) {
     for (var i = 0; i < scenePlayers.children.length; i++) {
         scenePlayers.remove(scenePlayers.children[0]);
     }
 
+    for (var i = 0; i < scenePlayer.children.length; i++) {
+        scenePlayer.remove(scenePlayer.children[0]);
+    }
+
     for (var i = 0; i < players.length; i++) {
-        let material = new THREE.MeshPhongMaterial({ color: 0x6cc924, depthWrite: false });
+        let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
         let cube = new THREE.Mesh(BoxGeometry, material);
-        scenePlayers.add(cube);
-        cube.position.x = players[i].position.x;
-        cube.position.y = players[i].position.y;
-        cube.position.z = 1;
+
+        if (players[i].id == userId)
+            scenePlayer.add(cube);
+        else 
+            scenePlayers.add(cube);
+
+        cube.position.set(players[i].position.x, players[i].position.y, 1);
     }
 }
 
@@ -105,7 +142,6 @@ function DrawFloor(map) {
         Wall: 2,
         Digging: 3
     };
-
     for (var x = 0; x < map.width; x++) {
         for (var y = 0; y < map.height; y++) {
             if (map.map[x * map.width + y] != Cell.None) {
@@ -119,8 +155,7 @@ function DrawFloor(map) {
                 }
                 const cube = new THREE.Mesh(BoxGeometry, material);
                 scene.add(cube);
-                cube.position.x = x;
-                cube.position.y = y;
+                cube.position.set(x, y, 0);
             }
         }
     }
@@ -131,9 +166,7 @@ function AddSpanPounts(spawnPoints) {
         let material = new THREE.MeshPhongMaterial({ color: 0xffffff });
         const cube = new THREE.Mesh(BoxGeometry, material);
         scene.add(cube);
-        cube.position.x = spawnPoints[i].x;
-        cube.position.y = spawnPoints[i].y;
-        cube.position.z = 0.01;
+        cube.position.set(spawnPoints[i].x, spawnPoints[i].y, 0.01);
     }
 }
 
@@ -141,9 +174,13 @@ function AddFlag(flagSpawnPoint) {
     let material = new THREE.MeshPhongMaterial({ color: 0x00089d, depthWrite: false });
     let cube = new THREE.Mesh(BoxGeometry, material);
     scene.add(cube);
-    cube.position.x = flagSpawnPoint.x;
-    cube.position.y = flagSpawnPoint.y;
-    cube.position.z = 1;
-    cube.scale.x = 0.2;
-    cube.scale.z = 0.2;
+    cube.position.set(flagSpawnPoint.x, flagSpawnPoint.y, 1);
+    cube.scale.set(0.2, 0.2, 1);
 }
+
+//function move(speed) {
+//    var d = mesh.position.x - mesh2.position.x;
+//    if (mesh.position.x > mesh2.position.x) {
+//        mesh.position.x -= Math.min(speed, d);
+//    }
+//}

@@ -2,7 +2,7 @@
 
 import * as game from "../js/game.js";
 
-let user_id;
+let userId;
 let connection;
 
 window.onload = async function(){
@@ -16,10 +16,10 @@ window.onload = async function(){
 
     connection.start().then(async function () {
         let code = document.getElementById("code").innerText;
-        user_id = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
+        userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
             return console.error(err.toString());
         });
-        console.log(`Player ${user_id} connected to lobby: ${code}`);
+        console.log(`Player ${userId} connected to lobby: ${code}`);
     }).catch(function (err) {
         return console.error(err.toString());
     });
@@ -41,7 +41,14 @@ window.onload = async function(){
 
 function UpdateRoom(room) {
     if (room.isStarted) {
+        ToggleRendering('game', true);
+        ToggleRendering('lobby', false);
+        ToggleRendering('footer', false);
+
+        game.animate();
+        room.userId = userId;
         game.UpdateRoom(room);
+        game.setTurn(room.players[room.playerTurn].id == userId);
     }
     else {
         LoadPlayers(room.players);
@@ -92,12 +99,6 @@ function StartGame() {
     connection.invoke("StartGame").catch(function (err) {
         return console.error(err.toString());
     });
-
-    ToggleRendering('game', true);
-    ToggleRendering('lobby', false);
-    ToggleRendering('footer', false);
-
-    game.animate();
 }
 
 function ToggleRendering(id, bool) {
