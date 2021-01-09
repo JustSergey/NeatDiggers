@@ -41,7 +41,7 @@ window.onload = async function(){
 
 function UpdateRoom(room) {
     if (room.isStarted) {
-        game.drawMap(room.gameMap);
+        game.UpdateRoom(room);
     }
     else {
         LoadPlayers(room.players);

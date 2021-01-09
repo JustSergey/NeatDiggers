@@ -9,6 +9,13 @@
         "dist/browser/signalr.js",
         "dist/browser/signalr.min.js"
       ]
+    },
+    {
+      "library": "three@0.124.0",
+      "destination": "wwwroot/lib/three/",
+      "files": [
+        "build/three.module.js"
+      ]
     }
   ]
 }

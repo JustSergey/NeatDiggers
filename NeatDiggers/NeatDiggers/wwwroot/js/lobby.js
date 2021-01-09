@@ -38,7 +38,7 @@ function UpdateRoom(room) {
         ToggleRendering('footer', false);
 
         game.animate();
-        game.drawMap(room.gameMap);
+        game.UpdateRoom(room);
     }
     else {
         LoadPlayers(room.players);
