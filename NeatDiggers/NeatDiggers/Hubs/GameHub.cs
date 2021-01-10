@@ -104,6 +104,11 @@ namespace NeatDiggers.Hubs
                             return false;
                     }
 
+                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
+                    {
+                        newItems.Add(inventory.Armor);
+                    }
+
                     if (hands > player.Hands)
                         return false;
 
@@ -196,17 +201,28 @@ namespace NeatDiggers.Hubs
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
             
-            int playerAttackRadius = CalculatedAttackRadius(gameAction.CurrentPlayer);
+            int playerAttackRadius = CalculateAttackRadius(gameAction.CurrentPlayer);
             int playerAttackDamage = GetPlayerDamage(gameAction.CurrentPlayer);
+
+            Item enemyArmor = gameAction.TargetPlayer.Inventory.Armor;
+            int enemyArmorBuff = gameAction.TargetPlayer.Armor;
+            int enemyArmorStrength = enemyArmor.ArmorStrength;
 
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
             {
-                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= playerAttackDamage;
+                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+
+                if (enemyArmor.Type == ItemType.Armor)
+                {
+                    enemyArmor.ArmorDurability--;
+                    if (enemyArmor.ArmorDurability <= 0)
+                        room.GetPlayer(gameAction.TargetPlayer.Id).Inventory.Armor = new EmptyItem();
+                }
+
                 if (room.GetPlayer(gameAction.TargetPlayer.Id).Health <= 0)
                 {
                     KillPlayer(room, gameAction.TargetPlayer);
                 }
-                // TODO когда будет реализована броня, дополнить метод
             }
             else
             {
@@ -312,7 +328,7 @@ namespace NeatDiggers.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
-        private int CalculatedAttackRadius(Player player)
+        private int CalculateAttackRadius(Player player)
         {
             Item leftWeapon = player.Inventory.LeftWeapon;
             Item rightWeapon = player.Inventory.RightWeapon;

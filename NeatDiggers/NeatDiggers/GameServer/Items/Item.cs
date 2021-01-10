@@ -77,6 +77,8 @@ namespace NeatDiggers.GameServer.Items
         public int WeaponDamage { get; protected set; }
         public int WeaponConsumption { get; protected set; }
         public int WeaponDistance { get; protected set; }
+        public  int ArmorStrength { get; protected set; }
+        public int ArmorDurability { get; set; }
 
         public virtual void Get(Room room, GameAction gameAction) { }
         public virtual void Use(Room room, GameAction gameAction) { }
@@ -99,6 +101,9 @@ namespace NeatDiggers.GameServer.Items
             Type = ItemType.Active;
             WeaponDamage = 0;
             WeaponDistance = 0;
+            WeaponConsumption = 0;
+            ArmorStrength = 0;
+            ArmorDurability = 0;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

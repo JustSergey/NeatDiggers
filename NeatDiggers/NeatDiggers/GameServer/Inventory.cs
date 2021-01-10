@@ -11,6 +11,7 @@ namespace NeatDiggers.GameServer
         public const int MaxItems = 6;
         public Item LeftWeapon { get; set; }
         public Item RightWeapon { get; set; }
+        public Item Armor { get; set; }
         public List<Item> Items { get; set; }
         public int Drop { get; private set; }
 
@@ -18,6 +19,7 @@ namespace NeatDiggers.GameServer
         {
             LeftWeapon = new EmptyItem();
             RightWeapon = new EmptyItem();
+            Armor = new EmptyItem();
             Items = new List<Item>();
             Drop = 0;
         }
@@ -35,6 +37,8 @@ namespace NeatDiggers.GameServer
                 LeftWeapon = new EmptyItem();
             else if (RightWeapon.Name == item.Name)
                 RightWeapon = new EmptyItem();
+            else if (Armor.Name == item.Name)
+                Armor = new EmptyItem();
             else
                 return false;
             Drop++;

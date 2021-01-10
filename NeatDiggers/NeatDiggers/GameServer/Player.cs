@@ -49,6 +49,7 @@ namespace NeatDiggers.GameServer
             RangedDamage = 0;
             MultiplyDamage = 1.0;
             Hands = 2;
+            Armor = 0;
         }
 
         public void LevelUp()
