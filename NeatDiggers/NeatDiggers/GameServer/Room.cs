@@ -17,7 +17,7 @@ namespace NeatDiggers.GameServer
         public List<string> Spectators { get; }
         public int PlayerTurn { get; private set; }
         public int Round { get; private set; }
-        public GameMap GameMap { get; }
+        private GameMap gameMap;
         
         Dictionary<(int, int), List<Action<Room>>> cancelingActions;
         Deck deck;
@@ -28,7 +28,7 @@ namespace NeatDiggers.GameServer
         {
             IsStarted = false;
             Code = code;
-            GameMap = gameMap;
+            this.gameMap = gameMap;
             Players = new List<Player>();
             Spectators = new List<string>();
             Round = 0;
@@ -50,9 +50,9 @@ namespace NeatDiggers.GameServer
         {
             if (Players.Any(p => p.Id == id))
                 return false;
-            if (Players.Count >= GameMap.SpawnPoints.Count)
+            if (Players.Count >= gameMap.SpawnPoints.Count)
                 return false;
-            Vector position = GameMap.SpawnPoints[Players.Count];
+            Vector position = gameMap.SpawnPoints[Players.Count];
             Player player = new Player(id, name, position);
             Players.Add(player);
             return true;
@@ -73,6 +73,8 @@ namespace NeatDiggers.GameServer
             }
             return IsStarted;
         }
+
+        public GameMap GetGameMap() => gameMap;
 
         public void NextTurn()
         {

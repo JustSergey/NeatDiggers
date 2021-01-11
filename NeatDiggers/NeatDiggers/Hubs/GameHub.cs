@@ -8,6 +8,7 @@ using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Items;
 using Microsoft.AspNetCore.Authorization;
 using NeatDiggers.GameServer.Abilities;
+using NeatDiggers.GameServer.Maps;
 
 namespace NeatDiggers.Hubs
 {
@@ -62,6 +63,8 @@ namespace NeatDiggers.Hubs
                     await Clients.Group(room.Code).ChangeState(room);
                 }
             }
+            Context.Items["Actions"] = 0;
+            Context.Items["PrevAction"] = GameActionType.DropItem;
         }
 
         public async Task StartGame()
@@ -73,6 +76,18 @@ namespace NeatDiggers.Hubs
                 if (player != null && room.Start())
                     await Clients.Group(room.Code).ChangeState(room);
             }
+        }
+
+        public GameMap GetGameMap()
+        {
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player != null)
+                    return room.GetGameMap();
+            }
+            return null;
         }
 
         public async Task<bool> ChangeInventory(Inventory inventory)
@@ -158,46 +173,48 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player.IsTurn)
                 {
-                    gameAction.CurrentPlayer = player;
-                    Func<bool> action = gameAction.Type switch
+                    int actionsCount = (int)Context.Items["Actions"];
+                    GameActionType prevAction = (GameActionType)Context.Items["PrevAction"];
+                    if (actionsCount == 0 || (actionsCount == 1 && prevAction != gameAction.Type))
                     {
-                        GameActionType.Move => () => Move(room, gameAction),
-                        GameActionType.Dig => () => Dig(room, gameAction),
-                        GameActionType.Attack => () => Attack(room, gameAction),
-                        GameActionType.UseItem => () => UseItem(room, gameAction),
-                        GameActionType.DropItem => () => DropItem(room, gameAction),
-                        GameActionType.UseAbility => () => UseAbility(room, gameAction),
-                        _ => null
-                    };
-                    if (action != null && action())
-                    {
-                        Context.Items["IsDice"] = false;
-                        await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
-                        return true;
+                        gameAction.CurrentPlayer = player;
+                        Func<bool> action = gameAction.Type switch
+                        {
+                            GameActionType.Move => () => Move(room, gameAction),
+                            GameActionType.Dig => () => Dig(room, gameAction),
+                            GameActionType.Attack => () => Attack(room, gameAction),
+                            GameActionType.UseItem => () => UseItem(room, gameAction),
+                            GameActionType.DropItem => () => DropItem(room, gameAction),
+                            GameActionType.UseAbility => () => UseAbility(room, gameAction),
+                            _ => null
+                        };
+                        if (action != null && action())
+                        {
+                            Context.Items["IsDice"] = false;
+                            await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
+                            return true;
+                        }
+                        Context.Items["Actions"] = actionsCount + 1;
+                        Context.Items["PrevAction"] = gameAction.Type;
                     }
                 }
             }
-
             return false;
         }
 
         private bool Move(Room room, GameAction gameAction)
         {
-            if (Context.Items["Dice"] != null)
+            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
             {
-                int diceRollResult = (int) Context.Items["Dice"];
                 Vector playerPosition = gameAction.CurrentPlayer.Position;
                 Vector targetPosition = gameAction.TargetPosition;
-                if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
-                    targetPosition.IsInMap(room.GameMap))
+                if (playerPosition.CheckAvailability(targetPosition, dice) &&
+                    targetPosition.IsInMap(room.GetGameMap()))
                 {
                     room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
+                    return true;
                 }
-                else return false;
-
-                return true;
             }
-
             return false;
         }
 
@@ -257,11 +274,9 @@ namespace NeatDiggers.Hubs
 
                         room.GetPlayer(gameAction.CurrentPlayer.Id).Inventory.Items.Add(item);
                     }
-
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -274,7 +289,6 @@ namespace NeatDiggers.Hubs
                 gameAction.CurrentPlayer.Inventory.Items.Remove(item);
                 return true;
             }
-
             return false;
         }
 
@@ -291,7 +305,6 @@ namespace NeatDiggers.Hubs
                 gameAction.Ability.Use(room, gameAction);
                 return true;
             }
-
             return false;
         }
 
@@ -311,12 +324,12 @@ namespace NeatDiggers.Hubs
                 if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
                     Context.Items["IsDice"] = false;
+                    Context.Items["Actions"] = 0;
                     room.NextTurn();
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;
                 }
             }
-
             return false;
         }
 
