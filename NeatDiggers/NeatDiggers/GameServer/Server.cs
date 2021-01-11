@@ -63,6 +63,8 @@ namespace NeatDiggers.GameServer
             return room;
         }
 
+        public static bool RemoveUser(string id) => users.Remove(id);
+
         public static Room GetRoomByUserId(string id)
         {
             if (users.ContainsKey(id))

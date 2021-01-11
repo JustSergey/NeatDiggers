@@ -339,6 +339,7 @@ namespace NeatDiggers.Hubs
             if (room != null)
             {
                 room.Disconnect(Context.ConnectionId);
+                Server.RemoveUser(Context.ConnectionId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
