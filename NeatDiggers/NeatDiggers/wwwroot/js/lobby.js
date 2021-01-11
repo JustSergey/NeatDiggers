@@ -38,7 +38,7 @@ function UpdateRoom(room) {
         ToggleRendering('footer', false);
 
         game.animate();
-        game.UpdateRoom(room);
+        game.UpdateRoom(room, connection);
     }
     else {
         LoadPlayers(room.players);

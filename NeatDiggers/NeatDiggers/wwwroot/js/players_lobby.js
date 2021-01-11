@@ -47,7 +47,7 @@ function UpdateRoom(room) {
 
         game.animate();
         room.userId = userId;
-        game.UpdateRoom(room);
+        game.UpdateRoom(room, connection);
         game.setTurn(room.players[room.playerTurn].id == userId);
     }
     else {

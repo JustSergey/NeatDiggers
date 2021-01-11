@@ -208,8 +208,11 @@ namespace NeatDiggers.Hubs
             {
                 Vector playerPosition = gameAction.CurrentPlayer.Position;
                 Vector targetPosition = gameAction.TargetPosition;
-                if (playerPosition.CheckAvailability(targetPosition, dice) &&
-                    targetPosition.IsInMap(room.GetGameMap()))
+                int x = targetPosition.X;
+                int y = targetPosition.Y;
+                if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
+                    targetPosition.IsInMap(room.GameMap) &&
+                    room.GameMap.Map[x, y] != Cell.None && room.GameMap.Map[x, y] != Cell.Wall)
                 {
                     room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
                     return true;
@@ -222,7 +225,7 @@ namespace NeatDiggers.Hubs
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             Vector targetPosition = gameAction.TargetPosition;
-            
+
             int playerAttackRadius = CalculateAttackRadius(gameAction.CurrentPlayer);
             int playerAttackDamage = GetPlayerDamage(gameAction.CurrentPlayer);
 
@@ -232,7 +235,8 @@ namespace NeatDiggers.Hubs
 
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
             {
-                room.GetPlayer(gameAction.TargetPlayer.Id).Health -= playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+                room.GetPlayer(gameAction.TargetPlayer.Id).Health -=
+                    playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
 
                 if (enemyArmor.Type == ItemType.Armor)
                 {
@@ -321,7 +325,7 @@ namespace NeatDiggers.Hubs
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
+                if (player != null && player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
                     Context.Items["IsDice"] = false;
                     Context.Items["Actions"] = 0;
