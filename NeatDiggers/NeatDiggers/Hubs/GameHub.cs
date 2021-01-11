@@ -191,11 +191,11 @@ namespace NeatDiggers.Hubs
                         if (action != null && action())
                         {
                             Context.Items["IsDice"] = false;
+                            Context.Items["Actions"] = actionsCount + 1;
+                            Context.Items["PrevAction"] = gameAction.Type;
                             await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                             return true;
                         }
-                        Context.Items["Actions"] = actionsCount + 1;
-                        Context.Items["PrevAction"] = gameAction.Type;
                     }
                 }
             }
