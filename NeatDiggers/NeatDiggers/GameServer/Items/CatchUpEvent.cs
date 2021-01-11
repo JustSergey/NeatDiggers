@@ -21,7 +21,7 @@
                 if (player.Position.CheckAvailability(targetPosition, 1))
                     playerIsNear = true;
             }
-            if (targetPosition.IsInMap(room.GameMap) && playerIsNear)
+            if (targetPosition.IsInMap(room.GetGameMap()) && playerIsNear)
                 room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
 
         }

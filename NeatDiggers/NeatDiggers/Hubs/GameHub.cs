@@ -210,9 +210,9 @@ namespace NeatDiggers.Hubs
                 Vector targetPosition = gameAction.TargetPosition;
                 int x = targetPosition.X;
                 int y = targetPosition.Y;
-                if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
-                    targetPosition.IsInMap(room.GameMap) &&
-                    room.GameMap.Map[x, y] != Cell.None && room.GameMap.Map[x, y] != Cell.Wall)
+                if (playerPosition.CheckAvailability(targetPosition, dice) &&
+                    targetPosition.IsInMap(room.GetGameMap()) &&
+                    room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
                     room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
                     return true;
