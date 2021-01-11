@@ -308,7 +308,7 @@ namespace NeatDiggers.Hubs
             if (room != null && room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
+                if (player != null && player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
                     Context.Items["IsDice"] = false;
                     room.NextTurn();
