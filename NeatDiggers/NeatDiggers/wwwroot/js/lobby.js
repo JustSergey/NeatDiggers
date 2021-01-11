@@ -16,6 +16,12 @@ window.onload = async function () {
             return console.error(err.toString());
         });
         console.log(`Spectator connected to lobby: ${code}`);
+
+        var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        game.DrawMap(gameMap);
     }).catch(function (err) {
         return console.error(err.toString());
     });
