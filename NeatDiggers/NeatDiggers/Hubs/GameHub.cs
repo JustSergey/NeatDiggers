@@ -82,11 +82,7 @@ namespace NeatDiggers.Hubs
         {
             Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null)
-            {
-                Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null)
-                    return room.GetGameMap();
-            }
+                return room.GetGameMap();
             return null;
         }
 
