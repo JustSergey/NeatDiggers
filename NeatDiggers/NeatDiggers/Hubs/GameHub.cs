@@ -183,17 +183,22 @@ namespace NeatDiggers.Hubs
 
         private bool Move(Room room, GameAction gameAction)
         {
-            int diceRollResult = (int) Context.Items["Dice"];
-            Vector playerPosition = gameAction.CurrentPlayer.Position;
-            Vector targetPosition = gameAction.TargetPosition;
-            if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
-                targetPosition.IsInMap(room.GameMap))
+            if (Context.Items["Dice"] != null)
             {
-                room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
-            }
-            else return false;
+                int diceRollResult = (int) Context.Items["Dice"];
+                Vector playerPosition = gameAction.CurrentPlayer.Position;
+                Vector targetPosition = gameAction.TargetPosition;
+                if (playerPosition.CheckAvailability(targetPosition, diceRollResult) &&
+                    targetPosition.IsInMap(room.GameMap))
+                {
+                    room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
+                }
+                else return false;
 
-            return true;
+                return true;
+            }
+
+            return false;
         }
 
         private bool Attack(Room room, GameAction gameAction)
