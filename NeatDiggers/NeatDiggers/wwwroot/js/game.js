@@ -1,5 +1,4 @@
 import * as THREE from '../lib/three/build/three.module.js';
-import { GUI } from '../lib/dat.gui/build/dat.gui.module.js';
 
 let camera, scene, renderer, gui;
 let isMyTurn;
@@ -28,26 +27,25 @@ let dragObject;
 
 let conection;
 
+let GameActionType = {
+    Move: 0,
+    Dig: 1,
+    Attack: 2,
+    UseItem: 3,
+    DropItem: 3,
+    UseAbility: 5
+};
+
 init();
 
 function pointerUp(event) {
-    if (!isMyTurn && isDragging) return;
+    if (!isMyTurn || !isDragging) return;
     isDragging = false;
     sendPlayerPosition();
-    //send new coords for all players
     dragObject = null;
 }
 
 function sendPlayerPosition() {
-    let GameActionType = {
-        Move: 0,
-        Dig: 1,
-        Attack: 2,
-        UseItem: 3,
-        DropItem: 3,
-        UseAbility: 5
-    };
-
     let gameAction = {
         targetPosition: {
             x: dragObject.position.x,
@@ -60,7 +58,6 @@ function sendPlayerPosition() {
         return console.error(err.toString());
     });
 }
-
 
 function pointerDown(event) {
     if (!isMyTurn) return;
@@ -121,24 +118,41 @@ function sceneInit() {
 }
 
 
-guiInit();
-async function guiInit() {
-    gui = new GUI();
-    let mainFolder = gui.addFolder("Main");
+let isInitGui;
+export async function guiInit() {
+    if (isInitGui) return;
+    isInitGui = true;
+    let div = document.createElement("div");
+    div.style.position = 'absolute';
+    div.style.border = '1px solid black';
+    div.style.width = screen.width + 'px';
+    div.style.height = screen.height + 'px';
+    div.style.margin = 'auto';
+    div.style.top = 56 + 'px';
+    div.onselectstart = false;
+    div.onmousedown = false;
+    document.body.appendChild(div);
+
+    let count = document.createElement("P"); 
+    count.innerText = "the die is not thrown";
+    count.style.color = "white";
+    div.appendChild(count);
+
     let uui = {
         count: 0,
-        rollDice: async function () { this.count = await conection.invoke('RollTheDice'); console.log(this.count); },
+        rollDice: async function () { count.innerText = await conection.invoke('RollTheDice'); console.log(this.count); },
         endTurn: async function () { await conection.invoke('EndTurn');},
     };
-    mainFolder.add(uui, 'rollDice');
-    mainFolder.add(uui, 'endTurn');
-    mainFolder.add(uui, 'count').listen();
 
-    mainFolder.open();
+    let btnRollDice = document.createElement("button");
+    btnRollDice.innerText = 'rollDice'
+    btnRollDice.onclick = uui.rollDice;
+    div.appendChild(btnRollDice);
 
-    let cameraFolder = gui.addFolder("Camera");
-    cameraFolder.add(camera.position, "z", 5, 20, 0.01);
-    cameraFolder.open();
+    let btnEndTurn = document.createElement("button");
+    btnEndTurn.innerText = 'EndTurn'
+    btnEndTurn.onclick = uui.endTurn;
+    div.appendChild(btnEndTurn);
 }
 
 export function animate() {
@@ -157,9 +171,6 @@ function update() {
 
 export function UpdateRoom(room, conect) {
     conection = conect;
-    DrawFloor(room.gameMap);
-    AddSpanPounts(room.gameMap.spawnPoints);
-    AddFlag(room.gameMap.flagSpawnPoint);
     SpawnPlayers(room.players, room.userId);
 }
 
@@ -185,7 +196,7 @@ function SpawnPlayers(players, userId) {
     }
 }
 
-function DrawFloor(map) {
+export function DrawMap(map) {
     let Cell = {
         None: 0,
         Empty: 1,
@@ -209,6 +220,9 @@ function DrawFloor(map) {
             }
         }
     }
+
+    AddSpanPounts(map.spawnPoints);
+    AddFlag(map.flagSpawnPoint);
 }
 
 function AddSpanPounts(spawnPoints) {
@@ -227,10 +241,3 @@ function AddFlag(flagSpawnPoint) {
     cube.position.set(flagSpawnPoint.x, flagSpawnPoint.y, 1);
     cube.scale.set(0.2, 0.2, 1);
 }
-
-//function move(speed) {
-//    var d = mesh.position.x - mesh2.position.x;
-//    if (mesh.position.x > mesh2.position.x) {
-//        mesh.position.x -= Math.min(speed, d);
-//    }
-//}

@@ -20,16 +20,22 @@ window.onload = async function(){
             return console.error(err.toString());
         });
         console.log(`Player ${userId} connected to lobby: ${code}`);
+
+        var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        game.DrawMap(gameMap);
     }).catch(function (err) {
         return console.error(err.toString());
     });
 
-    connection.on("ChangeState", function (room) {
+    connection.on("ChangeState", async function (room) {
         UpdateRoom(room);
         console.log("ChangeState");
     });
 
-    connection.on("ChangeStateWithAction", function (room, gameAction) {
+    connection.on("ChangeStateWithAction", async function (room, gameAction) {
         UpdateRoom(room);
         console.log("ChangeStateWithAction");
     });
@@ -39,8 +45,9 @@ window.onload = async function(){
     window.StartGame = StartGame;
 };
 
-function UpdateRoom(room) {
+async function UpdateRoom(room) {
     if (room.isStarted) {
+        await game.guiInit();
         ToggleRendering('game', true);
         ToggleRendering('lobby', false);
         ToggleRendering('footer', false);
@@ -95,7 +102,7 @@ function ChangeReady() {
     });
 }
 
-function StartGame() {
+async function StartGame() {
     connection.invoke("StartGame").catch(function (err) {
         return console.error(err.toString());
     });
