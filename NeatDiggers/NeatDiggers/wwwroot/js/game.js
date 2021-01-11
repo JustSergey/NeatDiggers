@@ -136,6 +136,8 @@ export async function guiInit() {
     let count = document.createElement("P"); 
     count.innerText = "the die is not thrown";
     count.style.color = "white";
+    count.onselectstart = false;
+    count.onmousedown = false;
     div.appendChild(count);
 
     let uui = {
@@ -147,11 +149,15 @@ export async function guiInit() {
     let btnRollDice = document.createElement("button");
     btnRollDice.innerText = 'rollDice'
     btnRollDice.onclick = uui.rollDice;
+    btnRollDice.onselectstart = false;
+    btnRollDice.onmousedown = false;
     div.appendChild(btnRollDice);
 
     let btnEndTurn = document.createElement("button");
     btnEndTurn.innerText = 'EndTurn'
     btnEndTurn.onclick = uui.endTurn;
+    btnEndTurn.onselectstart = false;
+    btnEndTurn.onmousedown = false;
     div.appendChild(btnEndTurn);
 }
 
