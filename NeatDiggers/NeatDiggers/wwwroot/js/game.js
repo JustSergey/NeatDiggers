@@ -1,6 +1,7 @@
 import * as THREE from '../lib/three/build/three.module.js';
+import { GUI } from '../lib/dat.gui/build/dat.gui.module.js';
 
-let camera, scene, renderer;
+let camera, scene, renderer, gui;
 let isMyTurn;
 let screen = {
     width: 0,
@@ -17,28 +18,56 @@ const BoxGeometry = new THREE.BoxGeometry();
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-var plane = new THREE.Plane();
-var pNormal = new THREE.Vector3(0, 0, 1); // plane's normal
-var planeIntersect = new THREE.Vector3(); // point of intersection with the plane
-var pIntersect = new THREE.Vector3(); // point of intersection with an object (plane's point)
-var shift = new THREE.Vector3(); // distance between position of an object and points of intersection with the object
-var isDragging = false;
-var dragObject;
+let plane = new THREE.Plane();
+let pNormal = new THREE.Vector3(0, 0, 1);
+let planeIntersect = new THREE.Vector3();
+let objIntersect = new THREE.Vector3();
+let shift = new THREE.Vector3();
+let isDragging = false;
+let dragObject;
+
+let conection;
 
 init();
 
 function pointerUp(event) {
-    if (!isMyTurn) return;
+    if (!isMyTurn && isDragging) return;
     isDragging = false;
+    sendPlayerPosition();
+    //send new coords for all players
     dragObject = null;
 }
+
+function sendPlayerPosition() {
+    let GameActionType = {
+        Move: 0,
+        Dig: 1,
+        Attack: 2,
+        UseItem: 3,
+        DropItem: 3,
+        UseAbility: 5
+    };
+
+    let gameAction = {
+        targetPosition: {
+            x: dragObject.position.x,
+            y: dragObject.position.y
+        },
+        gameActionType: GameActionType.Move
+    };
+
+    conection.invoke('DoAction', gameAction).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
 
 function pointerDown(event) {
     if (!isMyTurn) return;
     let intersects = raycaster.intersectObjects(scenePlayer.children);
     if (intersects.length > 0) {
-        pIntersect.copy(intersects[0].point);
-        plane.setFromNormalAndCoplanarPoint(pNormal, pIntersect);
+        objIntersect.copy(intersects[0].point);
+        plane.setFromNormalAndCoplanarPoint(pNormal, objIntersect);
         shift.subVectors(intersects[0].object.position, intersects[0].point);
         isDragging = true;
         dragObject = intersects[0].object;
@@ -91,6 +120,27 @@ function sceneInit() {
     scene.add(scenePlayer);
 }
 
+
+guiInit();
+async function guiInit() {
+    gui = new GUI();
+    let mainFolder = gui.addFolder("Main");
+    let uui = {
+        count: 0,
+        rollDice: async function () { this.count = await conection.invoke('RollTheDice'); console.log(this.count); },
+        endTurn: async function () { await conection.invoke('EndTurn');},
+    };
+    mainFolder.add(uui, 'rollDice');
+    mainFolder.add(uui, 'endTurn');
+    mainFolder.add(uui, 'count').listen();
+
+    mainFolder.open();
+
+    let cameraFolder = gui.addFolder("Camera");
+    cameraFolder.add(camera.position, "z", 5, 20, 0.01);
+    cameraFolder.open();
+}
+
 export function animate() {
     requestAnimationFrame(animate);
     update();
@@ -105,11 +155,11 @@ function update() {
 
 }
 
-export function UpdateRoom(room) {
+export function UpdateRoom(room, conect) {
+    conection = conect;
     DrawFloor(room.gameMap);
     AddSpanPounts(room.gameMap.spawnPoints);
     AddFlag(room.gameMap.flagSpawnPoint);
-
     SpawnPlayers(room.players, room.userId);
 }
 
@@ -128,7 +178,7 @@ function SpawnPlayers(players, userId) {
 
         if (players[i].id == userId)
             scenePlayer.add(cube);
-        else 
+        else
             scenePlayers.add(cube);
 
         cube.position.set(players[i].position.x, players[i].position.y, 1);

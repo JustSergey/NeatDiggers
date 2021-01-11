@@ -16,6 +16,13 @@
       "files": [
         "build/three.module.js"
       ]
+    },
+    {
+      "library": "dat.gui@0.7.7",
+      "destination": "wwwroot/lib/dat.gui/",
+      "files": [
+        "build/dat.gui.module.js"
+      ]
     }
   ]
 }
