@@ -14,7 +14,7 @@
 
         public override bool Use(Room room, GameAction gameAction)
         {
-            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayer.Id);
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayerId);
             if (targetPlayer != null)
             {
                 Vector targetPosition = targetPlayer.Position;

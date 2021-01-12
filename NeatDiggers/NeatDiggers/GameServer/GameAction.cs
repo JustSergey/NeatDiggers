@@ -24,7 +24,7 @@ namespace NeatDiggers.GameServer
         public GameActionType Type { get; set; }
         public Item Item { get; set; }
         public Ability Ability { get; set; }
-        public Player TargetPlayer { get; set; }
+        public string TargetPlayerId { get; set; }
         public Vector TargetPosition { get; set; }
     }
 }

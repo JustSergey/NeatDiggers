@@ -23,15 +23,15 @@ namespace NeatDiggers.GameServer.Abilities
 
         public override bool Use(Room room, GameAction gameAction)
         {
-            if (gameAction.CurrentPlayer.Position.CheckAvailability(gameAction.TargetPlayer.Position, range))
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayerId);
+            if (gameAction.CurrentPlayer.Position.CheckAvailability(targetPlayer.Position, range))
             {
                 if (gameAction.CurrentPlayer.Inventory.Drop >= consumption)
                 {
                     gameAction.CurrentPlayer.Inventory.Drop -= consumption;
-                    Player target = room.GetPlayer(gameAction.TargetPlayer.Id);
-                    target.Health -= damage;
-                    if (target.Health <= 0)
-                        target.Respawn();
+                    targetPlayer.Health -= damage;
+                    if (targetPlayer.Health <= 0)
+                        targetPlayer.Respawn();
                     return true;
                 }
             }

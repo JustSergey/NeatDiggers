@@ -235,13 +235,13 @@ namespace NeatDiggers.Hubs
         private bool Attack(Room room, GameAction gameAction)
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
-            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayer.Id);
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayerId);
 
             int playerAttackRadius = CalculateAttackRadius(gameAction.CurrentPlayer);
             int playerAttackDamage = GetPlayerDamage(gameAction.CurrentPlayer);
 
-            Item enemyArmor = gameAction.TargetPlayer.Inventory.Armor;
-            int enemyArmorBuff = gameAction.TargetPlayer.Armor;
+            Item enemyArmor = targetPlayer.Inventory.Armor;
+            int enemyArmorBuff = targetPlayer.Armor;
             int enemyArmorStrength = enemyArmor.ArmorStrength;
 
             if (playerPosition.CheckAvailability(targetPlayer.Position, playerAttackRadius))

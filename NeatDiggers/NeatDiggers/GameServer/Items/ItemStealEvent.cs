@@ -17,7 +17,7 @@ namespace NeatDiggers.GameServer.Items
 
         public override bool Use(Room room, GameAction gameAction)
         {
-            List<Item> items = room.GetPlayer(gameAction.TargetPlayer.Id).Inventory.Items;
+            List<Item> items = room.GetPlayer(gameAction.TargetPlayerId).Inventory.Items;
             int rand = new Random().Next(items.Count);
             Item item = items[rand];
             items.RemoveAt(rand);

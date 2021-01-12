@@ -14,9 +14,10 @@
         
         public override bool Use(Room room, GameAction gameAction)
         {
-            int targetHealth = room.GetPlayer(gameAction.TargetPlayer.Id).Health;
-            room.GetPlayer(gameAction.TargetPlayer.Id).Health = room.GetPlayer(gameAction.CurrentPlayer.Id).Health;
-            room.GetPlayer(gameAction.CurrentPlayer.Id).Health = targetHealth;
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayerId);
+            int targetHealth = targetPlayer.Health;
+            targetPlayer.Health = room.GetPlayer(gameAction.CurrentPlayer.Id).Health;
+            gameAction.CurrentPlayer.Health = targetHealth;
             return true;
         }
     }
