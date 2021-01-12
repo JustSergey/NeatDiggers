@@ -34,6 +34,8 @@ let conection;
 
 let log, inventory, turn, count;
 
+let btnRollDice, btnDig, canMove = true;
+
 let GameActionType = {
     Move: 0,
     Dig: 1,
@@ -51,7 +53,7 @@ async function pointerUp(event) {
     sendPlayerPosition();
 }
 
-async function sendPlayerPosition() {
+function sendPlayerPosition() {
     let gameAction = {
         targetPosition: {
             x: dragObject.position.x,
@@ -60,19 +62,17 @@ async function sendPlayerPosition() {
         Type: GameActionType.Move
     };
 
-    let can = await conection.invoke('DoAction', gameAction).catch(function (err) {
-        return console.error(err.toString());
-    });
+    let can = doAction(gameAction);
 
     if (!can) {
         pandora.position.set(oldPosition.x, oldPosition.y, 0);
     } else {
-        count.innerText = "the die is not thrown";
+        count.innerText = "You need to roll the dice";
     }
 }
 
 function pointerDown(event) {
-    if (!isMyTurn) return;
+    if (!isMyTurn || actionsCount < 1 || !canMove) return;
     let intersects = raycaster.intersectObjects(scenePlayer.children);
     if (intersects.length > 0) {
         objIntersect.copy(intersects[0].point);
@@ -94,7 +94,7 @@ function pointerMove(event) {
     if (isDragging) {
         raycaster.ray.intersectPlane(plane, planeIntersect);
         dragObject.position.addVectors(planeIntersect, shift);
-        dragObject.position.set(Math.floor(dragObject.position.x), Math.floor(dragObject.position.y), 0)
+        dragObject.position.set(Math.round(dragObject.position.x), Math.round(dragObject.position.y), 0)
     }
 }
 
@@ -162,7 +162,6 @@ export async function guiInit() {
     div.appendChild(turn);
 
     count = document.createElement("P"); 
-    count.innerText = "the die is not thrown";
     count.style.color = "white";
     count.onselectstart = false;
     count.onmousedown = false;
@@ -175,9 +174,16 @@ export async function guiInit() {
             });
         },
         endTurn: async function () {
-            await conection.invoke('EndTurn').catch(function (err) {
+            let success = await conection.invoke('EndTurn').catch(function (err) {
                 return console.error(err.toString());
-            }); },
+            });
+            if (success) {
+                actionsCount = 2;
+                canMove = true;
+                btnDig.disabled = false;
+                btnRollDice.disabled = false;
+            }
+        },
         dig: async function () {
             let gameAction = {
                 Type: GameActionType.Dig,
@@ -186,19 +192,23 @@ export async function guiInit() {
                     y: scenePlayer.children[0].position.y
                 }
             };
-            conection.invoke('DoAction', gameAction).catch(function (err) {
-                return console.error(err.toString());
-            });
-            count.innerText = "the die is not thrown";
+            doAction(gameAction);
         },
     };
 
-    let btnRollDice = document.createElement("button");
+    btnRollDice = document.createElement("button");
     btnRollDice.innerText = 'rollDice';
     btnRollDice.onclick = uui.rollDice;
     btnRollDice.onselectstart = false;
     btnRollDice.onmousedown = false;
     div.appendChild(btnRollDice);
+
+    btnDig = document.createElement("button");
+    btnDig.innerText = 'Dig';
+    btnDig.onclick = uui.dig;
+    btnDig.onselectstart = false;
+    btnDig.onmousedown = false;
+    div.appendChild(btnDig);
 
     let btnEndTurn = document.createElement("button");
     btnEndTurn.innerText = 'EndTurn';
@@ -206,13 +216,6 @@ export async function guiInit() {
     btnEndTurn.onselectstart = false;
     btnEndTurn.onmousedown = false;
     div.appendChild(btnEndTurn);
-
-    let btnDig = document.createElement("button");
-    btnDig.innerText = 'btnDig';
-    btnDig.onclick = uui.dig;
-    btnDig.onselectstart = false;
-    btnDig.onmousedown = false;
-    div.appendChild(btnDig);
 
     inventory = document.createElement("div");
     inventory.style.color = "white";
@@ -226,6 +229,31 @@ export async function guiInit() {
     log.onselectstart = false;
     log.onmousedown = false;
     //div.appendChild(log);
+}
+
+let actionsCount = 2;
+async function doAction(gameAction) {
+    let success = await conection.invoke('DoAction', gameAction).catch(function (err) {
+        return console.error(err.toString());
+    });
+    if (success) {
+        switch (gameAction.Type) {
+            case GameActionType.Move:
+                canMove = false;
+                break;
+            case GameActionType.Dig:
+                btnDig.disabled = true;
+                break;
+            //case GameActionType.Attack: break;
+            //case GameActionType.UseAbility: break;
+            //case GameActionType.UseItem: break;
+        }
+        actionsCount--;
+        count.innerText = "You need to roll the dice";
+
+        if (actionsCount < 1) btnRollDice.disabled = true;
+    }
+    return success;
 }
 
 export function animate() {
@@ -272,6 +300,7 @@ function AddItems(items) {
         let itemDrop = document.createElement("button");
         itemDrop.innerText = "Drop";
         itemDrop.onclick = function () {
+            if (actionsCount < 1) return;
             let gameAction = {
                 Type: GameActionType.DropItem,
                 Item: item,
@@ -280,9 +309,7 @@ function AddItems(items) {
                     y: scenePlayer.children[0].position.y
                 }
             };
-            conection.invoke('DoAction', gameAction).catch(function (err) {
-                return console.error(err.toString());
-            });
+            doAction(gameAction);
         }
 
         inventory.appendChild(itemTitle);
