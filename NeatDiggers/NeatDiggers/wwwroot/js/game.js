@@ -53,7 +53,7 @@ async function pointerUp(event) {
     sendPlayerPosition();
 }
 
-function sendPlayerPosition() {
+async function sendPlayerPosition() {
     let gameAction = {
         targetPosition: {
             x: dragObject.position.x,
@@ -62,7 +62,7 @@ function sendPlayerPosition() {
         Type: GameActionType.Move
     };
 
-    let can = doAction(gameAction);
+    let can = await doAction(gameAction);
 
     if (!can) {
         pandora.position.set(oldPosition.x, oldPosition.y, 0);
@@ -248,10 +248,12 @@ async function doAction(gameAction) {
             //case GameActionType.UseAbility: break;
             //case GameActionType.UseItem: break;
         }
-        actionsCount--;
-        count.innerText = "You need to roll the dice";
-
-        if (actionsCount < 1) btnRollDice.disabled = true;
+        if (gameAction.Type != GameActionType.DropItem) {
+            actionsCount--;
+            count.innerText = "You need to roll the dice";
+        }
+        if (actionsCount < 1)
+            btnRollDice.disabled = true;
     }
     return success;
 }
@@ -300,7 +302,7 @@ function AddItems(items) {
         let itemDrop = document.createElement("button");
         itemDrop.innerText = "Drop";
         itemDrop.onclick = function () {
-            if (actionsCount < 1) return;
+            if (!isMyTurn) return;
             let gameAction = {
                 Type: GameActionType.DropItem,
                 Item: item,
