@@ -28,6 +28,7 @@ let objIntersect = new THREE.Vector3();
 let shift = new THREE.Vector3();
 let isDragging = false;
 let dragObject;
+let oldPosition = new THREE.Vector3();
 
 let conection;
 
@@ -44,15 +45,13 @@ let GameActionType = {
 
 init();
 
-function pointerUp(event) {
+async function pointerUp(event) {
     if (!isMyTurn || !isDragging) return;
     isDragging = false;
     sendPlayerPosition();
-    dragObject = null;
-    count.innerText = "the die is not thrown";
 }
 
-function sendPlayerPosition() {
+async function sendPlayerPosition() {
     let gameAction = {
         targetPosition: {
             x: dragObject.position.x,
@@ -61,9 +60,15 @@ function sendPlayerPosition() {
         Type: GameActionType.Move
     };
 
-    conection.invoke('DoAction', gameAction).catch(function (err) {
+    let can = await conection.invoke('DoAction', gameAction).catch(function (err) {
         return console.error(err.toString());
     });
+
+    if (!can) {
+        pandora.position.set(oldPosition.x, oldPosition.y, 0);
+    } else {
+        count.innerText = "the die is not thrown";
+    }
 }
 
 function pointerDown(event) {
@@ -75,6 +80,8 @@ function pointerDown(event) {
         shift.subVectors(intersects[0].object.position, intersects[0].point);
         isDragging = true;
         dragObject = intersects[0].object;
+        oldPosition.x = intersects[0].object.position.x;
+        oldPosition.y = intersects[0].object.position.y;
     }
 }
 
