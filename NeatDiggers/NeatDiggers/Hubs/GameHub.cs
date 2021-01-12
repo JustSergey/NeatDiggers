@@ -200,13 +200,13 @@ namespace NeatDiggers.Hubs
 
         private bool Move(Room room, GameAction gameAction)
         {
-            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
+            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
                 Vector playerPosition = gameAction.CurrentPlayer.Position;
                 Vector targetPosition = gameAction.TargetPosition;
                 int x = targetPosition.X;
                 int y = targetPosition.Y;
-                if (playerPosition.CheckAvailability(targetPosition, dice) &&
+                if (playerPosition.CheckAvailability(targetPosition, dice + gameAction.CurrentPlayer.Speed) &&
                     targetPosition.IsInMap(room.GetGameMap()) &&
                     room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
@@ -231,32 +231,37 @@ namespace NeatDiggers.Hubs
 
             if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
             {
-                room.GetPlayer(gameAction.TargetPlayer.Id).Health -=
-                    playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+                int consumption = 
+                    gameAction.CurrentPlayer.Inventory.LeftWeapon.WeaponConsumption +
+                    gameAction.CurrentPlayer.Inventory.RightWeapon.WeaponConsumption;
 
-                if (enemyArmor.Type == ItemType.Armor)
+                if (gameAction.CurrentPlayer.Inventory.Drop >= consumption)
                 {
-                    enemyArmor.ArmorDurability--;
-                    if (enemyArmor.ArmorDurability <= 0)
-                        room.GetPlayer(gameAction.TargetPlayer.Id).Inventory.Armor = new EmptyItem();
-                }
+                    gameAction.CurrentPlayer.Inventory.Drop -= consumption;
 
-                if (room.GetPlayer(gameAction.TargetPlayer.Id).Health <= 0)
-                {
-                    KillPlayer(room, gameAction.TargetPlayer);
+                    Player target = room.GetPlayer(gameAction.TargetPlayer.Id);
+                    target.Health -=
+                        playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+
+                    if (enemyArmor.Type == ItemType.Armor)
+                    {
+                        enemyArmor.ArmorDurability--;
+                        if (enemyArmor.ArmorDurability <= 0)
+                            target.Inventory.Armor = new EmptyItem();
+                    }
+
+                    if (target.Health <= 0)
+                        target.Respawn();
+
+                    return true;
                 }
             }
-            else
-            {
-                return false;
-            }
-
-            return true;
+            return false;
         }
 
         private bool Dig(Room room, GameAction gameAction)
         {
-            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice)
+            if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
                 if (dice % 2 == 0)
                 {
@@ -297,17 +302,9 @@ namespace NeatDiggers.Hubs
             Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
             if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
             {
-                gameAction.Ability.Use(room, gameAction);
-                return true;
+                return gameAction.Ability.Use(room, gameAction);
             }
             return false;
-        }
-
-        private void KillPlayer(Room room, Player player)
-        {
-            room.GetPlayer(player.Id).Health = player.Character.MaxHealth;
-            room.GetPlayer(player.Id).Inventory = new Inventory();
-            room.GetPlayer(player.Id).Position = player.SpawnPoint;
         }
 
         public async Task<bool> EndTurn()

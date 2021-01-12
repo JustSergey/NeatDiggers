@@ -7,7 +7,8 @@ namespace NeatDiggers.GameServer.Abilities
 {
     public enum AbilityName
     {
-        Speed
+        Speed,
+        Shuriken
     }
 
     public enum AbilityType
@@ -23,7 +24,7 @@ namespace NeatDiggers.GameServer.Abilities
         public AbilityType Type { get; protected set; }
         public bool IsActive { get; set; }
 
-        public virtual void Use(Room room, GameAction gameAction) { }
+        public virtual bool Use(Room room, GameAction gameAction) { return false; }
         public virtual void Get(Player player) { }
     }
 }

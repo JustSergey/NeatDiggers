@@ -77,5 +77,12 @@ namespace NeatDiggers.GameServer
             else if (Character.Name != CharacterName.Empty)
                 IsReady = true;
         }
+
+        public void Respawn()
+        {
+            Health = Character.MaxHealth;
+            Inventory = new Inventory();
+            Position = SpawnPoint;
+        }
     }
 }

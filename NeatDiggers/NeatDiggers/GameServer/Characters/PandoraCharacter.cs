@@ -16,8 +16,8 @@ namespace NeatDiggers.GameServer.Characters
             WeaponType = WeaponType.None;
             Abilities = new List<Ability>
             {
-                new SpeedAbility(1),
-                new SpeedAbility(3)
+                new Shuriken(2, 1, 1),
+                new SpeedAbility(2)
             };
         }
     }

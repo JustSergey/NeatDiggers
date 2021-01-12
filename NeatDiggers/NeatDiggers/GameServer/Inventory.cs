@@ -13,7 +13,7 @@ namespace NeatDiggers.GameServer
         public Item RightWeapon { get; set; }
         public Item Armor { get; set; }
         public List<Item> Items { get; set; }
-        public int Drop { get; private set; }
+        public int Drop { get; set; }
 
         public Inventory()
         {
