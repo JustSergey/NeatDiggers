@@ -354,11 +354,22 @@ namespace NeatDiggers.Hubs
             await base.OnDisconnectedAsync(exception);
         }
 
+        public int GetAttackRadius()
+        {
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player != null && player.IsTurn)
+                    return CalculateAttackRadius(player);
+            }
+            return -1;
+        }
+
         private int CalculateAttackRadius(Player player)
         {
             Item leftWeapon = player.Inventory.LeftWeapon;
             Item rightWeapon = player.Inventory.RightWeapon;
-
 
             if (leftWeapon.WeaponHanded == WeaponHanded.Two)
             {
