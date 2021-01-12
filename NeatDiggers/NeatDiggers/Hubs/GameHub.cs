@@ -152,13 +152,22 @@ namespace NeatDiggers.Hubs
 
         public int RollTheDice()
         {
-            if (Context.Items.ContainsKey("IsDice") && (bool) Context.Items["IsDice"])
-                return (int) Context.Items["Dice"];
-            Random random = new Random();
-            int dice = random.Next(1, 7);
-            Context.Items["IsDice"] = true;
-            Context.Items["Dice"] = dice;
-            return dice;
+            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            if (room != null && room.IsStarted)
+            {
+                Player player = room.GetPlayer(Context.ConnectionId);
+                if (player != null && player.IsTurn)
+                {
+                    if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
+                        return (int)Context.Items["Dice"];
+                    Random random = new Random();
+                    int dice = random.Next(1, 7);
+                    Context.Items["IsDice"] = true;
+                    Context.Items["Dice"] = dice;
+                    return dice;
+                }
+            }
+            return -1;
         }
 
         public async Task<bool> DoAction(GameAction gameAction)
