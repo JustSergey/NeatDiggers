@@ -251,6 +251,7 @@ async function doAction(gameAction) {
         if (gameAction.Type != GameActionType.DropItem) {
             actionsCount--;
             count.innerText = "You need to roll the dice";
+            turn.innerText = "Actions remains: " + actionsCount;
         }
         if (actionsCount < 1)
             btnRollDice.disabled = true;
@@ -277,7 +278,6 @@ export function UpdateRoom(room, conect) {
         turn.innerText = "Your move!";
         turn.style.visibility = 'visible';
         count.style.visibility = 'visible';
-
     }
     else {
         turn.style.visibility = 'hidden';
