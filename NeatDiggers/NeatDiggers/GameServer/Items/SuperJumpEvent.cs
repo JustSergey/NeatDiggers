@@ -7,7 +7,7 @@
             Name = ItemName.SuperJump;
             Title = "Скачок";
             Description = "Телепортирует персонажа на любую клетку (дальность +6)";
-            Type = ItemType.Event;
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

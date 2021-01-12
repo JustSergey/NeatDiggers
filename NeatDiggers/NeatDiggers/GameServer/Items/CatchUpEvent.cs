@@ -7,7 +7,7 @@
             Name = ItemName.CatchUp;
             Title = "Догонялки";
             Description = "Телепортирует персонажа к цели";
-            Type = ItemType.Event;
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }
