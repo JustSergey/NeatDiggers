@@ -15,6 +15,9 @@ namespace NeatDiggers.GameServer
 
         public bool CheckAvailability(Vector targetPoint, int radius)
         {
+            if (radius == 0)
+                return true;
+            
             // Определяем стороны прямоугольного треугольника с гипотенузой между координатами этой точки и targetPoint
             double a = Math.Abs(targetPoint.X - X);
             double b = Math.Abs(targetPoint.Y - Y);
