@@ -180,7 +180,9 @@ namespace NeatDiggers.Hubs
                 {
                     int actionsCount = (int)Context.Items["Actions"];
                     GameActionType prevAction = (GameActionType)Context.Items["PrevAction"];
-                    if (actionsCount == 0 || (actionsCount == 1 && prevAction != gameAction.Type))
+                    if (actionsCount == 0 || 
+                        (actionsCount == 1 && prevAction != gameAction.Type) || 
+                        gameAction.Type == GameActionType.DropItem)
                     {
                         gameAction.CurrentPlayer = player;
                         Func<bool> action = gameAction.Type switch
@@ -195,9 +197,13 @@ namespace NeatDiggers.Hubs
                         };
                         if (action != null && action())
                         {
-                            Context.Items["IsDice"] = false;
-                            Context.Items["Actions"] = actionsCount + 1;
-                            Context.Items["PrevAction"] = gameAction.Type;
+                            if (gameAction.Type == GameActionType.Move || gameAction.Type == GameActionType.Dig)
+                                Context.Items["IsDice"] = false;
+                            if (gameAction.Type != GameActionType.DropItem)
+                            {
+                                Context.Items["Actions"] = actionsCount + 1;
+                                Context.Items["PrevAction"] = gameAction.Type;
+                            }
                             await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                             return true;
                         }
