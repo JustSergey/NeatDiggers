@@ -11,17 +11,17 @@
       ]
     },
     {
-      "library": "three@0.124.0",
-      "destination": "wwwroot/lib/three/",
-      "files": [
-        "build/three.module.js"
-      ]
-    },
-    {
       "library": "dat.gui@0.7.7",
       "destination": "wwwroot/lib/dat.gui/",
       "files": [
         "build/dat.gui.module.js"
+      ]
+    },
+    {
+      "library": "three@0.124.0",
+      "destination": "wwwroot/lib/three/",
+      "files": [
+        "examples/jsm/loaders/GLTFLoader.js"
       ]
     }
   ]

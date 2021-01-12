@@ -1,6 +1,8 @@
 import * as THREE from '../lib/three/build/three.module.js';
+import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
-let camera, scene, renderer, gui;
+let camera, scene, renderer;
+let loader;
 let isMyTurn;
 let screen = {
     width: 0,
@@ -10,6 +12,8 @@ let screen = {
         this.height = window.innerHeight - 56;
     }
 };
+
+let pandora;
 
 const scenePlayers = new THREE.Group();
 const scenePlayer = new THREE.Group();
@@ -27,7 +31,7 @@ let dragObject;
 
 let conection;
 
-let log, inventory;
+let log, inventory, turn, count;
 
 let GameActionType = {
     Move: 0,
@@ -45,6 +49,7 @@ function pointerUp(event) {
     isDragging = false;
     sendPlayerPosition();
     dragObject = null;
+    count.innerText = "the die is not thrown";
 }
 
 function sendPlayerPosition() {
@@ -82,7 +87,7 @@ function pointerMove(event) {
     if (isDragging) {
         raycaster.ray.intersectPlane(plane, planeIntersect);
         dragObject.position.addVectors(planeIntersect, shift);
-        dragObject.position.set(Math.floor(dragObject.position.x), Math.floor(dragObject.position.y), Math.floor(dragObject.position.z))
+        dragObject.position.set(Math.floor(dragObject.position.x), Math.floor(dragObject.position.y), 0)
     }
 }
 
@@ -90,9 +95,20 @@ function init() {
     renderInit();
     sceneInit();
     cameraInit();
+    loaderInit();
     document.addEventListener('pointerup', pointerUp, false);
     document.addEventListener('pointerdown', pointerDown, false);
     document.addEventListener('pointermove', pointerMove, false);
+}
+
+function loaderInit() {
+    loader = new GLTFLoader();
+
+    loader.load('../../StaticFiles/models/pandora.glb', function (gltf) {
+        pandora = gltf.scene.children[0];
+    }, undefined, function (error) {
+        console.error(error);
+    });
 }
 
 function renderInit() {
@@ -134,7 +150,11 @@ export async function guiInit() {
     div.onmousedown = false;
     document.body.appendChild(div);
 
-    let count = document.createElement("P"); 
+    turn = document.createElement("p");
+    turn.style.color = "white";
+    div.appendChild(turn);
+
+    count = document.createElement("P"); 
     count.innerText = "the die is not thrown";
     count.style.color = "white";
     count.onselectstart = false;
@@ -162,6 +182,7 @@ export async function guiInit() {
             conection.invoke('DoAction', gameAction).catch(function (err) {
                 return console.error(err.toString());
             });
+            count.innerText = "the die is not thrown";
         },
     };
 
@@ -187,7 +208,6 @@ export async function guiInit() {
     div.appendChild(btnDig);
 
     inventory = document.createElement("div");
-    inventory.innerText = 'inventory';
     inventory.style.color = "white";
     inventory.onselectstart = false;
     inventory.onmousedown = false;
@@ -198,7 +218,7 @@ export async function guiInit() {
     log.style.color = "white";
     log.onselectstart = false;
     log.onmousedown = false;
-    div.appendChild(log);
+    //div.appendChild(log);
 }
 
 export function animate() {
@@ -215,10 +235,16 @@ export function UpdateRoom(room, conect) {
     SpawnPlayers(room.players, room.userId);
     log.innerHTML = JSON.stringify(room);
 
-    for (var i = 0; i < room.players.length; i++) {
-        if (room.players[i].id == room.userId) {
-            UpdateInventory(room.players[i].inventory);
-        }
+    if (room.players[room.playerTurn].id == room.userId) {
+        UpdateInventory(room.players[room.playerTurn].inventory);
+        turn.innerText = "Your move!";
+        turn.style.visibility = 'visible';
+        count.style.visibility = 'visible';
+
+    }
+    else {
+        turn.style.visibility = 'hidden';
+        count.style.visibility = 'hidden';
     }
 }
 
@@ -252,11 +278,9 @@ function AddItems(items) {
             });
         }
 
-
         inventory.appendChild(itemTitle);
         inventory.appendChild(itemDrop);
         inventory.appendChild(itemDescription);
-
     }
 }
 
@@ -283,8 +307,10 @@ function SpawnPlayers(players, userId) {
         let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
         let cube = new THREE.Mesh(BoxGeometry, material);
 
-        if (players[i].id == userId)
-            scenePlayer.add(cube);
+        if (players[i].id == userId) {
+            scenePlayer.add(pandora);
+            pandora.position.set(players[i].position.x, players[i].position.y, 0);
+        }
         else
             scenePlayers.add(cube);
 

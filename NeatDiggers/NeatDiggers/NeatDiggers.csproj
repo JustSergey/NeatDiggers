@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Content Include="StaticFiles\models\pandora.glb" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Hubs\" />
   </ItemGroup>
 
