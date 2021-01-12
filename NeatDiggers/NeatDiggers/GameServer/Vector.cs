@@ -15,22 +15,9 @@ namespace NeatDiggers.GameServer
 
         public bool CheckAvailability(Vector targetPoint, int radius)
         {
-            if (radius == 0)
-                return true;
-            
-            // Определяем стороны прямоугольного треугольника с гипотенузой между координатами этой точки и targetPoint
-            double a = Math.Abs(targetPoint.X - X);
-            double b = Math.Abs(targetPoint.Y - Y);
-            double c = Math.Sqrt(a * a + b * b);
-            
-            double sinAlpha = a / c;
-            double cosAlpha = b / c;
-            
-            //Находим точку пересечения гипотенузы с окружностью
-            double x = sinAlpha * radius;
-            double y = cosAlpha * radius;
-
-            return (a - x <= 0.3f && b - y <= 0.3f);
+            int x = targetPoint.X - X;
+            int y = targetPoint.Y - Y;
+            return radius >= (int)Math.Round(Math.Sqrt(x * x + y * y));
         }
 
         public bool IsInMap(GameMap map)
