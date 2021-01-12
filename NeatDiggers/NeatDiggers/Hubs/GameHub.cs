@@ -235,7 +235,7 @@ namespace NeatDiggers.Hubs
         private bool Attack(Room room, GameAction gameAction)
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
-            Vector targetPosition = gameAction.TargetPosition;
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayer.Id);
 
             int playerAttackRadius = CalculateAttackRadius(gameAction.CurrentPlayer);
             int playerAttackDamage = GetPlayerDamage(gameAction.CurrentPlayer);
@@ -244,7 +244,7 @@ namespace NeatDiggers.Hubs
             int enemyArmorBuff = gameAction.TargetPlayer.Armor;
             int enemyArmorStrength = enemyArmor.ArmorStrength;
 
-            if (playerPosition.CheckAvailability(targetPosition, playerAttackRadius))
+            if (playerPosition.CheckAvailability(targetPlayer.Position, playerAttackRadius))
             {
                 int consumption = 
                     gameAction.CurrentPlayer.Inventory.LeftWeapon.WeaponConsumption +
@@ -254,19 +254,18 @@ namespace NeatDiggers.Hubs
                 {
                     gameAction.CurrentPlayer.Inventory.Drop -= consumption;
 
-                    Player target = room.GetPlayer(gameAction.TargetPlayer.Id);
-                    target.Health -=
+                    targetPlayer.Health -=
                         playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
 
                     if (enemyArmor.Type == ItemType.Armor)
                     {
                         enemyArmor.ArmorDurability--;
                         if (enemyArmor.ArmorDurability <= 0)
-                            target.Inventory.Armor = new EmptyItem();
+                            targetPlayer.Inventory.Armor = new EmptyItem();
                     }
 
-                    if (target.Health <= 0)
-                        target.Respawn();
+                    if (targetPlayer.Health <= 0)
+                        targetPlayer.Respawn();
 
                     return true;
                 }

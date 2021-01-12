@@ -8,16 +8,16 @@ namespace NeatDiggers.GameServer
 {
     public class Player
     {
-        public string Id { get; }
-        public string Name { get; }
-        public bool IsReady { get; private set; }
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public bool IsReady { get; set; }
         public bool IsTurn { get; set; }
         public bool WithFlag { get; set; }
-        public Vector SpawnPoint { get; }
+        public Vector SpawnPoint { get; set; }
         public Vector Position { get; set; }
         public Character Character { get; set; }
         public Inventory Inventory { get; set; }
-        public int Level { get; private set; }
+        public int Level { get; set; }
         public int Speed { get; set; }
         public int Health { get; set; }
         public int MeleeDamage { get; set; }
