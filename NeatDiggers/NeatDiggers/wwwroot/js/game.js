@@ -381,6 +381,11 @@ export function DrawMap(map) {
 
     AddSpanPounts(map.spawnPoints);
     AddFlag(map.flagSpawnPoint);
+
+    const gridHelper = new THREE.GridHelper(map.width, map.height, new THREE.Color(0x000000), new THREE.Color(0x000000));
+    gridHelper.rotateX(Math.PI / 2);
+    gridHelper.position.set((map.width - 1) / 2, (map.height - 1) / 2, 0.51);
+    scene.add(gridHelper);
 }
 
 function AddSpanPounts(spawnPoints) {
