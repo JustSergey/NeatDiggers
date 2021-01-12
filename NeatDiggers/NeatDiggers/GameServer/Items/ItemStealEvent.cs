@@ -1,4 +1,7 @@
-﻿namespace NeatDiggers.GameServer.Items
+﻿using System;
+using System.Collections.Generic;
+
+namespace NeatDiggers.GameServer.Items
 {
     public class ItemStealEvent : Item
     {
@@ -6,15 +9,21 @@
         {
             Name = ItemName.ItemSteal;
             Title = "Мне можно";
-            Description = "Позволяет забрать 1 любую вещь у любого игрока";
-            Type = ItemType.Event;
+            Description = "Позволяет забрать 1 случайную вещь у любого игрока";
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }
 
         public override void Use(Room room, GameAction gameAction)
         {
-            //TODO
+            List<Item> items = room.GetPlayer(gameAction.TargetPlayer.Id).Inventory.Items;
+            int rand = new Random().Next(items.Count);
+            Item item = items[rand];
+            items.RemoveAt(rand);
+            if (item.Type == ItemType.Passive)
+                item.Get(room, gameAction);
+            gameAction.CurrentPlayer.Inventory.Items.Add(item);
         }
     }
 }

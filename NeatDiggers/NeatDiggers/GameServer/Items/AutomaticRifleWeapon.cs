@@ -11,12 +11,8 @@
             WeaponHanded = WeaponHanded.Two;
             WeaponType = WeaponType.Ranged;
             WeaponDamage = 3;
+            WeaponDistance = 1;
             WeaponConsumption = 1;
-        }
-
-        public override void Use(Room room, GameAction gameAction)
-        {
-            //TODO
         }
     }
 }

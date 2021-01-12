@@ -9,8 +9,8 @@ namespace NeatDiggers.GameServer.Items
         {
             Name = ItemName.StrangeTeleport;
             Title = "Странное Заклинание";
-            Description = "-2 скорость у всех игроков на 2 круга";
-            Type = ItemType.Event;
+            Description = "Телепортирует всех персонажей в начало";
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

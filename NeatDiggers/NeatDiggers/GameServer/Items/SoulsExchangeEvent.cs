@@ -7,7 +7,7 @@
             Name = ItemName.SoulsExchange;
             Title = "Обмен душ";
             Description = "Позволяет обменяться здоровьем с целью";
-            Type = ItemType.Event;
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

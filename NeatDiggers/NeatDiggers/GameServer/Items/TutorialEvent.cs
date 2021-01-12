@@ -7,7 +7,7 @@
             Name = ItemName.Tutorial;
             Title = "Обучение";
             Description = "+1 уровень";
-            Type = ItemType.Event;
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

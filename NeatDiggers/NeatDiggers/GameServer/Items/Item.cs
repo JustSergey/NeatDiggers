@@ -59,7 +59,7 @@ namespace NeatDiggers.GameServer.Items
 
     public enum ItemType
     {
-        Event,
+        //Event,
         Passive,
         Active,
         Weapon,
@@ -89,6 +89,12 @@ namespace NeatDiggers.GameServer.Items
             {
                 ItemName.Empty => new EmptyItem(),
                 ItemName.Rain => new RainItem(),
+                ItemName.AutomaticRifle => new AutomaticRifleWeapon(),
+                ItemName.StrangeTeleport => new StrangeTeleportEvent(),
+                ItemName.CatchUp => new CatchUpEvent(),
+                ItemName.SoulsExchange => new SoulsExchangeEvent(),
+                ItemName.SuperJump => new SuperJumpEvent(),
+                ItemName.ItemSteal => new ItemStealEvent(),
                 _ => null
             };
     }

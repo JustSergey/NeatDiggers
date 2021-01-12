@@ -12,7 +12,7 @@ namespace NeatDiggers.GameServer.Items
             Name = ItemName.Rain;
             Title = "Дождь";
             Description = "-2 скорость у всех игроков на 2 круга";
-            Type = ItemType.Event;
+            Type = ItemType.Active;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

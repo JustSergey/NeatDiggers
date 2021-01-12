@@ -12,8 +12,13 @@ namespace NeatDiggers.GameServer.Decks
         {
             deck = new List<(ItemName, int)>
             {
-                (ItemName.Rain, 2),
-                (ItemName.Vest, 1)
+                (ItemName.Rain, 1),
+                (ItemName.AutomaticRifle, 1),
+                (ItemName.StrangeTeleport, 1),
+                (ItemName.CatchUp, 1),
+                (ItemName.SoulsExchange, 1),
+                (ItemName.SuperJump, 1),
+                (ItemName.ItemSteal, 1)
             };
         }
     }

@@ -264,15 +264,10 @@ namespace NeatDiggers.Hubs
                     for (int i = 0; i < count; i++)
                     {
                         Item item = room.Dig();
-                        if (item.Type == ItemType.Event)
-                        {
-                            item.Use(room, gameAction);
-                            continue;
-                        }
-                        else if (item.Type == ItemType.Passive)
+                        if (item.Type == ItemType.Passive)
                             item.Get(room, gameAction);
 
-                        room.GetPlayer(gameAction.CurrentPlayer.Id).Inventory.Items.Add(item);
+                        gameAction.CurrentPlayer.Inventory.Items.Add(item);
                     }
                     return true;
                 }
