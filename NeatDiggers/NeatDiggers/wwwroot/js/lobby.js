@@ -9,7 +9,7 @@ window.onload = async function () {
 
     ToggleRendering('game', false);
 
-    connection.start().then(function () {
+    connection.start().then(async function () {
         let code = document.getElementById("code").innerText;
         console.log(code);
         connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {

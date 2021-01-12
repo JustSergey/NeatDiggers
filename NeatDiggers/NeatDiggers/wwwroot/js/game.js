@@ -27,12 +27,14 @@ let dragObject;
 
 let conection;
 
+let log = document.createElement("p");
+
 let GameActionType = {
     Move: 0,
     Dig: 1,
     Attack: 2,
     UseItem: 3,
-    DropItem: 3,
+    DropItem: 4,
     UseAbility: 5
 };
 
@@ -51,7 +53,7 @@ function sendPlayerPosition() {
             x: dragObject.position.x,
             y: dragObject.position.y
         },
-        gameActionType: GameActionType.Move
+        Type: GameActionType.Move
     };
 
     conection.invoke('DoAction', gameAction).catch(function (err) {
@@ -141,29 +143,67 @@ export async function guiInit() {
     div.appendChild(count);
 
     let uui = {
-        count: 0,
-        rollDice: async function () { count.innerText = await conection.invoke('RollTheDice'); console.log(this.count); },
-        endTurn: async function () { await conection.invoke('EndTurn');},
+        rollDice: async function () {
+            count.innerText = await conection.invoke('RollTheDice').catch(function (err) {
+                return console.error(err.toString());
+            });
+        },
+        endTurn: async function () {
+            await conection.invoke('EndTurn').catch(function (err) {
+                return console.error(err.toString());
+            }); },
+        dig: async function () {
+            let gameAction = {
+                Type: GameActionType.Dig,
+                targetPosition: {
+                    x: scenePlayer.children[0].position.x,
+                    y: scenePlayer.children[0].position.y
+                }
+            };
+            conection.invoke('DoAction', gameAction).catch(function (err) {
+                return console.error(err.toString());
+            });
+        },
     };
 
     let btnRollDice = document.createElement("button");
-    btnRollDice.innerText = 'rollDice'
+    btnRollDice.innerText = 'rollDice';
     btnRollDice.onclick = uui.rollDice;
     btnRollDice.onselectstart = false;
     btnRollDice.onmousedown = false;
     div.appendChild(btnRollDice);
 
     let btnEndTurn = document.createElement("button");
-    btnEndTurn.innerText = 'EndTurn'
+    btnEndTurn.innerText = 'EndTurn';
     btnEndTurn.onclick = uui.endTurn;
     btnEndTurn.onselectstart = false;
     btnEndTurn.onmousedown = false;
     div.appendChild(btnEndTurn);
+
+    let btnDig = document.createElement("button");
+    btnDig.innerText = 'btnDig';
+    btnDig.onclick = uui.dig;
+    btnDig.onselectstart = false;
+    btnDig.onmousedown = false;
+    div.appendChild(btnDig);
+
+    let inventory = document.createElement("div");
+    inventory.innerText = 'inventory';
+    inventory.style.color = "white";
+    inventory.onselectstart = false;
+    inventory.onmousedown = false;
+    div.appendChild(inventory);
+
+
+    log.innerText = 'log';
+    log.style.color = "white";
+    log.onselectstart = false;
+    log.onmousedown = false;
+    div.appendChild(log);
 }
 
 export function animate() {
     requestAnimationFrame(animate);
-    update();
     renderer.render(scene, camera);
 }
 
@@ -171,13 +211,10 @@ export function setTurn(bool) {
     isMyTurn = bool;
 }
 
-function update() {
-
-}
-
 export function UpdateRoom(room, conect) {
     conection = conect;
     SpawnPlayers(room.players, room.userId);
+    log.innerHTML = JSON.stringify(room);
 }
 
 function SpawnPlayers(players, userId) {
