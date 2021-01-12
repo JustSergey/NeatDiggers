@@ -27,7 +27,7 @@ let dragObject;
 
 let conection;
 
-let log = document.createElement("p");
+let log, inventory;
 
 let GameActionType = {
     Move: 0,
@@ -119,7 +119,6 @@ function sceneInit() {
     scene.add(scenePlayer);
 }
 
-
 let isInitGui;
 export async function guiInit() {
     if (isInitGui) return;
@@ -187,14 +186,14 @@ export async function guiInit() {
     btnDig.onmousedown = false;
     div.appendChild(btnDig);
 
-    let inventory = document.createElement("div");
+    inventory = document.createElement("div");
     inventory.innerText = 'inventory';
     inventory.style.color = "white";
     inventory.onselectstart = false;
     inventory.onmousedown = false;
     div.appendChild(inventory);
 
-
+    log = document.createElement("p");
     log.innerText = 'log';
     log.style.color = "white";
     log.onselectstart = false;
@@ -215,6 +214,60 @@ export function UpdateRoom(room, conect) {
     conection = conect;
     SpawnPlayers(room.players, room.userId);
     log.innerHTML = JSON.stringify(room);
+
+    for (var i = 0; i < room.players.length; i++) {
+        if (room.players[i].id == room.userId) {
+            UpdateInventory(room.players[i].inventory);
+        }
+    }
+}
+
+function UpdateInventory(inv) {
+    ClearInventory();
+    AddOutfit(inv);
+    AddItems(inv.items);
+}
+
+function AddItems(items) {
+    for (var i = 0; i < items.length; i++) {
+        let item = items[i];
+        let itemTitle = document.createElement("button");
+        itemTitle.innerText = item.title;
+        
+        let itemDescription = document.createElement("p");
+        itemDescription.innerText = item.description;
+        let itemDrop = document.createElement("button");
+        itemDrop.innerText = "Drop";
+        itemDrop.onclick = function () {
+            let gameAction = {
+                Type: GameActionType.DropItem,
+                Item: item,
+                targetPosition: {
+                    x: scenePlayer.children[0].position.x,
+                    y: scenePlayer.children[0].position.y
+                }
+            };
+            conection.invoke('DoAction', gameAction).catch(function (err) {
+                return console.error(err.toString());
+            });
+        }
+
+
+        inventory.appendChild(itemTitle);
+        inventory.appendChild(itemDrop);
+        inventory.appendChild(itemDescription);
+
+    }
+}
+
+function AddOutfit(inv) {
+
+}
+
+function ClearInventory() {
+    while (inventory.firstChild) {
+        inventory.removeChild(inventory.firstChild);
+    }
 }
 
 function SpawnPlayers(players, userId) {
