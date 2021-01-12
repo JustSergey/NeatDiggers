@@ -12,11 +12,12 @@
             WeaponType = WeaponType.None;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             if (playerPosition.CheckAvailability(gameAction.TargetPosition, gameAction.CurrentPlayer.Speed + 6))
                 room.GetPlayer(gameAction.CurrentPlayer.Id).Position = gameAction.TargetPosition;
+            return true;
         }
     }
 }

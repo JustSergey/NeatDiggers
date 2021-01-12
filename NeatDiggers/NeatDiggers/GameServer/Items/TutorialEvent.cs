@@ -12,9 +12,10 @@
             WeaponType = WeaponType.None;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
             gameAction.CurrentPlayer.LevelUp();
+            return true;
         }
     }
 }

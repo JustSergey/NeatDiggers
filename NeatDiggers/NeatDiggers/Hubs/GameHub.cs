@@ -301,9 +301,11 @@ namespace NeatDiggers.Hubs
             Item item = gameAction.CurrentPlayer.Inventory.Items.Find(i => i.Name == gameAction.Item.Name);
             if (item != null && item.Type == ItemType.Active)
             {
-                item.Use(room, gameAction);
-                gameAction.CurrentPlayer.Inventory.Items.Remove(item);
-                return true;
+                if (item.Use(room, gameAction))
+                {
+                    gameAction.CurrentPlayer.Inventory.Items.Remove(item);
+                    return true;
+                }
             }
             return false;
         }
@@ -317,9 +319,7 @@ namespace NeatDiggers.Hubs
         {
             Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
             if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
-            {
                 return gameAction.Ability.Use(room, gameAction);
-            }
             return false;
         }
 

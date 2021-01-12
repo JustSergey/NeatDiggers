@@ -15,9 +15,10 @@ namespace NeatDiggers.GameServer.Items
             WeaponType = WeaponType.None;
         }
         
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
             room.Players.ForEach(p => p.Position = p.SpawnPoint);
+            return true;
         }
     }
 }

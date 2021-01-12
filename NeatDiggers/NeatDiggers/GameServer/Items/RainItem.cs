@@ -17,11 +17,12 @@ namespace NeatDiggers.GameServer.Items
             WeaponType = WeaponType.None;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
             room.Players.ForEach(p => p.Speed -= 2);
             Action<Room> cancelingAction = (Room room) => room.Players.ForEach(p => p.Speed += 2);
             room.AddCancelingAction(room.PlayerTurn, room.Round + 2, cancelingAction);
+            return true;
         }
     }
 }

@@ -81,7 +81,7 @@ namespace NeatDiggers.GameServer.Items
         public int ArmorDurability { get; set; }
 
         public virtual void Get(Room room, GameAction gameAction) { }
-        public virtual void Use(Room room, GameAction gameAction) { }
+        public virtual bool Use(Room room, GameAction gameAction) { return false; }
         public virtual void Drop(Room room, GameAction gameAction) { }
 
         public static Item CreateItem(ItemName name) =>

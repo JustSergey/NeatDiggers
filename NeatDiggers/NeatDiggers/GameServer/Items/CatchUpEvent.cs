@@ -12,18 +12,17 @@
             WeaponType = WeaponType.None;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
-            Vector targetPosition = gameAction.TargetPosition;
-            bool playerIsNear = false;
-            foreach (var player in room.Players)
+            Player targetPlayer = room.GetPlayer(gameAction.TargetPlayer.Id);
+            if (targetPlayer != null)
             {
-                if (player.Position.CheckAvailability(targetPosition, 1))
-                    playerIsNear = true;
+                Vector targetPosition = targetPlayer.Position;
+                if (targetPosition.IsInMap(room.GetGameMap()))
+                    gameAction.CurrentPlayer.Position = targetPosition;
+                return true;
             }
-            if (targetPosition.IsInMap(room.GetGameMap()) && playerIsNear)
-                room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
-
+            return false;
         }
     }
 }

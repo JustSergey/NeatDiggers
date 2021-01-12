@@ -15,7 +15,7 @@ namespace NeatDiggers.GameServer.Items
             WeaponType = WeaponType.None;
         }
 
-        public override void Use(Room room, GameAction gameAction)
+        public override bool Use(Room room, GameAction gameAction)
         {
             List<Item> items = room.GetPlayer(gameAction.TargetPlayer.Id).Inventory.Items;
             int rand = new Random().Next(items.Count);
@@ -24,6 +24,7 @@ namespace NeatDiggers.GameServer.Items
             if (item.Type == ItemType.Passive)
                 item.Get(room, gameAction);
             gameAction.CurrentPlayer.Inventory.Items.Add(item);
+            return true;
         }
     }
 }
