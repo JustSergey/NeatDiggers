@@ -13,11 +13,13 @@ namespace NeatDiggers.GameServer.Characters
             Name = CharacterName.Pandora;
             Title = "Пандора";
             MaxHealth = 7;
-            WeaponType = WeaponType.None;
+            WeaponType = WeaponType.Ranged;
             Abilities = new List<Ability>
             {
                 new Shuriken(2, 1, 1),
-                new SpeedAbility(2)
+                new SpeedAbility(2),
+                new DistanceAbility(2, WeaponType.Ranged),
+                new DamageAbility(3, WeaponType.Ranged)
             };
         }
     }
