@@ -278,7 +278,8 @@ namespace NeatDiggers.Hubs
         {
             if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
-                if (dice % 2 == 0)
+                Vector playerPosition = gameAction.CurrentPlayer.Position;
+                if (room.GetGameMap().Map[playerPosition.X, playerPosition.Y] == Cell.Digging && dice % 2 == 0)
                 {
                     int count = dice / 2 + gameAction.CurrentPlayer.DigPower;
                     for (int i = 0; i < count; i++)
