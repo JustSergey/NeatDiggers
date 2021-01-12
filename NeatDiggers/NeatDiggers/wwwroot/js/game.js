@@ -34,7 +34,7 @@ let conection;
 
 let log, inventory, turn, count;
 
-let btnRollDice, btnDig, canMove = true;
+let btnRollDice, hint, playerHealth, btnDig, canMove = true;
 
 let GameActionType = {
     Move: 0,
@@ -72,16 +72,42 @@ async function sendPlayerPosition() {
 }
 
 function pointerDown(event) {
-    if (!isMyTurn || actionsCount < 1 || !canMove) return;
-    let intersects = raycaster.intersectObjects(scenePlayer.children);
-    if (intersects.length > 0) {
-        objIntersect.copy(intersects[0].point);
+    if (!isMyTurn || actionsCount < 1) return;
+    let intersectsPlayer = raycaster.intersectObjects(scenePlayer.children);
+    if (intersectsPlayer.length > 0 && canMove) {
+        objIntersect.copy(intersectsPlayer[0].point);
         plane.setFromNormalAndCoplanarPoint(pNormal, objIntersect);
-        shift.subVectors(intersects[0].object.position, intersects[0].point);
+        shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
         isDragging = true;
-        dragObject = intersects[0].object;
-        oldPosition.x = intersects[0].object.position.x;
-        oldPosition.y = intersects[0].object.position.y;
+        dragObject = intersectsPlayer[0].object;
+        oldPosition.x = intersectsPlayer[0].object.position.x;
+        oldPosition.y = intersectsPlayer[0].object.position.y;
+    }
+    let intersectsOtherPlayers = raycaster.intersectObjects(scenePlayers.children);
+    if (intersectsOtherPlayers.length > 0) {
+
+        while (hint.firstChild) {
+            hint.removeChild(hint.firstChild);
+        }
+        for (var i = 0; i < intersectsOtherPlayers.length; i++) {
+            let btn = document.createElement('button');
+            btn.innerText = intersectsOtherPlayers[i].object.playerId;
+            let playerId = intersectsOtherPlayers[i].object.playerId;
+            btn.onclick = function () {
+                let gameAction = {
+                    Type: GameActionType.Attack,
+                    TargetPlayerId: playerId
+                };
+                doAction(gameAction);
+                hint.style.display = 'none';
+            }
+
+            hint.appendChild(btn);
+        }
+        hint.style.display = 'block';
+    }
+    else {
+        //hint.style.display = 'none';
     }
 }
 
@@ -157,6 +183,15 @@ export async function guiInit() {
     div.onmousedown = false;
     document.body.appendChild(div);
 
+
+    hint = document.createElement("div");
+    hint.id = "hint";
+    div.appendChild(hint);
+
+    playerHealth = document.createElement("p");
+    playerHealth.style.color = "white";
+    div.appendChild(playerHealth);
+
     turn = document.createElement("p");
     turn.style.color = "white";
     div.appendChild(turn);
@@ -184,7 +219,7 @@ export async function guiInit() {
                 btnRollDice.disabled = false;
             }
         },
-        dig: async function () {
+        dig: function () {
             let gameAction = {
                 Type: GameActionType.Dig,
                 targetPosition: {
@@ -193,7 +228,7 @@ export async function guiInit() {
                 }
             };
             doAction(gameAction);
-        },
+        }
     };
 
     btnRollDice = document.createElement("button");
@@ -274,6 +309,7 @@ export function UpdateRoom(room, conect) {
     log.innerHTML = JSON.stringify(room);
 
     if (room.players[room.playerTurn].id == room.userId) {
+        playerHealth.innerText = "Health: " + room.players[room.playerTurn].health + "/" + room.players[room.playerTurn].character.maxHealth;
         UpdateInventory(room.players[room.playerTurn].inventory);
         turn.innerText = "Your move!";
         turn.style.visibility = 'visible';
@@ -346,11 +382,13 @@ function SpawnPlayers(players, userId) {
         if (players[i].id == userId) {
             scenePlayer.add(pandora);
             pandora.position.set(players[i].position.x, players[i].position.y, 0);
+            pandora.playerId = players[i].id;
         }
-        else
+        else {
             scenePlayers.add(cube);
-
-        cube.position.set(players[i].position.x, players[i].position.y, 1);
+            cube.position.set(players[i].position.x, players[i].position.y, 1);
+            cube.playerId = players[i].id;
+        }
     }
 }
 
