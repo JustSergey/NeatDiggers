@@ -146,7 +146,6 @@ namespace NeatDiggers.Hubs
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -350,7 +349,6 @@ namespace NeatDiggers.Hubs
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
-
             await base.OnDisconnectedAsync(exception);
         }
 
