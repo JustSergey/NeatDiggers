@@ -228,6 +228,7 @@ export async function guiInit() {
             if (success) {
                 actionsCount = 2;
                 canMove = true;
+                canAttack = true;
                 btnDig.disabled = false;
                 btnRollDice.disabled = false;
             }
