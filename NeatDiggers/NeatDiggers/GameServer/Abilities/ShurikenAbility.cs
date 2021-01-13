@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer.Abilities
 {
-    public class Shuriken : Ability
+    public class ShurikenAbility : Ability
     {
         int damage;
         int range;
         int consumption;
 
-        public Shuriken(int damage, int range, int consumption)
+        public ShurikenAbility(int damage, int range, int consumption)
         {
             this.damage = damage;
             this.range = range;
