@@ -29,9 +29,10 @@ namespace NeatDiggers.Controllers
             return View(room);
         }
 
-        public IActionResult PlayersLobby(string code) 
+        public IActionResult PlayersLobby(string code, string name) 
         {
             Room room = Server.GetRoom(code);
+            ViewData["name"] = name;
             ViewData["CharacterNames"] = Enum.GetNames(typeof(GameServer.Characters.CharacterName));
             return View(room);
         }
