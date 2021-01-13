@@ -1,24 +1,28 @@
-﻿import * as core from "../js/core.js";
+﻿import * as core from "./core.js";
+import * as actions from "./actions.js";
 
-let connection;
+let connection, userId;
 
-export async function init(connect) {
+export async function init(connect, id) {
     connection = connect;
+    userId = id;
 
     var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
         return console.error(err.toString());
     });
 
     core.init(gameMap);
+    actions.init()
 }
 
 export function updateRoom(room) {
-    core.updatePlayers(room.players, room.userId);
+    core.updatePlayers(room.players, userId);
+    actions.setTurn(room.players[room.playerTurn].id == userId);
     //Update Actions
     //Update UI
 }
 
-async function doAction(gameAction) {
+export async function doAction(gameAction) {
     let success = await connection.invoke('DoAction', gameAction).catch(function (err) {
         return console.error(err.toString());
     });

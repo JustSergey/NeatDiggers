@@ -2,7 +2,6 @@
 
 import * as game from "./game.js";
 
-let userId;
 let connection;
 
 window.onload = async function(){
@@ -15,12 +14,12 @@ window.onload = async function(){
 
     connection.start().then(async function () {
         let code = $("#code").text();
-        userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
+        let userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
             return console.error(err.toString());
         });
         console.log(`Player ${userId} connected to lobby: ${code}`);
 
-        game.init(connection);
+        game.init(connection, userId);
     }).catch(function (err) {
         return console.error(err.toString());
     });
@@ -45,8 +44,6 @@ async function UpdateRoom(room) {
         $("#game").show();
         $("#lobby").hide();
         $("#footer").hide();
-
-        room.userId = userId;
 
         //await game.guiInit();
 

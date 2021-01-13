@@ -1,8 +1,9 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
+import * as actions from "./actions.js";
 import * as util from "./util.js"
 
 let camera, scene, renderer;
-let sFlag, sPlayer, sPlayers = new THREE.Group();
+export let sFlag, sPlayer, sPlayers = new THREE.Group();
 
 let screen = {
     width: 0,
@@ -30,6 +31,7 @@ export function init(map) {
     sceneInit();
     drawMap(map);
     animate();
+    actions.setCamera(camera);
 }
 
 function animate() {
@@ -89,6 +91,13 @@ function drawFlag(pos) {
 }
 
 function drawFloor(map) {
+    const Cell = {
+        None: 0,
+        Empty: 1,
+        Wall: 2,
+        Digging: 3
+    };
+
     const boxGeometry = new THREE.BoxGeometry();
     let materialEmpty = new THREE.MeshPhongMaterial({ color: 0x464646 });
     let materialWall = new THREE.MeshPhongMaterial({ color: 0x2ce900 });
@@ -96,12 +105,12 @@ function drawFloor(map) {
 
     for (var x = 0; x < map.width; x++) {
         for (var y = 0; y < map.height; y++) {
-            if (map.map[x * map.width + y] != util.Cell.None) {
+            if (map.map[x * map.width + y] != Cell.None) {
                 let cube;
                 switch (map.map[x * map.width + y]) {
-                    case util.Cell.Empty: cube = new THREE.Mesh(boxGeometry, materialEmpty); break;
-                    case util.Cell.Wall: cube = new THREE.Mesh(boxGeometry, materialWall); break;
-                    case util.Cell.Digging: cube = new THREE.Mesh(boxGeometry, materialDigging); break;
+                    case Cell.Empty: cube = new THREE.Mesh(boxGeometry, materialEmpty); break;
+                    case Cell.Wall: cube = new THREE.Mesh(boxGeometry, materialWall); break;
+                    case Cell.Digging: cube = new THREE.Mesh(boxGeometry, materialDigging); break;
                 }
                 scene.add(cube);
                 cube.position.set(x, y);

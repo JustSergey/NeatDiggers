@@ -6,23 +6,7 @@ export function checkAvailability(startPoint, targetPoint, radius) {
     return radius >= Math.round(Math.sqrt(x * x + y * y));
 }
 
-export const GameActionType = {
-    Move: 0,
-    Dig: 1,
-    Attack: 2,
-    UseItem: 3,
-    DropItem: 4,
-    UseAbility: 5
-};
-
-export const Cell = {
-    None: 0,
-    Empty: 1,
-    Wall: 2,
-    Digging: 3
-};
-
-export const Message = {
+const Message = {
     NeedRollDice: "You need to roll the dice",
     Health: "Health:",
     YouMove: "Your move!",
@@ -31,7 +15,7 @@ export const Message = {
         Drop: "Drop",
         RollDice: "Roll dice",
         Dig: "Dig",
-        EndTurn: "EndTurn"
+        EndTurn: "End turn"
     }
 }
 
