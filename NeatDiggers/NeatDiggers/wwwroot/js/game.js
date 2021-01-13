@@ -30,11 +30,11 @@ let isDragging = false;
 let dragObject;
 let oldPosition = new THREE.Vector3();
 
-let conection;
+let connection;
 
 let log, inventory, turn, count;
 
-let btnRollDice, hint, playerHealth, btnDig, canMove = true;
+let btnRollDice, hint, playerHealth, btnDig, canMove = true, canAttack = true;
 
 let GameActionType = {
     Move: 0,
@@ -71,7 +71,7 @@ async function sendPlayerPosition() {
     }
 }
 
-function pointerDown(event) {
+async function pointerDown(event) {
     if (!isMyTurn || actionsCount < 1) return;
     let intersectsPlayer = raycaster.intersectObjects(scenePlayer.children);
     if (intersectsPlayer.length > 0 && canMove) {
@@ -84,15 +84,22 @@ function pointerDown(event) {
         oldPosition.y = intersectsPlayer[0].object.position.y;
     }
     let intersectsOtherPlayers = raycaster.intersectObjects(scenePlayers.children);
-    if (intersectsOtherPlayers.length > 0) {
+    if (intersectsOtherPlayers.length > 0 && canAttack) {
+
+        let radius = await connection.invoke("GetAttackRadius").catch(function (err) {
+            return console.error(err.toString());
+        });
 
         while (hint.firstChild) {
             hint.removeChild(hint.firstChild);
         }
         for (var i = 0; i < intersectsOtherPlayers.length; i++) {
+            if (!CheckAvailability(scenePlayer.children[0].position, intersectsOtherPlayers[i].object.position, radius))
+                continue;
             let btn = document.createElement('button');
-            btn.innerText = intersectsOtherPlayers[i].object.playerId;
-            let playerId = intersectsOtherPlayers[i].object.playerId;
+            let playerId = intersectsOtherPlayers[i].object.player.id;
+            btn.innerText = playerId;
+
             btn.onclick = function () {
                 let gameAction = {
                     Type: GameActionType.Attack,
@@ -103,12 +110,18 @@ function pointerDown(event) {
             }
 
             hint.appendChild(btn);
+            hint.style.display = 'block';
         }
-        hint.style.display = 'block';
     }
     else {
         //hint.style.display = 'none';
     }
+}
+
+function CheckAvailability(startPoint, targetPoint, radius) {
+    let x = targetPoint.x - startPoint.x;
+    let y = targetPoint.y - startPoint.y;
+    return radius >= Math.round(Math.sqrt(x * x + y * y));
 }
 
 function pointerMove(event) {
@@ -204,12 +217,12 @@ export async function guiInit() {
 
     let uui = {
         rollDice: async function () {
-            count.innerText = await conection.invoke('RollTheDice').catch(function (err) {
+            count.innerText = await connection.invoke('RollTheDice').catch(function (err) {
                 return console.error(err.toString());
             });
         },
         endTurn: async function () {
-            let success = await conection.invoke('EndTurn').catch(function (err) {
+            let success = await connection.invoke('EndTurn').catch(function (err) {
                 return console.error(err.toString());
             });
             if (success) {
@@ -268,7 +281,7 @@ export async function guiInit() {
 
 let actionsCount = 2;
 async function doAction(gameAction) {
-    let success = await conection.invoke('DoAction', gameAction).catch(function (err) {
+    let success = await connection.invoke('DoAction', gameAction).catch(function (err) {
         return console.error(err.toString());
     });
     if (success) {
@@ -279,7 +292,9 @@ async function doAction(gameAction) {
             case GameActionType.Dig:
                 btnDig.disabled = true;
                 break;
-            //case GameActionType.Attack: break;
+            case GameActionType.Attack:
+                canAttack = false;
+                break;
             //case GameActionType.UseAbility: break;
             //case GameActionType.UseItem: break;
         }
@@ -304,7 +319,7 @@ export function setTurn(bool) {
 }
 
 export function UpdateRoom(room, conect) {
-    conection = conect;
+    connection = conect;
     SpawnPlayers(room.players, room.userId);
     log.innerHTML = JSON.stringify(room);
 
@@ -382,12 +397,12 @@ function SpawnPlayers(players, userId) {
         if (players[i].id == userId) {
             scenePlayer.add(pandora);
             pandora.position.set(players[i].position.x, players[i].position.y, 0);
-            pandora.playerId = players[i].id;
+            pandora.player = players[i];
         }
         else {
             scenePlayers.add(cube);
             cube.position.set(players[i].position.x, players[i].position.y, 1);
-            cube.playerId = players[i].id;
+            cube.player = players[i];
         }
     }
 }
