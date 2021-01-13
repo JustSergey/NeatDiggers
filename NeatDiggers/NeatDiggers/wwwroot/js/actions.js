@@ -1,14 +1,25 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as core from "./core.js";
 
-import { doAction } from './game.js';
+import { doAction, invoke } from './game.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+let div, turn, count, btnRollDice, btnDig, btnEndTurn;
 
-
-const GameAction = {
+const Action = {
+    maxCount: 2,
+    count: 2,
+    'finishAction': function () {
+        this.count--;
+        turn.innerText = "Actions remains: " + Action.count;
+        count.innerText = "You need to roll the dice";
+        if (this.count < 1) {
+            btnDig.disabled = true;
+            btnRollDice.disabled = true;
+        }
+    },
     Move: {
         Can: true,
         Add: {
@@ -38,16 +49,20 @@ const GameAction = {
             this.Add.isDragging = false;
 
             let action = {
+                Type: 0,
                 targetPosition: {
                     x: this.Add.dragObject.position.x,
                     y: this.Add.dragObject.position.y
-                },
-                Type: 0
+                }
             }
 
             let success = await doAction(action);
-            if (!success) core.sPlayer.position.set(this.Add.oldPosition.x, this.Add.oldPosition.y, this.Add.oldPosition.z);
-            else this.Can = false;
+            if (success) {
+                this.Can = false;
+                Action.finishAction();
+            }
+            else
+                core.sPlayer.position.set(this.Add.oldPosition.x, this.Add.oldPosition.y, this.Add.oldPosition.z);
         },
         'move': function (raycaster) {
             if (this.Add.isDragging) {
@@ -57,9 +72,21 @@ const GameAction = {
             }
         }
     },
-    Dig: {
-        Type: 1
+    Dig: async function () {
+        let action = {
+            Type: 1,
+            targetPosition: {
+                x: core.sPlayer.position.x,
+                y: core.sPlayer.position.y
+            }
+        };
+        let success = await doAction(action);
+        if (success) {
+            btnDig.disabled = true;
+            Action.finishAction();
+        }
     },
+
     Attack: {
         Type: 2
     },
@@ -71,13 +98,20 @@ const GameAction = {
     },
     UseAbility: {
         Type: 5
-    }
+    },
+    RollDise: async function () {
+        let result = await invoke('RollTheDice');
+        count.innerText = result;
+        btnDig.disabled = !(result % 2  == 0);
+    },
+    EndTurn: function () {
+        let success = invoke('EndTurn');
+        if (success) {
+            Action.count = Action.maxCount;
+            div.style.display = 'none';
+        }
+    },
 };
-
-let State = {
-    maxActionsCount: 2,
-    actionsCount: 2,
-}
 
 let isMyTurn;
 
@@ -91,29 +125,88 @@ export function init() {
     document.addEventListener('pointerup', pointerUp, false);
     document.addEventListener('pointermove', pointerMove, false);
     document.addEventListener('pointerdown', pointerDown, false);
+
+    guiInit();
 }
 
 export function setTurn(bool) {
     isMyTurn = bool;
+    if (bool) {
+        Action.Move.Can = true;
+        turn.innerText = "Your move!";
+        div.style.display = 'block';
+
+        btnDig.disabled = false;
+        btnRollDice.disabled = false;
+    }
+}
+
+
+function guiInit() {
+    div = document.createElement("div");
+    div.style.position = 'absolute';
+    div.style.display = 'none';
+    div.style.border = '1px solid black';
+    div.style.width = core.screen.width + 'px';
+    div.style.height = core.screen.height + 'px';
+    div.style.margin = 'auto';
+    div.style.top = $('header').outerHeight() + 'px';
+    div.onselectstart = false;
+    div.onmousedown = false;
+    document.body.appendChild(div);
+
+    turn = document.createElement("p");
+    turn.style.color = "white";
+    div.appendChild(turn);
+
+    count = document.createElement("P");
+    count.style.color = "white";
+    count.innerText = "You need to roll the dice";
+    count.onselectstart = false;
+    count.onmousedown = false;
+    div.appendChild(count);
+
+    btnRollDice = document.createElement("button");
+    btnRollDice.innerText = 'rollDice';
+    btnRollDice.onclick = Action.RollDise;
+    btnRollDice.onselectstart = false;
+    btnRollDice.onmousedown = false;
+    div.appendChild(btnRollDice);
+
+    btnDig = document.createElement("button");
+    btnDig.innerText = 'Dig';
+    btnDig.onclick = Action.Dig;
+    btnDig.onselectstart = false;
+    btnDig.onmousedown = false;
+    btnDig.disabled = true;
+    div.appendChild(btnDig);
+
+    btnEndTurn = document.createElement("button");
+    btnEndTurn.innerText = 'EndTurn';
+    btnEndTurn.onclick = Action.EndTurn;
+    btnEndTurn.onselectstart = false;
+    btnEndTurn.onmousedown = false;
+    div.appendChild(btnEndTurn);
 }
 
 function pointerUp(event) {
-    if (!isMyTurn || State.actionsCount < 1) return;
+    if (!isMyTurn || Action.count < 1) return;
 
-    GameAction.Move.drop();
+    Action.Move.drop();
 }
 
 function pointerMove(event) {
-    if (!isMyTurn || State.actionsCount < 1) return;
+    if (!isMyTurn || Action.count < 1) return;
 
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    GameAction.Move.move(raycaster);
+    Action.Move.move(raycaster);
 }
 
 function pointerDown(event) {
-    if (!isMyTurn || State.actionsCount < 1) return;
-    GameAction.Move.take();
+    if (!isMyTurn || Action.count < 1) return;
+
+    Action.Move.take();
 }
