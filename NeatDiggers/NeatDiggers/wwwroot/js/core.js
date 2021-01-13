@@ -5,7 +5,7 @@ import * as util from "./util.js"
 let camera, scene, renderer;
 export let sFlag, sPlayer, sPlayers = new THREE.Group();
 
-let screen = {
+export let screen = {
     width: 0,
     height: 0,
     'resize': function () {
@@ -58,7 +58,8 @@ function placePlayers(players, userId) {
     const boxGeometry = new THREE.BoxGeometry();
 
     for (var i = 0; i < players.length; i++) {
-        if (!isExistPlayer(players[i].id)) {
+        let player = getPlayer(players[i].id);
+        if (player == null) {
             let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
             let cube = new THREE.Mesh(boxGeometry, material);
             cube.position.set(players[i].position.x, players[i].position.y, 1);
@@ -66,7 +67,11 @@ function placePlayers(players, userId) {
             sPlayers.add(cube);
             if (players[i].id == userId) {
                 sPlayer = cube;
+                material.color.set(0x15c194);
             }
+        }
+        else {
+            player.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
         }
     }
 }
@@ -152,9 +157,9 @@ function sceneInit() {
     scene.add(sPlayers);
 }
 
-function isExistPlayer(userId) {
+function getPlayer(userId) {
     for (var i = 0; i < sPlayers.children.length; i++)
         if (sPlayers.children[i].info.id == userId)
-            return true;
-    return false;
+            return sPlayers.children[i];
+    return null;
 }

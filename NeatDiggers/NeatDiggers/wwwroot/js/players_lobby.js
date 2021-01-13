@@ -14,7 +14,8 @@ window.onload = async function(){
 
     connection.start().then(async function () {
         let code = $("#code").text();
-        let userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
+        let name = $("#name").text();
+        let userId = await connection.invoke("ConnectToRoom", code, name).catch(function (err) {
             return console.error(err.toString());
         });
         console.log(`Player ${userId} connected to lobby: ${code}`);
