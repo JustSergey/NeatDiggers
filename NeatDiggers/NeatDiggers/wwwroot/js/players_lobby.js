@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-import * as game from "../js/game.js";
+import * as game from "./game.js";
 
 let userId;
 let connection;
@@ -10,22 +10,17 @@ window.onload = async function(){
         .withUrl("/GameHub")
         .build();
 
-    document.getElementById("StartGame").disabled = true;
-    document.getElementById("ChangeReady").disabled = true;
-    ToggleRendering('game', false);
+    $("#StartGame").prop("disabled", true);
+    $("#ChangeReady").prop("disabled", true);
 
     connection.start().then(async function () {
-        let code = document.getElementById("code").innerText;
+        let code = $("#code").text();
         userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
             return console.error(err.toString());
         });
         console.log(`Player ${userId} connected to lobby: ${code}`);
 
-        var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
-            return console.error(err.toString());
-        });
-
-        game.DrawMap(gameMap);
+        game.init(connection);
     }).catch(function (err) {
         return console.error(err.toString());
     });
@@ -47,21 +42,22 @@ window.onload = async function(){
 
 async function UpdateRoom(room) {
     if (room.isStarted) {
-        await game.guiInit();
-        ToggleRendering('game', true);
-        ToggleRendering('lobby', false);
-        ToggleRendering('footer', false);
+        $("#game").show();
+        $("#lobby").hide();
+        $("#footer").hide();
 
-        game.animate();
         room.userId = userId;
-        game.UpdateRoom(room, connection);
-        game.setTurn(room.players[room.playerTurn].id == userId);
+
+        //await game.guiInit();
+
+        game.updateRoom(room);
+        //game.UpdateRoom(room, connection);
     }
     else {
         LoadPlayers(room.players);
-        document.getElementById("isStarted").innerText = room.isStarted;
-        document.getElementById("spectators").innerText = room.spectators.length;
-        document.getElementById("StartGame").disabled = !PlayersIsReady(room.players);
+        $("#isStarted").text(room.isStarted);
+        $("#spectators").text(room.spectators.length);
+        $("#StartGame").prop("disabled", !PlayersIsReady(room.players));
     }
 }
 
@@ -84,16 +80,14 @@ function PlayersIsReady(roomPlayers) {
     for (var i = 0; i < roomPlayers.length; i++) {
         ready = ready && roomPlayers[i].isReady;
     }
-
-    console.log("players is ready:" + ready);
     return ready;
 }
 
 function SelectCharacter(name) {
-    document.getElementById("ChangeReady").disabled = false;
-    connection.invoke("ChangeCharacter", 1).catch(function (err) {
+    connection.invoke("ChangeCharacter", parseInt(name)).catch(function (err) {
         return console.error(err.toString());
     });
+    document.getElementById("ChangeReady").disabled = false;
 }
 
 function ChangeReady() {
@@ -106,13 +100,4 @@ async function StartGame() {
     connection.invoke("StartGame").catch(function (err) {
         return console.error(err.toString());
     });
-}
-
-function ToggleRendering(id, bool) {
-    var x = document.getElementById(id);
-    if (bool) {
-        x.style.display = 'block';
-    } else {
-        x.style.display = 'none';
-    }
 }
