@@ -46,10 +46,7 @@ async function UpdateRoom(room) {
         $("#lobby").hide();
         $("#footer").hide();
 
-        //await game.guiInit();
-
         game.updateRoom(room);
-        //game.UpdateRoom(room, connection);
     }
     else {
         LoadPlayers(room.players);
