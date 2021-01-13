@@ -118,7 +118,11 @@ namespace NeatDiggers.GameServer
             Spectators.Remove(id);
             Player player = Players.Find(p => p.Id == id);
             if (player != null)
+            {
+                if (player.IsTurn)
+                    NextTurn();
                 Players.Remove(player);
+            }
         }
     }
 }

@@ -94,14 +94,18 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null && player.IsTurn)
                 {
-                    List<Item> newItems = inventory.Items;
+                    List<Item> newItems = inventory.Items.Where(i => i.Name != ItemName.Empty).ToList();
                     int hands = 0;
-                    WeaponType weaponType = WeaponType.None;
+                    WeaponType weaponType = player.Character.WeaponType;
                     if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
                     {
-                        newItems.Add(inventory.LeftWeapon);
-                        hands += (int) inventory.LeftWeapon.WeaponHanded;
-                        weaponType = inventory.LeftWeapon.WeaponType;
+                        if (weaponType == WeaponType.None || inventory.LeftWeapon.WeaponType == weaponType)
+                        {
+                            newItems.Add(inventory.LeftWeapon);
+                            hands += (int)inventory.LeftWeapon.WeaponHanded;
+                        }
+                        else
+                            return false;
                     }
 
                     if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
@@ -115,19 +119,18 @@ namespace NeatDiggers.Hubs
                             return false;
                     }
 
-                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
-                    {
-                        newItems.Add(inventory.Armor);
-                    }
-
                     if (hands > player.Hands)
                         return false;
+
+                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
+                        newItems.Add(inventory.Armor);
 
                     List<Item> oldItems = new List<Item>(player.Inventory.Items)
                     {
                         player.Inventory.LeftWeapon,
-                        player.Inventory.RightWeapon
-                    };
+                        player.Inventory.RightWeapon,
+                        player.Inventory.Armor
+                    }.Where(i => i.Name != ItemName.Empty).ToList();
 
                     if (oldItems.Count != newItems.Count)
                         return false;
@@ -146,7 +149,6 @@ namespace NeatDiggers.Hubs
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -350,7 +352,6 @@ namespace NeatDiggers.Hubs
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
                 await Clients.Group(room.Code).ChangeState(room);
             }
-
             await base.OnDisconnectedAsync(exception);
         }
 
