@@ -6,20 +6,20 @@ using NeatDiggers.GameServer.Abilities;
 
 namespace NeatDiggers.GameServer.Characters
 {
-    public class PandoraCharacter : Character
+    public class SiriusCharacter : Character
     {
-        public PandoraCharacter()
+        public SiriusCharacter()
         {
-            Name = CharacterName.Pandora;
-            Title = "Пандора";
-            MaxHealth = 7;
+            Name = CharacterName.Sirius;
+            Title = "Сириус";
+            MaxHealth = 5;
             WeaponType = WeaponType.Ranged;
             Abilities = new List<Ability>
             {
-                new ShurikenAbility(2, 1, 1),
+                new DistanceAbility(1, WeaponType.Ranged),
                 new SpeedAbility(2),
-                new DistanceAbility(2, WeaponType.Ranged),
-                new DamageAbility(3, WeaponType.Ranged)
+                new DamageAbility(2, WeaponType.Ranged),
+                new ArmorAbility(3)
             };
         }
     }
