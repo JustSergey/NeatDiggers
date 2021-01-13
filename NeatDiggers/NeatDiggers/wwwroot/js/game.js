@@ -48,41 +48,8 @@ let GameActionType = {
 init();
 
 async function pointerUp(event) {
-    if (!isMyTurn || !isDragging) return;
-    isDragging = false;
-    sendPlayerPosition();
-}
+    if (!isMyTurn) return;
 
-async function sendPlayerPosition() {
-    let gameAction = {
-        targetPosition: {
-            x: dragObject.position.x,
-            y: dragObject.position.y
-        },
-        Type: GameActionType.Move
-    };
-
-    let can = await doAction(gameAction);
-
-    if (!can) {
-        pandora.position.set(oldPosition.x, oldPosition.y, 0);
-    } else {
-        count.innerText = "You need to roll the dice";
-    }
-}
-
-async function pointerDown(event) {
-    if (!isMyTurn || actionsCount < 1) return;
-    let intersectsPlayer = raycaster.intersectObjects(scenePlayer.children);
-    if (intersectsPlayer.length > 0 && canMove) {
-        objIntersect.copy(intersectsPlayer[0].point);
-        plane.setFromNormalAndCoplanarPoint(pNormal, objIntersect);
-        shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
-        isDragging = true;
-        dragObject = intersectsPlayer[0].object;
-        oldPosition.x = intersectsPlayer[0].object.position.x;
-        oldPosition.y = intersectsPlayer[0].object.position.y;
-    }
     let intersectsOtherPlayers = raycaster.intersectObjects(scenePlayers.children);
     if (intersectsOtherPlayers.length > 0 && canAttack) {
 
@@ -94,7 +61,7 @@ async function pointerDown(event) {
             hint.removeChild(hint.firstChild);
         }
         for (var i = 0; i < intersectsOtherPlayers.length; i++) {
-            if (!CheckAvailability(scenePlayer.children[0].position, intersectsOtherPlayers[i].object.position, radius))
+            if (!CheckAvailability(pandora.position, intersectsOtherPlayers[i].object.position, radius))
                 continue;
             let btn = document.createElement('button');
             let playerId = intersectsOtherPlayers[i].object.player.id;
@@ -113,9 +80,41 @@ async function pointerDown(event) {
             hint.style.display = 'block';
         }
     }
-    else {
-        //hint.style.display = 'none';
+
+    if (!isDragging) return;
+    isDragging = false;
+    sendPlayerPosition();
+}
+
+async function sendPlayerPosition() {
+    let gameAction = {
+        targetPosition: {
+            x: dragObject.position.x,
+            y: dragObject.position.y
+        },
+        Type: GameActionType.Move
+    };
+
+    let can = await doAction(gameAction);
+
+    if (!can) {
+        pandora.position.set(oldPosition.x, oldPosition.y, 0);
     }
+}
+
+function pointerDown(event) {
+    if (!isMyTurn || actionsCount < 1) return;
+    let intersectsPlayer = raycaster.intersectObjects(scenePlayer.children);
+    if (intersectsPlayer.length > 0 && canMove) {
+        objIntersect.copy(intersectsPlayer[0].point);
+        plane.setFromNormalAndCoplanarPoint(pNormal, objIntersect);
+        shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
+        isDragging = true;
+        dragObject = intersectsPlayer[0].object;
+        oldPosition.x = intersectsPlayer[0].object.position.x;
+        oldPosition.y = intersectsPlayer[0].object.position.y;
+    }
+
 }
 
 function CheckAvailability(startPoint, targetPoint, radius) {
@@ -231,14 +230,15 @@ export async function guiInit() {
                 canAttack = true;
                 btnDig.disabled = false;
                 btnRollDice.disabled = false;
+                count.innerText = "You need to roll the dice";
             }
         },
         dig: function () {
             let gameAction = {
                 Type: GameActionType.Dig,
                 targetPosition: {
-                    x: scenePlayer.children[0].position.x,
-                    y: scenePlayer.children[0].position.y
+                    x: pandora.position.x,
+                    y: pandora.position.y
                 }
             };
             doAction(gameAction);
@@ -359,8 +359,8 @@ function AddItems(items) {
                 Type: GameActionType.DropItem,
                 Item: item,
                 targetPosition: {
-                    x: scenePlayer.children[0].position.x,
-                    y: scenePlayer.children[0].position.y
+                    x: pandora.position.x,
+                    y: pandora.position.y
                 }
             };
             doAction(gameAction);
