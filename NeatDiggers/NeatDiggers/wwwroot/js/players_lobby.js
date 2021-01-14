@@ -56,13 +56,13 @@ window.onload = async function(){
     window.StartGame = StartGame;
 };
 
-async function UpdateRoom(room) {
+async function UpdateRoom(room, action) {
     if (room.isStarted) {
         $("#game").show();
         $("#lobby").hide();
         $("#footer").hide();
 
-        game.updateRoom(room);
+        game.updateRoom(room, action);
     }
     else {
         LoadPlayers(room.players);
