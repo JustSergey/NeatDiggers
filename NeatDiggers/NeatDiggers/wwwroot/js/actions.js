@@ -6,6 +6,8 @@ import { checkAvailability, Message } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
+const mouseUp = new THREE.Vector2();
+const mouseDown = new THREE.Vector2();
 
 let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, playerHealth;
 
@@ -90,35 +92,37 @@ const Action = {
     Attack: {
         Can: true,
         'showHint': async function (raycaster, x, y) {
-            let intersectsObjects = raycaster.intersectObjects(core.sPlayers.children);
+            let intersectsObjects = raycaster.intersectObjects(core.scene.children);
             if (intersectsObjects.length > 0) {
                 while (hint.firstChild) {
                     hint.removeChild(hint.firstChild);
                 }
-                let intersectsPlayers = new Array();
-                for (var i = 0; i < intersectsObjects.length; i++) {
-                    let exist = false;
-                    for (var k = 0; k < intersectsPlayers.length; k++) {
-                        for (var j = 0; j < intersectsObjects.length; j++) {
-                            exist = exist || (intersectsPlayers[k].object.info.id == intersectsObjects[j].object.info.id)
-                        }
+
+                let players = new Array();
+                let position = intersectsObjects[0].object.position;
+                for (var i = 0; i < core.sPlayers.children.length; i++) {
+                    let player = core.sPlayers.children[i];
+                    if (player.info.position.x == position.x && player.info.position.y == position.y) {
+                        players.push(player);
                     }
-                    if (!exist)
-                        intersectsPlayers.push(intersectsObjects[i]);
                 }
 
                 let radius = await invoke("GetAttackRadius");
-                for (var i = 0; i < intersectsPlayers.length; i++) {
+                if (players.length < 1) {
+                    hint.style.display = 'none';
+                    return;
+                }
+                for (var i = 0; i < players.length; i++) {
                     let btn = document.createElement('button');
-                    if (!checkAvailability(core.sPlayer.position, intersectsPlayers[i].object.position, radius) || !this.Can)
+                    if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
                         btn.disabled = true;
 
-                    let playerId = intersectsPlayers[i].object.info.id;
-                    let playerName = intersectsPlayers[i].object.info.name;
-                    let playerHealth = intersectsPlayers[i].object.info.health;
-                    let playerMaxHealth = intersectsPlayers[i].object.info.character.maxHealth;
+                    let playerId = players[i].info.id;
+                    let playerName = players[i].info.name;
+                    let playerHealth = players[i].info.health;
+                    let playerMaxHealth = players[i].info.character.maxHealth;
                     btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
-                    btn.onclick = function () {
+                    btn.onmousedown = function () {
                         let action = {
                             Type: 2,
                             TargetPlayerId: playerId
@@ -133,8 +137,6 @@ const Action = {
                 hint.style.left = x + "px";
                 hint.style.top = y + "px";
             }
-            else
-                hint.style.display = 'none';
         },
     },
     UseItem: {
@@ -155,7 +157,7 @@ const Action = {
         let success = await invoke('EndTurn');
         if (success) {
             Action.count = Action.maxCount;
-            div.style.display = 'none';
+            $(".ui").hide();
             Action.Move.Can = true;
             Action.Attack.Can = true;
             btnDig.disabled = false;
@@ -184,6 +186,7 @@ export function setTurn(bool) {
     if (bool) {
         turn.innerText = Message.YouMove;
         count.innerText = Message.NeedRollDice;
+        $(".ui").show();
         div.style.display = 'block';
     }
 
@@ -193,7 +196,6 @@ export function setTurn(bool) {
 function guiInit() {
     div = document.createElement("div");
     div.style.position = 'absolute';
-    div.style.display = 'none';
     div.style.border = '1px solid black';
     div.style.width = core.screen.width + 'px';
     div.style.height = core.screen.height + 'px';
@@ -213,16 +215,19 @@ function guiInit() {
 
     turn = document.createElement("p");
     turn.style.color = "white";
+    turn.classList.add("ui");
     div.appendChild(turn);
 
     count = document.createElement("P");
     count.style.color = "white";
+    count.classList.add("ui");
     count.innerText = Message.NeedRollDice;
     count.onselectstart = false;
     count.onmousedown = false;
     div.appendChild(count);
 
     btnRollDice = document.createElement("button");
+    btnRollDice.classList.add("ui");
     btnRollDice.innerText = Message.Button.RollDice;
     btnRollDice.onclick = Action.RollDise;
     btnRollDice.onselectstart = false;
@@ -230,6 +235,7 @@ function guiInit() {
     div.appendChild(btnRollDice);
 
     btnDig = document.createElement("button");
+    btnDig.classList.add("ui");
     btnDig.innerText = Message.Button.Dig;
     btnDig.onclick = Action.Dig;
     btnDig.onselectstart = false;
@@ -238,15 +244,21 @@ function guiInit() {
     div.appendChild(btnDig);
 
     btnEndTurn = document.createElement("button");
+    btnEndTurn.classList.add("ui");
     btnEndTurn.innerText = Message.Button.EndTurn;
     btnEndTurn.onclick = Action.EndTurn;
     btnEndTurn.onselectstart = false;
     btnEndTurn.onmousedown = false;
     div.appendChild(btnEndTurn);
+
+    $(".ui").hide();
 }
 
 function pointerUp(event) {
     if (!isMyTurn || Action.count < 1) return;
+
+    mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
 
     Action.Move.drop();
     Action.Attack.showHint(raycaster, event.clientX, event.clientY);
@@ -264,6 +276,9 @@ function pointerMove(event) {
 
 function pointerDown(event) {
     if (!isMyTurn || Action.count < 1) return;
+
+    mouseDown.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouseDown.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
 
     Action.Move.take();
 }

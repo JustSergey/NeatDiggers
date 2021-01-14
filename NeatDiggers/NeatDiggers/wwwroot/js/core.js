@@ -1,10 +1,9 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as actions from "./actions.js";
-import * as util from "./util.js"
 import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
-let camera, scene, renderer;
-export let sFlag, sPlayer, sPlayers = new THREE.Group();
+let camera, renderer;
+export let scene, sFlag, sPlayer, sPlayers = new THREE.Group();
 let pandora, jupiter;
 const loader = new GLTFLoader();
 
