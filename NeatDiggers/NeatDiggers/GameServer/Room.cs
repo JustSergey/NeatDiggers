@@ -122,6 +122,11 @@ namespace NeatDiggers.GameServer
                 if (Players.IndexOf(player) < PlayerTurn)
                     PlayerTurn--;
                 Players.Remove(player);
+                if (PlayerTurn >= Players.Count)
+                {
+                    PlayerTurn = 0;
+                    Round++;
+                }
             }
         }
     }

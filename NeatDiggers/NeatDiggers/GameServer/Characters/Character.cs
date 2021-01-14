@@ -29,8 +29,8 @@ namespace NeatDiggers.GameServer.Characters
                 CharacterName.Empty => new EmptyCharacter(),
                 CharacterName.Pandora => new PandoraCharacter(),
                 CharacterName.Kirill => new KirillCharacter(),
-                CharacterName.Jupiter => new KirillCharacter(),
-                CharacterName.Sirius => new KirillCharacter(),
+                CharacterName.Jupiter => new JupiterCharacter(),
+                CharacterName.Sirius => new SiriusCharacter(),
                 _ => null
             };
     }
