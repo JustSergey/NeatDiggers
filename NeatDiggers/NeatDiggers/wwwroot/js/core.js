@@ -3,7 +3,7 @@ import * as actions from "./actions.js";
 import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
 let camera, renderer;
-export let scene, sFlag, sPlayer, sPlayers = new THREE.Group();
+export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
 let pandora, jupiter;
 const loader = new GLTFLoader();
 
@@ -89,6 +89,7 @@ function placePlayers(players, userId) {
 //}
 
 function drawMap(map) {
+    mapArray = map;
     drawFloor(map);
     drawSpawnPoints(map.spawnPoints);
     drawFlag(map.flagSpawnPoint);

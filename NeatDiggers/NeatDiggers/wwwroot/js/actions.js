@@ -151,7 +151,9 @@ const Action = {
     RollDise: async function () {
         let result = await invoke('RollTheDice');
         count.innerText = result;
-        btnDig.disabled = !(result % 2 == 0);
+        let playerPos = core.sPlayer.info.position;
+        let map = core.mapArray;
+        btnDig.disabled = !(result % 2 == 0) || !(map.map[playerPos.x * map.width + playerPos.y] == 3);
     },
     EndTurn: async function () {
         let success = await invoke('EndTurn');
