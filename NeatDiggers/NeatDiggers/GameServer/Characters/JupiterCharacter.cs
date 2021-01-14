@@ -16,7 +16,7 @@ namespace NeatDiggers.GameServer.Characters
             WeaponType = WeaponType.Melee;
             Abilities = new List<Ability>
             {
-                new DamageAbility(2, WeaponType.Melee),
+                new DamageAbility(1, WeaponType.Melee),
                 new HealAbility(2, 2),
                 new ArmorAbility(2),
                 new InvulAbility(2, 4)
