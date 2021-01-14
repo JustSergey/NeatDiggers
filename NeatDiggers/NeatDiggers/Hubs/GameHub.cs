@@ -30,16 +30,21 @@ namespace NeatDiggers.Hubs
         public async Task<string> ConnectToRoom(string code, string name)
         {
             Room room = Server.GetRoom(code);
-            if (room != null && !room.IsStarted)
+            if (room != null)
             {
-                if (Server.AddUser(Context.ConnectionId, code) && room.AddPlayer(Context.ConnectionId, name))
+                if (!room.IsStarted)
                 {
-                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                    await Clients.Group(code).ChangeState(room);
-                    return Context.ConnectionId;
+                    if (Server.AddUser(Context.ConnectionId, code) && room.AddPlayer(Context.ConnectionId, name))
+                    {
+                        await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                        await Clients.Group(code).ChangeState(room);
+                        return Context.ConnectionId;
+                    }
+                    return "full";
                 }
+                return "started";
             }
-            return null;
+            return "wrongCode";
         }
 
         public async Task ChangeCharacter(CharacterName characterName)
