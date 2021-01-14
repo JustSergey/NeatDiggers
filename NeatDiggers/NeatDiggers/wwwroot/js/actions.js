@@ -138,8 +138,8 @@ const Action = {
         count.innerText = result;
         btnDig.disabled = !(result % 2 == 0);
     },
-    EndTurn: function () {
-        let success = invoke('EndTurn');
+    EndTurn: async function () {
+        let success = await invoke('EndTurn');
         if (success) {
             Action.count = Action.maxCount;
             div.style.display = 'none';

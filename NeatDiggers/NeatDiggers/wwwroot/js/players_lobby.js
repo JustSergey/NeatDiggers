@@ -54,6 +54,7 @@ async function UpdateRoom(room) {
         $("#spectators").text(room.spectators.length);
         $("#StartGame").prop("disabled", !PlayersIsReady(room.players));
     }
+    console.log(JSON.stringify(room));
 }
 
 function LoadPlayers(roomPlayers) {
