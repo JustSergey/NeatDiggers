@@ -119,9 +119,8 @@ namespace NeatDiggers.GameServer
             Player player = Players.Find(p => p.Id == id);
             if (player != null)
             {
-                if (player.IsTurn)
-                    NextTurn();
-                Players.Remove(player);
+                if (Players.IndexOf(player) < PlayerTurn)
+                    PlayerTurn--;
             }
         }
     }
