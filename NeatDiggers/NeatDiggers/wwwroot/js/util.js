@@ -6,7 +6,7 @@ export function checkAvailability(startPoint, targetPoint, radius) {
     return radius >= Math.round(Math.sqrt(x * x + y * y));
 }
 
-const Message = {
+export const Message = {
     NeedRollDice: "You need to roll the dice",
     Health: "Health:",
     YouMove: "Your move!",

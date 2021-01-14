@@ -12,7 +12,6 @@ export async function init(connect, id) {
     });
 
     core.init(gameMap);
-
 }
 
 let isActionInit;
@@ -24,9 +23,6 @@ export function updateRoom(room) {
 
     core.updatePlayers(room.players, userId);
     actions.setTurn(room.players[room.playerTurn].id == userId);
-
-    //Update Actions
-    //Update UI
 }
 
 export async function doAction(gameAction) {

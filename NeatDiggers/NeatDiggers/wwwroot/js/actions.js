@@ -2,7 +2,7 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
-import { checkAvailability } from './util.js';
+import { checkAvailability, Message } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -14,8 +14,8 @@ const Action = {
     count: 2,
     'finishAction': function () {
         this.count--;
-        turn.innerText = "Actions remains: " + Action.count;
-        count.innerText = "You need to roll the dice";
+        turn.innerText = Message.ActionRemains + Action.count;
+        count.innerText = Message.NeedRollDice;
         if (this.count < 1) {
             btnDig.disabled = true;
             btnRollDice.disabled = true;
@@ -148,7 +148,6 @@ const Action = {
 };
 
 let isMyTurn;
-
 let camera;
 
 export function setCamera(cam) {
@@ -167,14 +166,15 @@ export function setTurn(bool) {
     isMyTurn = bool;
     if (bool) {
         Action.Move.Can = true;
-        turn.innerText = "Your move!";
+        turn.innerText = Message.YouMove;
+        count.innerText = Message.NeedRollDice;
         div.style.display = 'block';
 
         btnDig.disabled = false;
         btnRollDice.disabled = false;
     }
 
-    playerHealth.innerText = "Health: " + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
+    playerHealth.innerText = Message.Health + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
 }
 
 function guiInit() {
@@ -204,20 +204,20 @@ function guiInit() {
 
     count = document.createElement("P");
     count.style.color = "white";
-    count.innerText = "You need to roll the dice";
+    count.innerText = Message.NeedRollDice;
     count.onselectstart = false;
     count.onmousedown = false;
     div.appendChild(count);
 
     btnRollDice = document.createElement("button");
-    btnRollDice.innerText = 'rollDice';
+    btnRollDice.innerText = Message.Button.RollDice;
     btnRollDice.onclick = Action.RollDise;
     btnRollDice.onselectstart = false;
     btnRollDice.onmousedown = false;
     div.appendChild(btnRollDice);
 
     btnDig = document.createElement("button");
-    btnDig.innerText = 'Dig';
+    btnDig.innerText = Message.Button.Dig;
     btnDig.onclick = Action.Dig;
     btnDig.onselectstart = false;
     btnDig.onmousedown = false;
@@ -225,7 +225,7 @@ function guiInit() {
     div.appendChild(btnDig);
 
     btnEndTurn = document.createElement("button");
-    btnEndTurn.innerText = 'EndTurn';
+    btnEndTurn.innerText = Message.Button.EndTurn;
     btnEndTurn.onclick = Action.EndTurn;
     btnEndTurn.onselectstart = false;
     btnEndTurn.onmousedown = false;
