@@ -2,11 +2,12 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
+import { checkAvailability } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-let div, turn, count, btnRollDice, btnDig, btnEndTurn;
+let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, playerHealth;
 
 const Action = {
     maxCount: 2,
@@ -86,9 +87,42 @@ const Action = {
             Action.finishAction();
         }
     },
-
     Attack: {
-        Type: 2
+        Can: true,
+        'showHint': async function (raycaster, x, y) {
+            let intersectsPlayers = raycaster.intersectObjects(core.sPlayers.children);
+            if (intersectsPlayers.length > 0) {
+                while (hint.firstChild) {
+                    hint.removeChild(hint.firstChild);
+                }
+                let radius = await invoke("GetAttackRadius");
+                for (var i = 0; i < intersectsPlayers.length; i++) {
+                    let btn = document.createElement('button');
+                    if (!checkAvailability(core.sPlayer.position, intersectsPlayers[i].object.position, radius) && !this.Can)
+                        btn.disabled = true;
+
+                    let playerId = intersectsPlayers[i].object.info.id;
+                    let playerName = intersectsPlayers[i].object.info.name;
+                    let playerHealth = intersectsPlayers[i].object.info.health;
+                    let playerMaxHealth = intersectsPlayers[i].object.info.character.maxHealth;
+                    btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
+                    btn.onclick = function () {
+                        let action = {
+                            Type: 2,
+                            TargetPlayerId: playerId
+                        }
+                        doAction(action);
+                        hint.style.display = 'none';
+                    }
+                    hint.appendChild(btn);
+                    hint.style.display = 'block';
+                }
+                hint.style.left = x + "px";
+                hint.style.top = y + "px";
+            }
+            else
+                hint.style.display = 'none';
+        },
     },
     UseItem: {
         Type: 3
@@ -102,7 +136,7 @@ const Action = {
     RollDise: async function () {
         let result = await invoke('RollTheDice');
         count.innerText = result;
-        btnDig.disabled = !(result % 2  == 0);
+        btnDig.disabled = !(result % 2 == 0);
     },
     EndTurn: function () {
         let success = invoke('EndTurn');
@@ -139,8 +173,9 @@ export function setTurn(bool) {
         btnDig.disabled = false;
         btnRollDice.disabled = false;
     }
-}
 
+    playerHealth.innerText = "Health: " + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
+}
 
 function guiInit() {
     div = document.createElement("div");
@@ -154,6 +189,14 @@ function guiInit() {
     div.onselectstart = false;
     div.onmousedown = false;
     document.body.appendChild(div);
+
+    hint = document.createElement("div");
+    hint.id = "hint";
+    div.appendChild(hint);
+
+    playerHealth = document.createElement("p");
+    playerHealth.style.color = "white";
+    div.appendChild(playerHealth);
 
     turn = document.createElement("p");
     turn.style.color = "white";
@@ -193,6 +236,7 @@ function pointerUp(event) {
     if (!isMyTurn || Action.count < 1) return;
 
     Action.Move.drop();
+    Action.Attack.showHint(raycaster, event.clientX, event.clientY);
 }
 
 function pointerMove(event) {

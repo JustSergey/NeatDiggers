@@ -71,6 +71,7 @@ function placePlayers(players, userId) {
             }
         }
         else {
+            player.info = players[i]; 
             player.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
         }
     }
