@@ -90,15 +90,27 @@ const Action = {
     Attack: {
         Can: true,
         'showHint': async function (raycaster, x, y) {
-            let intersectsPlayers = raycaster.intersectObjects(core.sPlayers.children);
-            if (intersectsPlayers.length > 0) {
+            let intersectsObjects = raycaster.intersectObjects(core.sPlayers.children);
+            if (intersectsObjects.length > 0) {
                 while (hint.firstChild) {
                     hint.removeChild(hint.firstChild);
                 }
+                let intersectsPlayers = new Array();
+                for (var i = 0; i < intersectsObjects.length; i++) {
+                    let exist = false;
+                    for (var k = 0; k < intersectsPlayers.length; k++) {
+                        for (var j = 0; j < intersectsObjects.length; j++) {
+                            exist = exist || (intersectsPlayers[k].object.info.id == intersectsObjects[j].object.info.id)
+                        }
+                    }
+                    if (!exist)
+                        intersectsPlayers.push(intersectsObjects[i]);
+                }
+
                 let radius = await invoke("GetAttackRadius");
                 for (var i = 0; i < intersectsPlayers.length; i++) {
                     let btn = document.createElement('button');
-                    if (!checkAvailability(core.sPlayer.position, intersectsPlayers[i].object.position, radius) && !this.Can)
+                    if (!checkAvailability(core.sPlayer.position, intersectsPlayers[i].object.position, radius) || !this.Can)
                         btn.disabled = true;
 
                     let playerId = intersectsPlayers[i].object.info.id;
@@ -113,6 +125,7 @@ const Action = {
                         }
                         doAction(action);
                         hint.style.display = 'none';
+                        Action.Attack.Can = false;
                     }
                     hint.appendChild(btn);
                     hint.style.display = 'block';
@@ -166,6 +179,7 @@ export function setTurn(bool) {
     isMyTurn = bool;
     if (bool) {
         Action.Move.Can = true;
+        Action.Attack.Can = true;
         turn.innerText = Message.YouMove;
         count.innerText = Message.NeedRollDice;
         div.style.display = 'block';
