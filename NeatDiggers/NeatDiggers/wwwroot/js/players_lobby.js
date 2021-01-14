@@ -18,7 +18,23 @@ window.onload = async function(){
         let userId = await connection.invoke("ConnectToRoom", code, name).catch(function (err) {
             return console.error(err.toString());
         });
-        console.log(`Player ${userId} connected to lobby: ${code}`);
+
+        switch (userId) {
+            case "full":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("The lobby is full.");
+                return;
+            case "started":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("This game is already started.");
+                return;
+            case "wrongCode":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("You entered the wrong code.");
+                return;
+        }
+
+        console.log(`Player ${name} connected to lobby: ${code}`);
 
         game.init(connection, userId);
     }).catch(function (err) {
