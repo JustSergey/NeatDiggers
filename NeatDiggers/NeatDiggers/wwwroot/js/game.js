@@ -3,6 +3,7 @@ import * as actions from "./actions.js";
 
 let connection, userId;
 
+
 export async function init(connect, id) {
     connection = connect;
     userId = id;

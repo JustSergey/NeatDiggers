@@ -1,9 +1,12 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as actions from "./actions.js";
 import * as util from "./util.js"
+import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
 
 let camera, scene, renderer;
 export let sFlag, sPlayer, sPlayers = new THREE.Group();
+let pandora, jupiter;
+const loader = new GLTFLoader();
 
 export let screen = {
     width: 0,
@@ -61,7 +64,12 @@ function placePlayers(players, userId) {
         let player = getPlayer(players[i].id);
         if (player == null) {
             let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
-            let cube = new THREE.Mesh(boxGeometry, material);
+            let cube = new THREE.Mesh(boxGeometry, material)
+            switch (players[i].character.name) {
+                case 1: cube = pandora; break;
+                case 3: cube = jupiter; break;
+            }
+
             cube.position.set(players[i].position.x, players[i].position.y, 1);
             cube.info = players[i];
             sPlayers.add(cube);
@@ -156,6 +164,14 @@ function sceneInit() {
     scene.add(hemiLight);
 
     scene.add(sPlayers);
+
+    loader.load("../../StaticFiles/models/pandora.glb", function (gltf) {
+        pandora = gltf.scene.children[0];
+    });
+
+    loader.load("../../StaticFiles/models/jupiter.glb", function (gltf) {
+        jupiter = gltf.scene.children[0];
+    });
 }
 
 function getPlayer(userId) {
