@@ -42,12 +42,12 @@ window.onload = async function(){
     });
 
     connection.on("ChangeState", async function (room) {
-        UpdateRoom(room);
+        UpdateRoom(room, null);
         console.log("ChangeState");
     });
 
     connection.on("ChangeStateWithAction", async function (room, gameAction) {
-        UpdateRoom(room);
+        UpdateRoom(room, gameAction);
         console.log("ChangeStateWithAction");
     });
 
