@@ -16,24 +16,29 @@ namespace NeatDiggers.Hubs
     {
         public async Task ConnectToRoomAsSpectator(string code)
         {
-            Room room = Server.AddUser(null, Context.ConnectionId, code, true);
+            Room room = Server.GetRoom(code);
             if (room != null)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                await Clients.Group(code).ChangeState(room);
+                if (Server.AddUser(Context.ConnectionId, code) && room.AddSpectator(Context.ConnectionId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                    await Clients.Group(code).ChangeState(room);
+                }
             }
         }
 
         public async Task<string> ConnectToRoom(string code, string name)
         {
-            Room room = Server.AddUser(name, Context.ConnectionId, code, false);
+            Room room = Server.GetRoom(code);
             if (room != null && !room.IsStarted)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                await Clients.Group(code).ChangeState(room);
-                return Context.ConnectionId;
+                if (Server.AddUser(Context.ConnectionId, code) && room.AddPlayer(Context.ConnectionId, name))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                    await Clients.Group(code).ChangeState(room);
+                    return Context.ConnectionId;
+                }
             }
-
             return null;
         }
 
