@@ -48,8 +48,17 @@ const Action = {
             }
         },
         'drop': async function () {
+            let pos = this.Add.dragObject.position;
+            let oldPos = this.Add.oldPosition;
+
             if (!this.Add.isDragging) return;
             this.Add.isDragging = false;
+
+            if (pos.x == oldPos.x && pos.y == oldPos.y) {
+                core.sPlayer.position.set(this.Add.oldPosition.x, this.Add.oldPosition.y, this.Add.oldPosition.z);
+                return;
+            }
+
 
             let action = {
                 Type: 0,
@@ -104,6 +113,12 @@ const Action = {
                     let player = core.sPlayers.children[i];
                     if (player.info.position.x == position.x && player.info.position.y == position.y) {
                         players.push(player);
+                    }
+                }
+
+                for (var i = 0; i < players.length; i++) {
+                    if (players[i].info.id == core.sPlayer.info.id) {
+                        players.splice(i, 1);
                     }
                 }
 
