@@ -156,6 +156,10 @@ const Action = {
         if (success) {
             Action.count = Action.maxCount;
             div.style.display = 'none';
+            Action.Move.Can = true;
+            Action.Attack.Can = true;
+            btnDig.disabled = false;
+            btnRollDice.disabled = false;
         }
     },
 };
@@ -178,14 +182,9 @@ export function init() {
 export function setTurn(bool) {
     isMyTurn = bool;
     if (bool) {
-        Action.Move.Can = true;
-        Action.Attack.Can = true;
         turn.innerText = Message.YouMove;
         count.innerText = Message.NeedRollDice;
         div.style.display = 'block';
-
-        btnDig.disabled = false;
-        btnRollDice.disabled = false;
     }
 
     playerHealth.innerText = Message.Health + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
