@@ -14,7 +14,7 @@ namespace NeatDiggers.Hubs
 {
     public class GameHub : Hub<IGameClient>
     {
-        public async Task<string> ConnectToRoomAsSpectator(string code)
+        public async Task<Room> ConnectToRoomAsSpectator(string code)
         {
             Room room = Server.GetRoom(code);
             if (room != null)
@@ -24,9 +24,8 @@ namespace NeatDiggers.Hubs
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
                     await Clients.Group(code).ChangeState(room);
                 }
-                return "spectator";
             }
-            return "wrongCode";
+            return room;
         }
 
         public async Task<string> ConnectToRoom(string code, string name)

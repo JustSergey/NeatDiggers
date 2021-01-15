@@ -36,12 +36,12 @@ export let screen = {
     }
 };
 
-export function init(map) {
+export async function init(map) {
     renderInit();
     centerMap = new THREE.Vector3((map.width / 2) - 0.5, (map.height / 2) - 0.5, 1);
     cameraInit(centerMap);
     sceneInit(centerMap);
-    drawMap(map);
+    await drawMap(map);
     animate();
     actions.setCamera(camera);
 }

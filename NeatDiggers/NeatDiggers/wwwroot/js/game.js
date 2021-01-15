@@ -12,7 +12,7 @@ export async function init(connect, id) {
         return console.error(err.toString());
     });
 
-    core.init(gameMap);
+    await core.init(gameMap);
 }
 
 let isActionInit;

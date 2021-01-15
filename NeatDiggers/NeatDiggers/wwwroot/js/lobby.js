@@ -12,11 +12,11 @@ window.onload = async function () {
 
     connection.start().then(async function () {
         let code = $("#code").text();
-        let userId = await connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
+        let room = await connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
             return console.error(err.toString());
         });
 
-        if (userId == Conection.Error.WrongCode.Code) {
+        if (room == null) {
             $("#errorModal").modal();
             $("#errorModalMessage").text(Conection.Error.WrongCode.Description);
             return;
@@ -24,7 +24,8 @@ window.onload = async function () {
 
         console.log(`Spectator connected to lobby: ${code}`);
 
-        game.init(connection, userId);
+        await game.init(connection, "spec");
+        UpdateRoom(room, null);
     }).catch(function (err) {
         return console.error(err.toString());
     });
