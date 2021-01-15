@@ -88,7 +88,7 @@ function LoadPlayers(roomPlayers) {
 }
 
 function PlayersIsReady(roomPlayers) {
-    let ready = roomPlayers.length > 0;
+    let ready = roomPlayers.length > 1;
     for (var i = 0; i < roomPlayers.length; i++) {
         ready = ready && roomPlayers[i].isReady;
     }
