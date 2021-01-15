@@ -21,6 +21,14 @@ export const Message = {
     }
 }
 
+export const  ItemType = {
+    //Event,
+    Passive: 0,
+    Active: 1,
+    Weapon: 2,
+    Armor: 3
+}
+
 export const GameActionType = {
     Move: 0,
     Dig: 1,

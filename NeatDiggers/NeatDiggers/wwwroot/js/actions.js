@@ -2,7 +2,7 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
-import { checkAvailability, Message, GameActionType } from './util.js';
+import { checkAvailability, Message, GameActionType, ItemType } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -139,6 +139,7 @@ const Action = {
                 }
                 for (var i = 0; i < players.length; i++) {
                     let btn = document.createElement('button');
+                    btn.style.pointerEvents = "all";
                     if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
                         btn.disabled = true;
 
@@ -199,10 +200,20 @@ const Action = {
     },
 };
 
-let ItemAction = {
+let ItemsActions = {
     drop: function (item) {
         let action = {
             Type: GameActionType.DropItem,
+            Item: item
+        };
+        doAction(action);
+    },
+    equip: function (inventory) {
+
+    },
+    use: function (item){
+        let action = {
+            Type: GameActionType.UseItem,
             Item: item
         };
         doAction(action);
@@ -258,22 +269,26 @@ function updateItems(items) {
 
     for (var i = 0; i < items.length; i++) {
         let item = items[i];
-        let itemUse = document.createElement("button");
         let itemDrop = document.createElement("button");
         let itemDescription = document.createElement("p");
 
-        itemUse.innerText = Message.Button.Use;
-        itemUse.style.pointerEvents = "all";
-        itemUse.classList.add("ui");
         itemDrop.innerText = Message.Button.Drop;
         itemDrop.style.pointerEvents = "all";
         itemDrop.classList.add("ui");
-        itemDrop.onclick = function () { ItemAction.drop(item); };
+        itemDrop.onclick = function () { ItemsActions.drop(item); };
         itemDescription.innerText = item.title + " (" + item.description + ")";
 
         inventory.appendChild(itemDescription);
-        inventory.appendChild(itemUse);
         inventory.appendChild(itemDrop);
+
+        if (item.type == ItemType.Active) {
+            let itemUse = document.createElement("button");
+            itemUse.innerText = Message.Button.Use;
+            itemUse.style.pointerEvents = "all";
+            itemUse.classList.add("ui");
+            itemUse.onclick = function () { ItemsActions.use(item); };
+            inventory.appendChild(itemUse);
+        }
     }
 }
 
