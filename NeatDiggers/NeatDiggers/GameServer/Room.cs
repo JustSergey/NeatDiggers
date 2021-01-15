@@ -18,7 +18,6 @@ namespace NeatDiggers.GameServer
         public int PlayerTurn { get; private set; }
         public Vector FlagPosition { get; set; }
         public bool FlagOnTheGround { get; set; }
-        public Func<Player, bool> FlaggingCondition { get; set; }
         public int Round { get; private set; }
         private GameMap gameMap;
         
@@ -40,7 +39,6 @@ namespace NeatDiggers.GameServer
             items = deck.Shuffle();
             nextItem = items.Count - 1;
             FlagOnTheGround = true;
-            FlaggingCondition = (Player p) => p.Inventory.Items.Count < 6;
         }
 
         public bool AddSpectator(string id)
@@ -126,7 +124,7 @@ namespace NeatDiggers.GameServer
         {
             if (FlagOnTheGround && player.Position.Equals(FlagPosition))
             {
-                if (!player.WithFlag && FlaggingCondition(player))
+                if (!player.WithFlag && player.Inventory.Items.Count < 6)
                 {
                     FlagOnTheGround = false;
                     player.WithFlag = true;
