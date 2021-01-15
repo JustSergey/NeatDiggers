@@ -10,6 +10,8 @@ export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
 let pandora, jupiter, box_1, box_2, box_3, box_4, spawn, dig_1, dig_2, flag;
 const loader = new GLTFLoader();
 
+let centerMap;
+
 export let screen = {
     width: 0,
     height: 0,
@@ -34,8 +36,9 @@ export let screen = {
 
 export function init(map) {
     renderInit();
-    cameraInit(new THREE.Vector3(map.width / 2, map.height / 2, 1));
-    sceneInit(new THREE.Vector3(map.width / 2, map.height / 2, 1));
+    centerMap = new THREE.Vector3((map.width / 2) - 0.5, (map.height / 2) - 0.5, 1);
+    cameraInit(centerMap);
+    sceneInit(centerMap);
     drawMap(map);
     animate();
     actions.setCamera(camera);
@@ -80,8 +83,12 @@ function placePlayers(players, userId) {
             sPlayers.add(cube);
             if (players[i].id == userId) {
                 sPlayer = cube;
-                material.color.set(0x15c194);
+
+                camera.position.x = sPlayer.position.x;
+                camera.position.y = sPlayer.position.y;
             }
+            cube.up.set(0, 0, 1);
+            cube.lookAt(centerMap);
         }
         else {
             player.info = players[i]; 

@@ -311,7 +311,6 @@ function guiInit() {
     div = document.createElement("div");
     div.style.position = 'absolute';
     div.style.pointerEvents = "none";
-    div.style.border = '1px solid black';
     div.style.width = core.screen.width + 'px';
     div.style.height = core.screen.height + 'px';
     div.style.margin = 'auto';

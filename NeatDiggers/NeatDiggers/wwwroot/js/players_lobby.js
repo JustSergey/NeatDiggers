@@ -1,6 +1,7 @@
 ﻿"use strict";
 
 import * as game from "./game.js";
+import { Message } from "./util.js";
 
 let connection;
 
@@ -20,17 +21,17 @@ window.onload = async function(){
         });
 
         switch (userId) {
-            case "full":
+            case Message.ConnectionError.Full.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text("The lobby is full.");
+                $("#errorModalMessage").text(Message.ConnectionError.Full.Description);
                 return;
-            case "started":
+            case Message.ConnectionError.Started.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text("This game is already started.");
+                $("#errorModalMessage").text(Message.ConnectionError.Started.Description);
                 return;
-            case "wrongCode":
+            case Message.ConnectionError.WrongCode.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text("You entered the wrong code.");
+                $("#errorModalMessage").text(Message.ConnectionError.WrongCode.Description);
                 return;
         }
 
