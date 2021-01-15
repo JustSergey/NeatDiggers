@@ -16,6 +16,9 @@ namespace NeatDiggers.GameServer
         public List<Player> Players { get; }
         public List<string> Spectators { get; }
         public int PlayerTurn { get; private set; }
+        public Vector FlagPosition { get; set; }
+        public bool FlagOnTheGround { get; set; }
+        public Func<Player, bool> FlaggingCondition { get; set; }
         public int Round { get; private set; }
         private GameMap gameMap;
         
@@ -36,6 +39,8 @@ namespace NeatDiggers.GameServer
             this.deck = deck;
             items = deck.Shuffle();
             nextItem = items.Count - 1;
+            FlagOnTheGround = true;
+            FlaggingCondition = (Player p) => p.Inventory.Items.Count < 6;
         }
 
         public bool AddSpectator(string id)
@@ -63,6 +68,7 @@ namespace NeatDiggers.GameServer
         {
             if (Players.All(p => p.IsReady && p.Character.Name != CharacterName.Empty))
             {
+                FlagPosition = gameMap.FlagSpawnPoint;
                 for (int i = 0; i < Players.Count; i++)
                 {
                     Players[i].LevelUp();
@@ -114,6 +120,27 @@ namespace NeatDiggers.GameServer
                 nextItem = items.Count - 1;
             }
             return items[nextItem--];
+        }
+
+        public bool TryTakeTheFlag(Player player)
+        {
+            if (FlagOnTheGround && player.Position.Equals(FlagPosition))
+            {
+                if (!player.WithFlag && FlaggingCondition(player))
+                {
+                    FlagOnTheGround = false;
+                    player.WithFlag = true;
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public void DropTheFlag(Player player)
+        {
+            FlagPosition = player.Position;
+            player.WithFlag = false;
+            FlagOnTheGround = true;
         }
 
         public bool Disconnect(string id)

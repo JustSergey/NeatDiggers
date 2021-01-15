@@ -24,7 +24,7 @@ namespace NeatDiggers.Hubs
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
                     await Clients.Group(code).ChangeState(room);
                 }
-                return "good";
+                return "spectator";
             }
             return "wrongCode";
         }
@@ -207,6 +207,7 @@ namespace NeatDiggers.Hubs
                             GameActionType.UseItem => () => UseItem(room, gameAction),
                             GameActionType.DropItem => () => DropItem(room, gameAction),
                             GameActionType.UseAbility => () => UseAbility(room, gameAction),
+                            GameActionType.TakeTheFlag => () => TakeTheFlag(room, gameAction),
                             _ => null
                         };
                         if (action != null && action())
@@ -231,15 +232,20 @@ namespace NeatDiggers.Hubs
         {
             if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
-                Vector playerPosition = gameAction.CurrentPlayer.Position;
                 Vector targetPosition = gameAction.TargetPosition;
                 int x = targetPosition.X;
                 int y = targetPosition.Y;
-                if (playerPosition.CheckAvailability(targetPosition, dice + gameAction.CurrentPlayer.Speed) &&
+                if (gameAction.CurrentPlayer.Position.CheckAvailability(targetPosition, dice + gameAction.CurrentPlayer.Speed) &&
                     targetPosition.IsInMap(room.GetGameMap()) &&
                     room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
-                    room.GetPlayer(gameAction.CurrentPlayer.Id).Position = targetPosition;
+                    if (targetPosition.Equals(gameAction.CurrentPlayer.SpawnPoint))
+                    {
+                        gameAction.CurrentPlayer.Score++;
+                        room.DropTheFlag(gameAction.CurrentPlayer);
+                        room.FlagPosition = room.GetGameMap().FlagSpawnPoint;
+                    }
+                    gameAction.CurrentPlayer.Position = targetPosition;
                     return true;
                 }
             }
@@ -277,6 +283,9 @@ namespace NeatDiggers.Hubs
                         if (enemyArmor.ArmorDurability <= 0)
                             targetPlayer.Inventory.Armor = new EmptyItem();
                     }
+
+                    if (targetPlayer.WithFlag)
+                        room.DropTheFlag(targetPlayer);
 
                     if (targetPlayer.Health <= 0)
                     {
@@ -337,6 +346,11 @@ namespace NeatDiggers.Hubs
             if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
                 return gameAction.Ability.Use(room, gameAction);
             return false;
+        }
+
+        private bool TakeTheFlag(Room room, GameAction gameAction)
+        {
+            return room.TryTakeTheFlag(gameAction.CurrentPlayer);
         }
 
         public async Task<bool> EndTurn()

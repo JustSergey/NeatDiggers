@@ -24,5 +24,17 @@ namespace NeatDiggers.GameServer
         {
             return X < map.Width && X >= 0 && Y < map.Height && Y >= 0;
         }
+
+        public override int GetHashCode() => X ^ (Y << 16) ^ (Y >> 16);
+
+        public override bool Equals(object obj)
+        {
+            if (obj is Vector v)
+            {
+                if (v.X == X && v.Y == Y)
+                    return true;
+            }
+            return false;
+        }
     }
 }
