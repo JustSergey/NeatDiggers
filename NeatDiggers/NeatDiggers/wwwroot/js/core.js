@@ -7,7 +7,7 @@ import { OrbitControls } from '../lib/three/examples/jsm/controls/OrbitControls.
 export let controls;
 let  camera, renderer;
 export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
-let pandora, jupiter, box_1, box_2, box_3, box_4, spawn, dig_1, dig_2;
+let pandora, jupiter, box_1, box_2, box_3, box_4, spawn, dig_1, dig_2, flag;
 const loader = new GLTFLoader();
 
 export let screen = {
@@ -109,6 +109,9 @@ async function loadModels() {
     jupiter = await modelLoader("jupiter");
     jupiter.castShadow = true;
     jupiter.receiveShadow = true;
+    flag = await modelLoader("flag");
+    flag.castShadow = true;
+    flag.receiveShadow = true;
     box_1 = await modelLoader("box_1");
     box_1.receiveShadow = true;
     box_2 = await modelLoader("box_2");
@@ -123,15 +126,14 @@ async function loadModels() {
     dig_1.receiveShadow = true;
     dig_2 = await modelLoader("dig_2");
     dig_2.receiveShadow = true;
+
+
 }
 
 function drawFlag(pos) {
-    const boxGeometry = new THREE.BoxGeometry();
-    let material = new THREE.MeshPhongMaterial();
-    sFlag = new THREE.Mesh(boxGeometry, material);
+    sFlag = flag.clone();
     scene.add(sFlag);
     sFlag.position.set(pos.x, pos.y, 1);
-    sFlag.scale.set(0.2, 0.2, 1);
 }
 
 function getRandomInt(max) {
