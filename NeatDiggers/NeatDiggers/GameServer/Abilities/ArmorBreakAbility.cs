@@ -19,6 +19,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.ArmorBreak;
             Description = $"Ломает {armor} брони цели на {time} круг(а) за {consumption} сброса";
             Type = AbilityType.Active;
+            Target = Target.Player;
         }
 
         public override bool Use(Room room, GameAction gameAction)

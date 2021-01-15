@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Дождь";
             Description = "-2 скорость у всех игроков на 2 круга";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

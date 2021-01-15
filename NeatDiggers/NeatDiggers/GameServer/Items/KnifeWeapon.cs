@@ -8,6 +8,7 @@
             Title = "Нож (одноручный)";
             Description = "1 урон";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.One;
             WeaponType = WeaponType.Melee;
             WeaponDamage = 1;

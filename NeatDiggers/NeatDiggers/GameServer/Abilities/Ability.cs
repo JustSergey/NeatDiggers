@@ -28,6 +28,7 @@ namespace NeatDiggers.GameServer.Abilities
         public AbilityName Name { get; protected set; }
         public string Description { get; protected set; }
         public AbilityType Type { get; protected set; }
+        public Target Target { get; protected set; }
         public bool IsActive { get; set; }
 
         public virtual bool Use(Room room, GameAction gameAction) { return false; }

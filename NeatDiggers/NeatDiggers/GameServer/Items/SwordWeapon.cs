@@ -8,6 +8,7 @@
             Title = "Меч (двуручный)";
             Description = "3 урона";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.Two;
             WeaponType = WeaponType.Melee;
             WeaponDamage = 3;

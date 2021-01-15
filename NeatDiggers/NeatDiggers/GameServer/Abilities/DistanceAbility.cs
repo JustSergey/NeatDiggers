@@ -17,6 +17,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Distance;
             Description = $"+{distance} {(type == WeaponType.Melee ? "ближней" : "дальней")} дальности атаки";
             Type = AbilityType.Passive;
+            Target = Target.None;
         }
 
         public override void Get(Player player)

@@ -17,6 +17,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Heal;
             Description = $"Лечит {heal} хп цели за {consumption} сброса";
             Type = AbilityType.Active;
+            Target = Target.Player;
         }
 
         public override bool Use(Room room, GameAction gameAction)

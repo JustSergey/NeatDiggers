@@ -19,6 +19,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Shuriken;
             Description = $"Сурикен на {damage} урона, {range} дальности за {consumption} сброса";
             Type = AbilityType.Active;
+            Target = Target.Player;
         }
 
         public override bool Use(Room room, GameAction gameAction)

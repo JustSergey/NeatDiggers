@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Двойной урон";
             Description = "Увеличивает весь дальний урон в 2 раза на 1 круг за 3 сброса";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Сапоги скороходы";
             Description = "+2 к скорости";
             Type = ItemType.Passive;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

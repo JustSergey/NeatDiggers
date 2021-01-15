@@ -8,6 +8,7 @@
             Title = "Догонялки";
             Description = "Телепортирует персонажа к цели";
             Type = ItemType.Active;
+            Target = Target.Player;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

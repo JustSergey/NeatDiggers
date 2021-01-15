@@ -15,6 +15,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Armor;
             Description = $"+{armor} защита";
             Type = AbilityType.Passive;
+            Target = Target.None;
         }
 
         public override void Get(Player player)

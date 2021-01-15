@@ -17,6 +17,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Damage;
             Description = $"+{damage} {(type == WeaponType.Melee ? "ближнего" : "дальнего")} урона";
             Type = AbilityType.Passive;
+            Target = Target.None;
         }
 
         public override void Get(Player player)

@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Заточить лезвие";
             Description = "Увеличивает урон ближнего оружия на 1";
             Type = ItemType.Passive;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

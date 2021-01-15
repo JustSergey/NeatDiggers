@@ -8,6 +8,7 @@
             Title = "Автомат (двуручный)";
             Description = "3 урона. Дальность +2. Выстрел за 1 сброс";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.Two;
             WeaponType = WeaponType.Ranged;
             WeaponDamage = 3;

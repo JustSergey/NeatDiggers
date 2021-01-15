@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Неуязвимость";
             Description = "Неуязвимость на 1 круг за 2 сброса";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

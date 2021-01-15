@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Бинт";
             Description = "Восстанавливает 1 хп";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }
