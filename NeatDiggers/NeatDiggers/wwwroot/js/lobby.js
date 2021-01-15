@@ -1,64 +1,70 @@
 ﻿"use strict";
 
-import * as game from "./game_old.js";
+import * as game from "./game.js";
+import { Message } from "./util.js";
+
 let connection;
+
 window.onload = async function () {
     connection = new signalR.HubConnectionBuilder()
         .withUrl("/GameHub")
         .build();
 
-    ToggleRendering('game', false);
-
     connection.start().then(async function () {
-        let code = document.getElementById("code").innerText;
-        console.log(code);
-        connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
+        let code = $("#code").text();
+        let userId = await connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
             return console.error(err.toString());
         });
+
+        if (userId == Message.ConnectionError.WrongCode.Code) {
+            $("#errorModal").modal();
+            $("#errorModalMessage").text(Message.ConnectionError.WrongCode.Description);
+            return;
+        }
+
         console.log(`Spectator connected to lobby: ${code}`);
 
-        var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
-            return console.error(err.toString());
-        });
-
-        game.DrawMap(gameMap);
+        game.init(connection, userId);
     }).catch(function (err) {
         return console.error(err.toString());
     });
 
     connection.on("ChangeState", function (room) {
-        UpdateRoom(room);
+        UpdateRoom(room, null);
         console.log("ChangeState");
     });
 
     connection.on("ChangeStateWithAction", function (room, gameAction) {
-        UpdateRoom(room);
+        UpdateRoom(room, gameAction);
         console.log("ChangeStateWithAction");
     });
 };
 
 function UpdateRoom(room) {
     if (room.isStarted) {
-        ToggleRendering('game', true);
-        ToggleRendering('lobby', false);
-        ToggleRendering('footer', false);
+        $("#game").show();
+        $("#lobby").hide();
+        $("#footer").hide();
 
-        game.animate();
-        game.UpdateRoom(room, connection);
+        game.updateRoom(room, action);
     }
     else {
         LoadPlayers(room.players);
-        document.getElementById("isStarted").innerText = room.isStarted;
-        document.getElementById("spectators").innerText = room.spectators.length;
-        document.getElementById("StartGame").disabled = !PlayersIsReady(room.players);
+        $("#isStarted").text(room.isStarted);
+        $("#spectators").text(room.spectators.length);
     }
 }
 
-function ToggleRendering(id, bool) {
-    var x = document.getElementById(id);
-    if (bool) {
-        x.style.display = 'block';
-    } else {
-        x.style.display = 'none';
+function LoadPlayers(roomPlayers) {
+    var players = document.getElementById("players");
+
+    while (players.firstChild) {
+        players.removeChild(players.firstChild);
+    }
+
+    for (var i = 0; i < roomPlayers.length; i++) {
+        var playerContainer = document.createElement('div')
+        playerContainer.textContent = roomPlayers[i].name + ' ' + roomPlayers[i].character.title + ' [' + roomPlayers[i].isReady + ']';
+        players.appendChild(playerContainer)
     }
 }

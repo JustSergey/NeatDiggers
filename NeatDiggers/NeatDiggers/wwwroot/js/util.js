@@ -20,8 +20,24 @@ export const Message = {
         Dig: "Dig",
         EndTurn: "End turn",
         Equip: "Equip"
+    },
+    ConnectionError: {
+        Full: {
+            Code: "full",
+            Message: "The lobby is full."
+        },
+        Started: {
+            Code: "started",
+            Message: "This game is already started."
+        },
+        WrongCode: {
+            Code: "wrongCode",
+            Description: "You entered the wrong code."
+        },
     }
 }
+
+
 
 export const  ItemType = {
     //Event,
