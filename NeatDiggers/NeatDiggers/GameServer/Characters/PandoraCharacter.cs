@@ -16,8 +16,8 @@ namespace NeatDiggers.GameServer.Characters
             WeaponType = WeaponType.Ranged;
             Abilities = new List<Ability>
             {
-                new Shuriken(2, 1, 1),
-                new SpeedAbility(2),
+                new ShurikenAbility(2, 1, 1),
+                new ArmorAbility(1),
                 new DistanceAbility(2, WeaponType.Ranged),
                 new DamageAbility(3, WeaponType.Ranged)
             };

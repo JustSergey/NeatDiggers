@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Play";
     string[] CharacterNames = ViewData["CharacterNames"] as string[];
+    string name = ViewData["name"] as string;
 }
 @model NeatDiggers.GameServer.Room
 <div id="lobby" class="jumbotron my-3">
@@ -9,6 +10,8 @@
             <div class="row">
                 <div class="col"><h2>Code: </h2></div>
                 <div class="col"><h2 id="code">@Html.DisplayFor(model => model.Code)</h2></div>
+                <div class="col"><h2>Name: </h2></div>
+                <div class="col"><h2 id="name">@name</h2></div>
             </div>
         </div>
         <div class="col-4">
@@ -50,7 +53,24 @@
     </div>
 </div>
 
-
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" >Connection error</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="errorModalMessage">
+            </div>
+            <div class="modal-footer">
+                <a class="btn btn-secondary" asp-area="" asp-controller="Game" asp-action="Matches">Matches</a>
+                <button class="btn btn-primary" onClick="window.location.reload();">Try again!</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="~/js/signalr/dist/browser/signalr.js"></script>
 <script src="~/js/players_lobby.js" type="module"></script>

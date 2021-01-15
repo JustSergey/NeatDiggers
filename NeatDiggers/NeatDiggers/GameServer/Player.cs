@@ -13,7 +13,7 @@ namespace NeatDiggers.GameServer
         public bool IsReady { get; private set; }
         public bool IsTurn { get; set; }
         public bool WithFlag { get; set; }
-        public Vector SpawnPoint { get; }
+        public Vector SpawnPoint { get; set; }
         public Vector Position { get; set; }
         public Character Character { get; set; }
         public Inventory Inventory { get; set; }
@@ -29,17 +29,14 @@ namespace NeatDiggers.GameServer
         public int Hands { get; set; }
         public int Armor { get; set; }
 
-        public Player(string id, string name, Vector position)
+        public Player(string id, string name)
         {
             Id = id;
             Name = name;
             IsReady = false;
             IsTurn = false;
             WithFlag = false;
-            SpawnPoint = position;
-            Position = position;
             Character = new EmptyCharacter();
-            Inventory = new Inventory();
             Level = 0;
             Speed = 0;
             MeleeDistance = 0;

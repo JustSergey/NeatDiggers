@@ -16,8 +16,12 @@
         {
             Player targetPlayer = room.GetPlayer(gameAction.TargetPlayerId);
             int targetHealth = targetPlayer.Health;
-            targetPlayer.Health = room.GetPlayer(gameAction.CurrentPlayer.Id).Health;
+            targetPlayer.Health = gameAction.CurrentPlayer.Health;
+            if (targetPlayer.Health > targetPlayer.Character.MaxHealth)
+                targetPlayer.Health = targetPlayer.Character.MaxHealth;
             gameAction.CurrentPlayer.Health = targetHealth;
+            if (gameAction.CurrentPlayer.Health > gameAction.CurrentPlayer.Character.MaxHealth)
+                gameAction.CurrentPlayer.Health = gameAction.CurrentPlayer.Character.MaxHealth;
             return true;
         }
     }

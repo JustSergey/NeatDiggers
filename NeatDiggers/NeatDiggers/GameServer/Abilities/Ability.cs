@@ -8,7 +8,13 @@ namespace NeatDiggers.GameServer.Abilities
     public enum AbilityName
     {
         Speed,
-        Shuriken
+        Shuriken,
+        Heal,
+        Damage,
+        Distance,
+        Armor,
+        Invul,
+        ArmorBreak
     }
 
     public enum AbilityType

@@ -9,7 +9,10 @@ namespace NeatDiggers.GameServer.Characters
     public enum CharacterName
     {
         Empty,
-        Pandora
+        Pandora,
+        Kirill,
+        Jupiter,
+        Sirius
     }
 
     public class Character
@@ -25,6 +28,9 @@ namespace NeatDiggers.GameServer.Characters
             {
                 CharacterName.Empty => new EmptyCharacter(),
                 CharacterName.Pandora => new PandoraCharacter(),
+                CharacterName.Kirill => new KirillCharacter(),
+                CharacterName.Jupiter => new JupiterCharacter(),
+                CharacterName.Sirius => new SiriusCharacter(),
                 _ => null
             };
     }

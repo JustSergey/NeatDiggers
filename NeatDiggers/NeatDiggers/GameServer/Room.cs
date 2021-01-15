@@ -52,8 +52,7 @@ namespace NeatDiggers.GameServer
                 return false;
             if (Players.Count >= gameMap.SpawnPoints.Count)
                 return false;
-            Vector position = gameMap.SpawnPoints[Players.Count];
-            Player player = new Player(id, name, position);
+            Player player = new Player(id, name);
             Players.Add(player);
             return true;
         }
@@ -64,8 +63,12 @@ namespace NeatDiggers.GameServer
         {
             if (Players.All(p => p.IsReady && p.Character.Name != CharacterName.Empty))
             {
-                Players.ForEach(p => p.LevelUp());
-                Players.ForEach(p => p.Health = p.Character.MaxHealth);
+                for (int i = 0; i < Players.Count; i++)
+                {
+                    Players[i].LevelUp();
+                    Players[i].SpawnPoint = gameMap.SpawnPoints[i];
+                    Players[i].Respawn();
+                }
                 Random random = new Random();
                 PlayerTurn = random.Next(Players.Count);
                 Players[PlayerTurn].IsTurn = true;
@@ -118,7 +121,13 @@ namespace NeatDiggers.GameServer
             Spectators.Remove(id);
             Player player = Players.Find(p => p.Id == id);
             if (player != null)
+            {
+                if (player.IsTurn)
+                    NextTurn();
+                if (Players.IndexOf(player) < PlayerTurn)
+                    PlayerTurn--;
                 Players.Remove(player);
+            }
         }
     }
 }

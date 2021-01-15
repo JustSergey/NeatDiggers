@@ -1,6 +1,6 @@
 ﻿"use strict";
 
-import * as game from "../js/game.js";
+import * as game from "./game_old.js";
 let connection;
 window.onload = async function () {
     connection = new signalR.HubConnectionBuilder()

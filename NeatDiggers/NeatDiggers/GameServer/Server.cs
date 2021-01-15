@@ -46,21 +46,21 @@ namespace NeatDiggers.GameServer
             return rooms.Remove(code);
         }
 
-        public static Room AddUser(string name, string id, string code, bool asSpectator)
+        public static bool RemoveEmptyRoom(Room room)
         {
-            Room room = GetRoom(code);
-            if (room != null)
+            if (room.Players.Count == 0)
+                return rooms.Remove(room.Code);
+            return false;
+        }
+
+        public static bool AddUser(string id, string code)
+        {
+            if (!users.ContainsKey(id))
             {
-                if (!users.ContainsKey(id))
-                {
-                    users.Add(id, code);
-                    if (asSpectator)
-                        room.AddSpectator(id);
-                    else
-                        room.AddPlayer(id, name);
-                }
+                users.Add(id, code);
+                return true;
             }
-            return room;
+            return false;
         }
 
         public static bool RemoveUser(string id) => users.Remove(id);

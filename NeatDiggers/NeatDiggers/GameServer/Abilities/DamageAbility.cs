@@ -14,7 +14,7 @@ namespace NeatDiggers.GameServer.Abilities
         {
             this.damage = damage;
             this.type = type;
-            Name = AbilityName.Speed;
+            Name = AbilityName.Damage;
             Description = $"+{damage} {(type == WeaponType.Melee ? "ближнего" : "дальнего")} урона";
             Type = AbilityType.Passive;
         }

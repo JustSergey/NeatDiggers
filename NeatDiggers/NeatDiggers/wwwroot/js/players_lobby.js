@@ -1,8 +1,7 @@
 ﻿"use strict";
 
-import * as game from "../js/game.js";
+import * as game from "./game.js";
 
-let userId;
 let connection;
 
 window.onload = async function(){
@@ -10,33 +9,45 @@ window.onload = async function(){
         .withUrl("/GameHub")
         .build();
 
-    document.getElementById("StartGame").disabled = true;
-    document.getElementById("ChangeReady").disabled = true;
-    ToggleRendering('game', false);
+    $("#StartGame").prop("disabled", true);
+    $("#ChangeReady").prop("disabled", true);
 
     connection.start().then(async function () {
-        let code = document.getElementById("code").innerText;
-        userId = await connection.invoke("ConnectToRoom", code, "WebPlayer").catch(function (err) {
-            return console.error(err.toString());
-        });
-        console.log(`Player ${userId} connected to lobby: ${code}`);
-
-        var gameMap = await connection.invoke("GetGameMap").catch(function (err) {
+        let code = $("#code").text();
+        let name = $("#name").text();
+        let userId = await connection.invoke("ConnectToRoom", code, name).catch(function (err) {
             return console.error(err.toString());
         });
 
-        game.DrawMap(gameMap);
+        switch (userId) {
+            case "full":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("The lobby is full.");
+                return;
+            case "started":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("This game is already started.");
+                return;
+            case "wrongCode":
+                $("#errorModal").modal();
+                $("#errorModalMessage").text("You entered the wrong code.");
+                return;
+        }
+
+        console.log(`Player ${name} connected to lobby: ${code}`);
+
+        game.init(connection, userId);
     }).catch(function (err) {
         return console.error(err.toString());
     });
 
     connection.on("ChangeState", async function (room) {
-        UpdateRoom(room);
+        UpdateRoom(room, null);
         console.log("ChangeState");
     });
 
     connection.on("ChangeStateWithAction", async function (room, gameAction) {
-        UpdateRoom(room);
+        UpdateRoom(room, gameAction);
         console.log("ChangeStateWithAction");
     });
 
@@ -45,24 +56,21 @@ window.onload = async function(){
     window.StartGame = StartGame;
 };
 
-async function UpdateRoom(room) {
+async function UpdateRoom(room, action) {
     if (room.isStarted) {
-        await game.guiInit();
-        ToggleRendering('game', true);
-        ToggleRendering('lobby', false);
-        ToggleRendering('footer', false);
+        $("#game").show();
+        $("#lobby").hide();
+        $("#footer").hide();
 
-        game.animate();
-        room.userId = userId;
-        game.UpdateRoom(room, connection);
-        game.setTurn(room.players[room.playerTurn].id == userId);
+        game.updateRoom(room, action);
     }
     else {
         LoadPlayers(room.players);
-        document.getElementById("isStarted").innerText = room.isStarted;
-        document.getElementById("spectators").innerText = room.spectators.length;
-        document.getElementById("StartGame").disabled = !PlayersIsReady(room.players);
+        $("#isStarted").text(room.isStarted);
+        $("#spectators").text(room.spectators.length);
+        $("#StartGame").prop("disabled", !PlayersIsReady(room.players));
     }
+    console.log(JSON.stringify(room));
 }
 
 function LoadPlayers(roomPlayers) {
@@ -84,16 +92,14 @@ function PlayersIsReady(roomPlayers) {
     for (var i = 0; i < roomPlayers.length; i++) {
         ready = ready && roomPlayers[i].isReady;
     }
-
-    console.log("players is ready:" + ready);
     return ready;
 }
 
 function SelectCharacter(name) {
-    document.getElementById("ChangeReady").disabled = false;
-    connection.invoke("ChangeCharacter", 1).catch(function (err) {
+    connection.invoke("ChangeCharacter", parseInt(name)).catch(function (err) {
         return console.error(err.toString());
     });
+    document.getElementById("ChangeReady").disabled = false;
 }
 
 function ChangeReady() {
@@ -106,13 +112,4 @@ async function StartGame() {
     connection.invoke("StartGame").catch(function (err) {
         return console.error(err.toString());
     });
-}
-
-function ToggleRendering(id, bool) {
-    var x = document.getElementById(id);
-    if (bool) {
-        x.style.display = 'block';
-    } else {
-        x.style.display = 'none';
-    }
 }

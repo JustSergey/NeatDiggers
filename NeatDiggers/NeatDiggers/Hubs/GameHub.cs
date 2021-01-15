@@ -16,25 +16,35 @@ namespace NeatDiggers.Hubs
     {
         public async Task ConnectToRoomAsSpectator(string code)
         {
-            Room room = Server.AddUser(null, Context.ConnectionId, code, true);
+            Room room = Server.GetRoom(code);
             if (room != null)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                await Clients.Group(code).ChangeState(room);
+                if (Server.AddUser(Context.ConnectionId, code) && room.AddSpectator(Context.ConnectionId))
+                {
+                    await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                    await Clients.Group(code).ChangeState(room);
+                }
             }
         }
 
         public async Task<string> ConnectToRoom(string code, string name)
         {
-            Room room = Server.AddUser(name, Context.ConnectionId, code, false);
-            if (room != null && !room.IsStarted)
+            Room room = Server.GetRoom(code);
+            if (room != null)
             {
-                await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                await Clients.Group(code).ChangeState(room);
-                return Context.ConnectionId;
+                if (!room.IsStarted)
+                {
+                    if (Server.AddUser(Context.ConnectionId, code) && room.AddPlayer(Context.ConnectionId, name))
+                    {
+                        await Groups.AddToGroupAsync(Context.ConnectionId, code);
+                        await Clients.Group(code).ChangeState(room);
+                        return Context.ConnectionId;
+                    }
+                    return "full";
+                }
+                return "started";
             }
-
-            return null;
+            return "wrongCode";
         }
 
         public async Task ChangeCharacter(CharacterName characterName)
@@ -94,14 +104,18 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null && player.IsTurn)
                 {
-                    List<Item> newItems = inventory.Items;
+                    List<Item> newItems = inventory.Items.Where(i => i.Name != ItemName.Empty).ToList();
                     int hands = 0;
-                    WeaponType weaponType = WeaponType.None;
+                    WeaponType weaponType = player.Character.WeaponType;
                     if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
                     {
-                        newItems.Add(inventory.LeftWeapon);
-                        hands += (int) inventory.LeftWeapon.WeaponHanded;
-                        weaponType = inventory.LeftWeapon.WeaponType;
+                        if (weaponType == WeaponType.None || inventory.LeftWeapon.WeaponType == weaponType)
+                        {
+                            newItems.Add(inventory.LeftWeapon);
+                            hands += (int)inventory.LeftWeapon.WeaponHanded;
+                        }
+                        else
+                            return false;
                     }
 
                     if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
@@ -115,19 +129,18 @@ namespace NeatDiggers.Hubs
                             return false;
                     }
 
-                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
-                    {
-                        newItems.Add(inventory.Armor);
-                    }
-
                     if (hands > player.Hands)
                         return false;
+
+                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
+                        newItems.Add(inventory.Armor);
 
                     List<Item> oldItems = new List<Item>(player.Inventory.Items)
                     {
                         player.Inventory.LeftWeapon,
-                        player.Inventory.RightWeapon
-                    };
+                        player.Inventory.RightWeapon,
+                        player.Inventory.Armor
+                    }.Where(i => i.Name != ItemName.Empty).ToList();
 
                     if (oldItems.Count != newItems.Count)
                         return false;
@@ -146,7 +159,6 @@ namespace NeatDiggers.Hubs
                     return true;
                 }
             }
-
             return false;
         }
 
@@ -265,7 +277,10 @@ namespace NeatDiggers.Hubs
                     }
 
                     if (targetPlayer.Health <= 0)
+                    {
+                        gameAction.CurrentPlayer.LevelUp();
                         targetPlayer.Respawn();
+                    }
 
                     return true;
                 }
@@ -348,9 +363,9 @@ namespace NeatDiggers.Hubs
                 room.Disconnect(Context.ConnectionId);
                 Server.RemoveUser(Context.ConnectionId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
-                await Clients.Group(room.Code).ChangeState(room);
+                if (!Server.RemoveEmptyRoom(room))
+                    await Clients.Group(room.Code).ChangeState(room);
             }
-
             await base.OnDisconnectedAsync(exception);
         }
 
