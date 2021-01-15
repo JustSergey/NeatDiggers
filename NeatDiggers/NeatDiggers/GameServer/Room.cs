@@ -116,18 +116,22 @@ namespace NeatDiggers.GameServer
             return items[nextItem--];
         }
 
-        public void Disconnect(string id)
+        public bool Disconnect(string id)
         {
-            Spectators.Remove(id);
-            Player player = Players.Find(p => p.Id == id);
-            if (player != null)
+            if (!Spectators.Remove(id))
             {
-                if (player.IsTurn)
-                    NextTurn();
-                if (Players.IndexOf(player) < PlayerTurn)
-                    PlayerTurn--;
-                Players.Remove(player);
+                Player player = Players.Find(p => p.Id == id);
+                if (player != null)
+                {
+                    if (player.IsTurn)
+                        NextTurn();
+                    if (Players.IndexOf(player) < PlayerTurn)
+                        PlayerTurn--;
+                    Players.Remove(player);
+                    return true;
+                }
             }
+            return false;
         }
     }
 }
