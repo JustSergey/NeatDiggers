@@ -277,7 +277,10 @@ namespace NeatDiggers.Hubs
                     }
 
                     if (targetPlayer.Health <= 0)
+                    {
+                        gameAction.CurrentPlayer.LevelUp();
                         targetPlayer.Respawn();
+                    }
 
                     return true;
                 }
@@ -360,7 +363,8 @@ namespace NeatDiggers.Hubs
                 room.Disconnect(Context.ConnectionId);
                 Server.RemoveUser(Context.ConnectionId);
                 await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
-                await Clients.Group(room.Code).ChangeState(room);
+                if (!Server.RemoveEmptyRoom(room))
+                    await Clients.Group(room.Code).ChangeState(room);
             }
             await base.OnDisconnectedAsync(exception);
         }
