@@ -20,8 +20,11 @@ export const Message = {
         Dig: "Dig",
         EndTurn: "End turn",
         Equip: "Equip"
-    },
-    ConnectionError: {
+    }
+}
+
+export const Conection = {
+    Error: {
         Full: {
             Code: "full",
             Message: "The lobby is full."

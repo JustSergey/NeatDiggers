@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 import * as game from "./game.js";
-import { Message } from "./util.js";
+import { Conection } from "./util.js";
 
 let connection;
 
@@ -16,9 +16,9 @@ window.onload = async function () {
             return console.error(err.toString());
         });
 
-        if (userId == Message.ConnectionError.WrongCode.Code) {
+        if (userId == Conection.Error.WrongCode.Code) {
             $("#errorModal").modal();
-            $("#errorModalMessage").text(Message.ConnectionError.WrongCode.Description);
+            $("#errorModalMessage").text(Conection.Error.WrongCode.Description);
             return;
         }
 
@@ -40,7 +40,7 @@ window.onload = async function () {
     });
 };
 
-function UpdateRoom(room) {
+function UpdateRoom(room, action)  {
     if (room.isStarted) {
         $("#game").show();
         $("#lobby").hide();
@@ -49,6 +49,7 @@ function UpdateRoom(room) {
         game.updateRoom(room, action);
     }
     else {
+        $("#game").hide();
         LoadPlayers(room.players);
         $("#isStarted").text(room.isStarted);
         $("#spectators").text(room.spectators.length);

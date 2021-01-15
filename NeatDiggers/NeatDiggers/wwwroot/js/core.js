@@ -16,9 +16,11 @@ export let screen = {
     width: 0,
     height: 0,
     'resize': function () {
+        document.body.style.overflow = "hidden";
+
         this.width = window.innerWidth;
         this.height = window.innerHeight - $('header').outerHeight();
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer({ canvas: $("#game")[0]});
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(screen.width, screen.height);
@@ -133,8 +135,6 @@ async function loadModels() {
     dig_1.receiveShadow = true;
     dig_2 = await modelLoader("dig_2");
     dig_2.receiveShadow = true;
-
-
 }
 
 function drawFlag(pos) {
@@ -197,8 +197,6 @@ function drawSpawnPoints(spawnPoints) {
 
 function renderInit() {
     screen.resize();
-    document.body.appendChild(renderer.domElement).id = 'game';
-    $("#game").hide();
     document.body.style.marginBottom = 0;
 }
 

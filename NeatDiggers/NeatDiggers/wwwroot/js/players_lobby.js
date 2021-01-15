@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 import * as game from "./game.js";
-import { Message } from "./util.js";
+import { Conection } from "./util.js";
 
 let connection;
 
@@ -21,17 +21,17 @@ window.onload = async function(){
         });
 
         switch (userId) {
-            case Message.ConnectionError.Full.Code:
+            case Conection.Error.Full.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text(Message.ConnectionError.Full.Description);
+                $("#errorModalMessage").text(Conection.Error.Full.Description);
                 return;
-            case Message.ConnectionError.Started.Code:
+            case Conection.Error.Started.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text(Message.ConnectionError.Started.Description);
+                $("#errorModalMessage").text(Conection.Error.Started.Description);
                 return;
-            case Message.ConnectionError.WrongCode.Code:
+            case Conection.Error.WrongCode.Code:
                 $("#errorModal").modal();
-                $("#errorModalMessage").text(Message.ConnectionError.WrongCode.Description);
+                $("#errorModalMessage").text(Conection.Error.WrongCode.Description);
                 return;
         }
 
@@ -57,7 +57,7 @@ window.onload = async function(){
     window.StartGame = StartGame;
 };
 
-async function UpdateRoom(room, action) {
+function UpdateRoom(room, action) {
     if (room.isStarted) {
         $("#game").show();
         $("#lobby").hide();
@@ -66,6 +66,7 @@ async function UpdateRoom(room, action) {
         game.updateRoom(room, action);
     }
     else {
+        $("#game").hide();
         LoadPlayers(room.players);
         $("#isStarted").text(room.isStarted);
         $("#spectators").text(room.spectators.length);
