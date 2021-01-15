@@ -22,7 +22,8 @@ namespace NeatDiggers.GameServer
         Attack,
         UseItem,
         DropItem,
-        UseAbility
+        UseAbility,
+        TakeTheFlag
     }
 
     public class GameAction
