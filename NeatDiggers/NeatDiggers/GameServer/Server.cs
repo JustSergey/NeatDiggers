@@ -48,7 +48,7 @@ namespace NeatDiggers.GameServer
 
         public static bool RemoveEmptyRoom(Room room)
         {
-            if (room.Players.Count == 0 && room.Spectators.Count == 0)
+            if (room.Players.Count == 0)
                 return rooms.Remove(room.Code);
             return false;
         }

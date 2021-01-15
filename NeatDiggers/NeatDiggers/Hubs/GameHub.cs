@@ -24,6 +24,7 @@ namespace NeatDiggers.Hubs
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
                     await Clients.Group(code).ChangeState(room);
                 }
+                return "good";
             }
             return "wrongCode";
         }
