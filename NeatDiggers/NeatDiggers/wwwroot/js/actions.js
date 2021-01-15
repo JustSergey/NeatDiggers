@@ -9,7 +9,7 @@ const mouse = new THREE.Vector2();
 const mouseUp = new THREE.Vector2();
 const mouseDown = new THREE.Vector2();
 
-let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, playerHealth, inventory;
+let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, endTurnInfo, playerHealth, inventory;
 
 const Action = {
     maxCount: 2,
@@ -151,6 +151,7 @@ const Action = {
                         doAction(action);
                         hint.style.display = 'none';
                         Action.Attack.Can = false;
+                        Action.finishAction();
                     }
                     hint.appendChild(btn);
                     hint.style.display = 'block';
@@ -221,9 +222,9 @@ export function init() {
 
 export function updateTurn(bool, action) {
     playerHealth.innerText = Message.Health + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
-    updateInventory(core.sPlayer.info.inventory);
     isMyTurn = bool;
     if (bool) {
+        updateInventory(core.sPlayer.info.inventory);
         if (action != null && action.type == GameActionType.DropItem) return;
         turn.innerText = Action.count < 1 ? Message.YouMove : Message.ActionRemains + Action.count;
         count.innerText = Message.NeedRollDice;
@@ -235,6 +236,15 @@ export function updateTurn(bool, action) {
 
 function updateInventory(inv) {
     updateItems(inv.items);
+
+    if (core.sPlayer.info.inventory.items.length > 6) {
+        btnEndTurn.disabled = true;
+        endTurnInfo.style.display = "block";
+    }
+    else {
+        btnEndTurn.disabled = false;
+        endTurnInfo.style.display = "none";
+    }
 }
 
 function updateItems(items) {
@@ -248,16 +258,16 @@ function updateItems(items) {
         let itemDrop = document.createElement("button");
         let itemDescription = document.createElement("p");
 
-        itemUse.innerText = item.title;
+        itemUse.innerText = "Use";
         itemUse.classList.add("ui");
         itemDrop.innerText = Message.Button.Drop;
         itemDrop.classList.add("ui");
         itemDrop.onclick = function () { ItemAction.drop(item); };
-        itemDescription.innerText = item.description;
+        itemDescription.innerText = item.title + " (" + item.description + ")";
 
+        inventory.appendChild(itemDescription);
         inventory.appendChild(itemUse);
         inventory.appendChild(itemDrop);
-        inventory.appendChild(itemDescription);
     }
 }
 
@@ -311,6 +321,14 @@ function guiInit() {
     btnDig.disabled = true;
     div.appendChild(btnDig);
 
+    endTurnInfo = document.createElement("P");
+    endTurnInfo.style.color = "white";
+    endTurnInfo.innerText = Message.ItemLimit;
+    endTurnInfo.style.display = "none";
+    endTurnInfo.onselectstart = false;
+    endTurnInfo.onmousedown = false;
+    div.appendChild(endTurnInfo);
+
     btnEndTurn = document.createElement("button");
     btnEndTurn.classList.add("ui");
     btnEndTurn.innerText = Message.Button.EndTurn;
@@ -331,6 +349,7 @@ function guiInit() {
 function pointerUp(event) {
     mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouseUp, camera);
     Action.Attack.showHint(raycaster, event.clientX, event.clientY);
 
     if (!isMyTurn || Action.count < 1) return;

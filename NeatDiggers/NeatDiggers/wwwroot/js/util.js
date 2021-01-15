@@ -7,10 +7,11 @@ export function checkAvailability(startPoint, targetPoint, radius) {
 }
 
 export const Message = {
-    NeedRollDice: "You need to roll the dice",
+    NeedRollDice: "You need to roll the dice.",
     Health: "Health:",
     YouMove: "Your move!",
     ActionRemains: "Actions remains:",
+    ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
     Button: {
         Drop: "Drop",
         RollDice: "Roll dice",
