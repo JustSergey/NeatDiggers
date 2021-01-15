@@ -269,26 +269,41 @@ function updateItems(items) {
 
     for (var i = 0; i < items.length; i++) {
         let item = items[i];
+        let itemUse = document.createElement("button");
         let itemDrop = document.createElement("button");
         let itemDescription = document.createElement("p");
 
+        itemUse.style.pointerEvents = "all";
+        itemUse.classList.add("ui");
         itemDrop.innerText = Message.Button.Drop;
         itemDrop.style.pointerEvents = "all";
         itemDrop.classList.add("ui");
         itemDrop.onclick = function () { ItemsActions.drop(item); };
         itemDescription.innerText = item.title + " (" + item.description + ")";
 
-        inventory.appendChild(itemDescription);
-        inventory.appendChild(itemDrop);
-
-        if (item.type == ItemType.Active) {
-            let itemUse = document.createElement("button");
-            itemUse.innerText = Message.Button.Use;
-            itemUse.style.pointerEvents = "all";
-            itemUse.classList.add("ui");
-            itemUse.onclick = function () { ItemsActions.use(item); };
-            inventory.appendChild(itemUse);
+        switch (item.type) {
+            case ItemType.Active:
+                itemUse.innerText = Message.Button.Use;
+                itemUse.onclick = function () { ItemsActions.use(item); };
+                break;
+            case ItemType.Passive:
+                itemUse.innerText = Message.Button.Passive;
+                itemUse.disabled = true;
+                break;
+            case ItemType.Armor:
+                itemUse.innerText = Message.Button.Equip;
+                itemUse.disabled = true;
+                break;
+            case ItemType.Weapon:
+                itemUse.innerText = Message.Button.Equip;
+                itemUse.disabled = true;
+                break;
+            default:
         }
+
+        inventory.appendChild(itemDescription);
+        inventory.appendChild(itemUse);
+        inventory.appendChild(itemDrop);
     }
 }
 
