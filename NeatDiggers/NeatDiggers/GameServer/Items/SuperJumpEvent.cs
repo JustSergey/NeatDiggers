@@ -8,6 +8,7 @@
             Title = "Скачок";
             Description = "Телепортирует персонажа на любую клетку (дальность = скорость + 4)";
             Type = ItemType.Active;
+            Target = Target.Position;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

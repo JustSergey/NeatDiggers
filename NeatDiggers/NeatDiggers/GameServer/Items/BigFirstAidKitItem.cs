@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Большая аптечка";
             Description = "Восстанавливает 3 хп";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

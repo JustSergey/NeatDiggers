@@ -8,6 +8,7 @@
             Title = "Обучение";
             Description = "+1 уровень";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

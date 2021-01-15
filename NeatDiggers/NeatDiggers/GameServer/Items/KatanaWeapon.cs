@@ -8,6 +8,7 @@
             Title = "Катана (двуручная)";
             Description = "3 урона. Дальность +1";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.Two;
             WeaponType = WeaponType.Melee;
             WeaponDamage = 3;

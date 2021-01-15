@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Жилет";
             Description = "Защита 2 на 2 раза";
             Type = ItemType.Armor;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
             ArmorStrength = 2;

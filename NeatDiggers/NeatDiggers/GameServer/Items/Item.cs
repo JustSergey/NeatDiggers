@@ -16,27 +16,23 @@ namespace NeatDiggers.GameServer.Items
         ItemSteal,
         Tutorial,
         FirstAidKit,
-        Crossbow,
+        Katana,
+        Invul,
+        DoubleDamage,
         Bandage,
         BigFirstAidKit,
         Grenade,
         HeavySword,
-        DoubleTurnItem,
-        OneDamageItem,
-        TwoDamageItem,
         PowerShieldItem,
         ArmorBuffItem,
-        Katana,
-        Invul,
-        DoubleDamage,
         Hook,
         Laser,
         Bow,
         MachineGun,
+        Shield,
         Boots,
         AutomaticRifle,
         SniperRifle,
-        Shield,
         Blade,
         Pistol,
         Revolver,
@@ -54,7 +50,6 @@ namespace NeatDiggers.GameServer.Items
 
     public enum ItemType
     {
-        //Event,
         Passive,
         Active,
         Weapon,
@@ -67,6 +62,7 @@ namespace NeatDiggers.GameServer.Items
         public string Title { get; set; }
         public string Description { get; set; }
         public ItemType Type { get; set; }
+        public Target Target { get; set; }
         public WeaponHanded WeaponHanded { get; set; }
         public WeaponType WeaponType { get; set; }
         public int WeaponDamage { get; set; }
@@ -120,6 +116,7 @@ namespace NeatDiggers.GameServer.Items
         {
             Name = ItemName.Empty;
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponDamage = 0;
             WeaponDistance = 0;
             WeaponConsumption = 0;

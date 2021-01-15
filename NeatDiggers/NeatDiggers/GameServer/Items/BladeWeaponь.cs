@@ -8,6 +8,7 @@
             Title = "Клинок (одноручный)";
             Description = "2 урона";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.One;
             WeaponType = WeaponType.Melee;
             WeaponDamage = 2;

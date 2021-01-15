@@ -11,6 +11,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Странное Заклинание";
             Description = "Телепортирует всех персонажей в начало";
             Type = ItemType.Active;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

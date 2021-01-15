@@ -8,6 +8,7 @@
             Title = "Пистолет (одноручный)";
             Description = "1 уронa. Дальность +1. Выстрел за 1 сброс";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.One;
             WeaponType = WeaponType.Ranged;
             WeaponDamage = 1;

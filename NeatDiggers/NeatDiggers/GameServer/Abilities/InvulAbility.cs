@@ -17,6 +17,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Invul;
             Description = $"Неуязвимость на {time} круг(а) за {consumption} сброса";
             Type = AbilityType.Active;
+            Target = Target.None;
         }
 
         public override bool Use(Room room, GameAction gameAction)

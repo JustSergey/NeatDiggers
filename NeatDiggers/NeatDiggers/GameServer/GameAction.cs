@@ -8,6 +8,13 @@ using NeatDiggers.GameServer.Items;
 
 namespace NeatDiggers.GameServer
 {
+    public enum Target
+    {
+        None,
+        Player,
+        Position
+    }
+
     public enum GameActionType
     {
         Move,

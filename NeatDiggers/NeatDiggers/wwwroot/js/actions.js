@@ -2,7 +2,7 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
-import { checkAvailability, Message, GameActionType } from './util.js';
+import { checkAvailability, Message, GameActionType, ItemType } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -39,17 +39,21 @@ const Action = {
         'take': function () {
             let intersectsPlayer = raycaster.intersectObjects(new Array(core.sPlayer));
             if (intersectsPlayer.length > 0 && this.Can) {
-                this.Add.objIntersect.copy(intersectsPlayer[0].point);
-                this.Add.plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), this.Add.objIntersect);
-                this.Add.shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
-                this.Add.isDragging = true;
-                this.Add.dragObject = intersectsPlayer[0].object;
-                this.Add.oldPosition.x = intersectsPlayer[0].object.position.x;
-                this.Add.oldPosition.y = intersectsPlayer[0].object.position.y;
-                this.Add.oldPosition.z = intersectsPlayer[0].object.position.z;
+                core.controls.enabled = false;
+                if (this.Can) {
+                    this.Add.objIntersect.copy(intersectsPlayer[0].point);
+                    this.Add.plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), this.Add.objIntersect);
+                    this.Add.shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
+                    this.Add.isDragging = true;
+                    this.Add.dragObject = intersectsPlayer[0].object;
+                    this.Add.oldPosition.x = intersectsPlayer[0].object.position.x;
+                    this.Add.oldPosition.y = intersectsPlayer[0].object.position.y;
+                    this.Add.oldPosition.z = intersectsPlayer[0].object.position.z;
+                }
             }
         },
         'drop': async function () {
+            if (this.Add.dragObject == null) return;
             let pos = this.Add.dragObject.position;
             let oldPos = this.Add.oldPosition;
 
@@ -135,6 +139,7 @@ const Action = {
                 }
                 for (var i = 0; i < players.length; i++) {
                     let btn = document.createElement('button');
+                    btn.style.pointerEvents = "all";
                     if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
                         btn.disabled = true;
 
@@ -195,10 +200,20 @@ const Action = {
     },
 };
 
-let ItemAction = {
+let ItemsActions = {
     drop: function (item) {
         let action = {
             Type: GameActionType.DropItem,
+            Item: item
+        };
+        doAction(action);
+    },
+    equip: function (inventory) {
+
+    },
+    use: function (item){
+        let action = {
+            Type: GameActionType.UseItem,
             Item: item
         };
         doAction(action);
@@ -258,12 +273,33 @@ function updateItems(items) {
         let itemDrop = document.createElement("button");
         let itemDescription = document.createElement("p");
 
-        itemUse.innerText = "Use";
+        itemUse.style.pointerEvents = "all";
         itemUse.classList.add("ui");
         itemDrop.innerText = Message.Button.Drop;
+        itemDrop.style.pointerEvents = "all";
         itemDrop.classList.add("ui");
-        itemDrop.onclick = function () { ItemAction.drop(item); };
+        itemDrop.onclick = function () { ItemsActions.drop(item); };
         itemDescription.innerText = item.title + " (" + item.description + ")";
+
+        switch (item.type) {
+            case ItemType.Active:
+                itemUse.innerText = Message.Button.Use;
+                itemUse.onclick = function () { ItemsActions.use(item); };
+                break;
+            case ItemType.Passive:
+                itemUse.innerText = Message.Button.Passive;
+                itemUse.disabled = true;
+                break;
+            case ItemType.Armor:
+                itemUse.innerText = Message.Button.Equip;
+                itemUse.disabled = true;
+                break;
+            case ItemType.Weapon:
+                itemUse.innerText = Message.Button.Equip;
+                itemUse.disabled = true;
+                break;
+            default:
+        }
 
         inventory.appendChild(itemDescription);
         inventory.appendChild(itemUse);
@@ -274,6 +310,7 @@ function updateItems(items) {
 function guiInit() {
     div = document.createElement("div");
     div.style.position = 'absolute';
+    div.style.pointerEvents = "none";
     div.style.border = '1px solid black';
     div.style.width = core.screen.width + 'px';
     div.style.height = core.screen.height + 'px';
@@ -305,6 +342,7 @@ function guiInit() {
     div.appendChild(count);
 
     btnRollDice = document.createElement("button");
+    btnRollDice.style.pointerEvents = "all";
     btnRollDice.classList.add("ui");
     btnRollDice.innerText = Message.Button.RollDice;
     btnRollDice.onclick = Action.RollDise;
@@ -313,6 +351,7 @@ function guiInit() {
     div.appendChild(btnRollDice);
 
     btnDig = document.createElement("button");
+    btnDig.style.pointerEvents = "all";
     btnDig.classList.add("ui");
     btnDig.innerText = Message.Button.Dig;
     btnDig.onclick = Action.Dig.dig;
@@ -330,6 +369,7 @@ function guiInit() {
     div.appendChild(endTurnInfo);
 
     btnEndTurn = document.createElement("button");
+    btnEndTurn.style.pointerEvents = "all";
     btnEndTurn.classList.add("ui");
     btnEndTurn.innerText = Message.Button.EndTurn;
     btnEndTurn.onclick = Action.EndTurn;
@@ -347,6 +387,7 @@ function guiInit() {
 }
 
 function pointerUp(event) {
+    core.controls.enabled = true;
     mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouseUp, camera);

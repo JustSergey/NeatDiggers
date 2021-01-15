@@ -11,6 +11,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Мне можно";
             Description = "Позволяет забрать 1 случайную вещь у любого игрока";
             Type = ItemType.Active;
+            Target = Target.Player;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

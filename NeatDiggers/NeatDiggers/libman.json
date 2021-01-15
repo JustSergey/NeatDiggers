@@ -21,7 +21,7 @@
       "library": "three@0.124.0",
       "destination": "wwwroot/lib/three/",
       "files": [
-        "examples/jsm/loaders/GLTFLoader.js"
+        "examples/jsm/controls/OrbitControls.js"
       ]
     }
   ]

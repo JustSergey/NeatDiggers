@@ -8,6 +8,7 @@
             Title = "Револьвер (одноручный)";
             Description = "2 уронa. Дальность +1. Выстрел за 1 сброс";
             Type = ItemType.Weapon;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.One;
             WeaponType = WeaponType.Ranged;
             WeaponDamage = 2;

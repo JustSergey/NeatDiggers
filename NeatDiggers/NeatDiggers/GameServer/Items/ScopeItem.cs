@@ -13,6 +13,7 @@ namespace NeatDiggers.GameServer.Items
             Title = "Прицел";
             Description = "Увеличивает дальность дальнего оружия на 1";
             Type = ItemType.Passive;
+            Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }

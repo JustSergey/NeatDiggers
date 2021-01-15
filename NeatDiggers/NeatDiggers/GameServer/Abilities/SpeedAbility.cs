@@ -15,6 +15,7 @@ namespace NeatDiggers.GameServer.Abilities
             Name = AbilityName.Speed;
             Description = $"+{speed} скорость";
             Type = AbilityType.Passive;
+            Target = Target.None;
         }
 
         public override void Get(Player player)

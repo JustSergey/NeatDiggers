@@ -8,6 +8,7 @@
             Title = "Обмен душ";
             Description = "Позволяет обменяться здоровьем с целью";
             Type = ItemType.Active;
+            Target = Target.Player;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
         }
