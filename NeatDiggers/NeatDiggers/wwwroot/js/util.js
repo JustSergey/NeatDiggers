@@ -19,6 +19,15 @@ export const Message = {
     }
 }
 
+export const GameActionType = {
+    Move: 0,
+    Dig: 1,
+    Attack: 2,
+    UseItem: 3,
+    DropItem: 4,
+    UseAbility: 5
+}
+
 //export function move(obj, pos) {
 //    obj.position.set(pos.x, pos.y, pos.z);
 //}

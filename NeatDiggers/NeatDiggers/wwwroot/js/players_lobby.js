@@ -42,12 +42,12 @@ window.onload = async function(){
     });
 
     connection.on("ChangeState", async function (room) {
-        UpdateRoom(room);
+        UpdateRoom(room, null);
         console.log("ChangeState");
     });
 
     connection.on("ChangeStateWithAction", async function (room, gameAction) {
-        UpdateRoom(room);
+        UpdateRoom(room, gameAction);
         console.log("ChangeStateWithAction");
     });
 
@@ -56,13 +56,13 @@ window.onload = async function(){
     window.StartGame = StartGame;
 };
 
-async function UpdateRoom(room) {
+async function UpdateRoom(room, action) {
     if (room.isStarted) {
         $("#game").show();
         $("#lobby").hide();
         $("#footer").hide();
 
-        game.updateRoom(room);
+        game.updateRoom(room, action);
     }
     else {
         LoadPlayers(room.players);

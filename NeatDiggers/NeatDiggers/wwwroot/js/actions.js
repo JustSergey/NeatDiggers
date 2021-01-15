@@ -2,18 +2,19 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
-import { checkAvailability, Message } from './util.js';
+import { checkAvailability, Message, GameActionType } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 const mouseUp = new THREE.Vector2();
 const mouseDown = new THREE.Vector2();
 
-let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, playerHealth;
+let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, playerHealth, inventory;
 
 const Action = {
     maxCount: 2,
     count: 2,
+    diceValue: -1,
     'finishAction': function () {
         this.count--;
         turn.innerText = Message.ActionRemains + Action.count;
@@ -21,6 +22,7 @@ const Action = {
         if (this.count < 1) {
             btnDig.disabled = true;
             btnRollDice.disabled = true;
+            count.innerText = "";
         }
     },
     Move: {
@@ -61,7 +63,7 @@ const Action = {
 
 
             let action = {
-                Type: 0,
+                Type: GameActionType.Move,
                 targetPosition: {
                     x: this.Add.dragObject.position.x,
                     y: this.Add.dragObject.position.y
@@ -84,18 +86,22 @@ const Action = {
             }
         }
     },
-    Dig: async function () {
-        let action = {
-            Type: 1,
-            targetPosition: {
-                x: core.sPlayer.position.x,
-                y: core.sPlayer.position.y
+    Dig: {
+        Can: true,
+        dig: async function () {
+            let action = {
+                Type: GameActionType.Dig,
+                targetPosition: {
+                    x: core.sPlayer.position.x,
+                    y: core.sPlayer.position.y
+                }
+            };
+            let success = await doAction(action);
+            if (success) {
+                btnDig.disabled = true;
+                Action.Dig.Can = false;
+                Action.finishAction();
             }
-        };
-        let success = await doAction(action);
-        if (success) {
-            btnDig.disabled = true;
-            Action.finishAction();
         }
     },
     Attack: {
@@ -139,7 +145,7 @@ const Action = {
                     btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
                     btn.onmousedown = function () {
                         let action = {
-                            Type: 2,
+                            Type: GameActionType.Attack,
                             TargetPlayerId: playerId
                         }
                         doAction(action);
@@ -155,20 +161,24 @@ const Action = {
         },
     },
     UseItem: {
-        Type: 3
+        Type: GameActionType.UseItem
     },
     DropItem: {
-        Type: 4
+        Type: GameActionType.DropItem
     },
     UseAbility: {
-        Type: 5
+        Type: GameActionType.UseAbility
     },
     RollDise: async function () {
-        let result = await invoke('RollTheDice');
-        count.innerText = result;
+        Action.diceValue = await invoke('RollTheDice');
+        count.innerText = Action.diceValue;
         let playerPos = core.sPlayer.info.position;
         let map = core.mapArray;
-        btnDig.disabled = !(result % 2 == 0) || !(map.map[playerPos.x * map.width + playerPos.y] == 3);
+        let a1 = Action.diceValue % 2 == 0;
+        let a2 = map.map[playerPos.x * map.width + playerPos.y] == 3;
+        let a3 = Action.Dig.Can;
+        let s = a1 && a2 && a3;
+        btnDig.disabled = !(Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can);
     },
     EndTurn: async function () {
         let success = await invoke('EndTurn');
@@ -177,11 +187,22 @@ const Action = {
             $(".ui").hide();
             Action.Move.Can = true;
             Action.Attack.Can = true;
+            Action.Dig.Can = true;
             btnDig.disabled = false;
             btnRollDice.disabled = false;
         }
     },
 };
+
+let ItemAction = {
+    drop: function (item) {
+        let action = {
+            Type: GameActionType.DropItem,
+            Item: item
+        };
+        doAction(action);
+    }
+}
 
 let isMyTurn;
 let camera;
@@ -198,16 +219,46 @@ export function init() {
     guiInit();
 }
 
-export function setTurn(bool) {
+export function updateTurn(bool, action) {
+    playerHealth.innerText = Message.Health + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
+    updateInventory(core.sPlayer.info.inventory);
     isMyTurn = bool;
     if (bool) {
-        turn.innerText = Message.YouMove;
+        if (action != null && action.type == GameActionType.DropItem) return;
+        turn.innerText = Action.count < 1 ? Message.YouMove : Message.ActionRemains + Action.count;
         count.innerText = Message.NeedRollDice;
         $(".ui").show();
         div.style.display = 'block';
+        btnDig.disabled = !(Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can);
+    }
+}
+
+function updateInventory(inv) {
+    updateItems(inv.items);
+}
+
+function updateItems(items) {
+    while (inventory.firstChild) {
+        inventory.removeChild(inventory.firstChild);
     }
 
-    playerHealth.innerText = Message.Health + core.sPlayer.info.health + "/" + core.sPlayer.info.character.maxHealth;
+    for (var i = 0; i < items.length; i++) {
+        let item = items[i];
+        let itemUse = document.createElement("button");
+        let itemDrop = document.createElement("button");
+        let itemDescription = document.createElement("p");
+
+        itemUse.innerText = item.title;
+        itemUse.classList.add("ui");
+        itemDrop.innerText = Message.Button.Drop;
+        itemDrop.classList.add("ui");
+        itemDrop.onclick = function () { ItemAction.drop(item); };
+        itemDescription.innerText = item.description;
+
+        inventory.appendChild(itemUse);
+        inventory.appendChild(itemDrop);
+        inventory.appendChild(itemDescription);
+    }
 }
 
 function guiInit() {
@@ -254,7 +305,7 @@ function guiInit() {
     btnDig = document.createElement("button");
     btnDig.classList.add("ui");
     btnDig.innerText = Message.Button.Dig;
-    btnDig.onclick = Action.Dig;
+    btnDig.onclick = Action.Dig.dig;
     btnDig.onselectstart = false;
     btnDig.onmousedown = false;
     btnDig.disabled = true;
@@ -268,17 +319,22 @@ function guiInit() {
     btnEndTurn.onmousedown = false;
     div.appendChild(btnEndTurn);
 
+    inventory = document.createElement("div");
+    inventory.style.color = "white";
+    inventory.onselectstart = false;
+    inventory.onmousedown = false;
+    div.appendChild(inventory);
+
     $(".ui").hide();
 }
 
 function pointerUp(event) {
-    if (!isMyTurn || Action.count < 1) return;
-
     mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
-
-    Action.Move.drop();
     Action.Attack.showHint(raycaster, event.clientX, event.clientY);
+
+    if (!isMyTurn || Action.count < 1) return;
+    Action.Move.drop();
 }
 
 function pointerMove(event) {

@@ -16,14 +16,14 @@ export async function init(connect, id) {
 }
 
 let isActionInit;
-export function updateRoom(room) {
+export function updateRoom(room, action) {
     if (room.isStarted && !isActionInit) {
         actions.init()
         isActionInit = true;
     }
 
     core.updatePlayers(room.players, userId);
-    actions.setTurn(room.players[room.playerTurn].id == userId);
+    actions.updateTurn(room.players[room.playerTurn].id == userId, action);
 }
 
 export async function doAction(gameAction) {
