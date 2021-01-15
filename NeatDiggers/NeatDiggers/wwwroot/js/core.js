@@ -1,10 +1,13 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as actions from "./actions.js";
 import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '../lib/three/examples/jsm/controls/OrbitControls.js';
 
-let camera, renderer;
+
+export let controls;
+let  camera, renderer;
 export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
-let pandora, jupiter;
+let pandora, jupiter, box_1, box_2, box_3, box_4, spawn, dig;
 const loader = new GLTFLoader();
 
 export let screen = {
@@ -29,7 +32,7 @@ export let screen = {
 
 export function init(map) {
     renderInit();
-    cameraInit();
+    cameraInit(new THREE.Vector3(map.width / 2, map.height / 2, 1));
     sceneInit();
     drawMap(map);
     animate();
@@ -38,6 +41,7 @@ export function init(map) {
 
 function animate() {
     requestAnimationFrame(animate);
+    controls.update();
     renderer.render(scene, camera);
 }
 
@@ -65,8 +69,8 @@ function placePlayers(players, userId) {
             let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
             let cube = new THREE.Mesh(boxGeometry, material)
             switch (players[i].character.name) {
-                case 1: cube = pandora; break;
-                case 3: cube = jupiter; break;
+                case 1: cube = pandora.clone(); break;
+                case 3: cube = jupiter.clone(); break;
             }
 
             cube.position.set(players[i].position.x, players[i].position.y, 1);
@@ -88,11 +92,23 @@ function placePlayers(players, userId) {
 //    util.move(sFlag, pos);
 //}
 
-function drawMap(map) {
+async function drawMap(map) {
+    await loadModels();
     mapArray = map;
     drawFloor(map);
     drawSpawnPoints(map.spawnPoints);
     drawFlag(map.flagSpawnPoint);
+}
+
+async function loadModels() {
+    pandora = await modelLoader("pandora");
+    jupiter = await modelLoader("jupiter");
+    box_1 = await modelLoader("box_1");
+    box_2 = await modelLoader("box_2");
+    box_3 = await modelLoader("box_3");
+    box_4 = await modelLoader("box_4");
+    spawn = await modelLoader("spawn");
+    dig = await modelLoader("dig");
 }
 
 function drawFlag(pos) {
@@ -104,6 +120,10 @@ function drawFlag(pos) {
     sFlag.scale.set(0.2, 0.2, 1);
 }
 
+function getRandomInt(max) {
+    return Math.floor(Math.random() * Math.floor(max));
+}
+
 function drawFloor(map) {
     const Cell = {
         None: 0,
@@ -113,18 +133,23 @@ function drawFloor(map) {
     };
 
     const boxGeometry = new THREE.BoxGeometry();
-    let materialEmpty = new THREE.MeshPhongMaterial({ color: 0x464646 });
     let materialWall = new THREE.MeshPhongMaterial({ color: 0x2ce900 });
-    let materialDigging = new THREE.MeshPhongMaterial({ color: 0xeb0034 });
 
     for (var x = 0; x < map.width; x++) {
         for (var y = 0; y < map.height; y++) {
             if (map.map[x * map.width + y] != Cell.None) {
                 let cube;
                 switch (map.map[x * map.width + y]) {
-                    case Cell.Empty: cube = new THREE.Mesh(boxGeometry, materialEmpty); break;
+                    case Cell.Empty:
+                        switch (getRandomInt(4)) {
+                            case 0: cube = box_1.clone(); break;
+                            case 1: cube = box_2.clone(); break;
+                            case 2: cube = box_3.clone(); break;
+                            case 3: cube = box_4.clone(); break;
+                        }
+                        break;
                     case Cell.Wall: cube = new THREE.Mesh(boxGeometry, materialWall); break;
-                    case Cell.Digging: cube = new THREE.Mesh(boxGeometry, materialDigging); break;
+                    case Cell.Digging: cube = dig.clone(); break;
                 }
                 scene.add(cube);
                 cube.position.set(x, y);
@@ -134,11 +159,8 @@ function drawFloor(map) {
 }
 
 function drawSpawnPoints(spawnPoints) {
-    const boxGeometry = new THREE.BoxGeometry();
-    let material = new THREE.MeshPhongMaterial();
-
     for (var i = 0; i < spawnPoints.length; i++) {
-        const cube = new THREE.Mesh(boxGeometry, material);
+        let cube = spawn.clone();
         scene.add(cube);
         cube.position.set(spawnPoints[i].x, spawnPoints[i].y, 0.01);
     }
@@ -151,9 +173,20 @@ function renderInit() {
     document.body.style.marginBottom = 0;
 }
 
-function cameraInit() {
+function cameraInit(target) {
     camera = new THREE.PerspectiveCamera(75, screen.width / screen.height, 0.1, 50);
-    camera.position.set(6, 6, 10);
+    camera.position.set(target.x, target.y, 10);
+    camera.up.set(0, 0, 1);
+    controls = new OrbitControls(camera, renderer.domElement);
+
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    //controls.screenSpacePanning = false;
+    controls.minDistance = 5;
+    controls.maxDistance = 15;
+    controls.target = target;
+    controls.maxPolarAngle = Math.PI / 2;
+    controls.update();
 }
 
 function sceneInit() {
@@ -163,14 +196,11 @@ function sceneInit() {
     hemiLight.position.set(0, 20, 0);
     scene.add(hemiLight);
 
-    scene.add(sPlayers);
+    scene.add(sPlayers);}
 
-    loader.load("../../StaticFiles/models/pandora.glb", function (gltf) {
-        pandora = gltf.scene.children[0];
-    });
-
-    loader.load("../../StaticFiles/models/jupiter.glb", function (gltf) {
-        jupiter = gltf.scene.children[0];
+function modelLoader(name) {
+    return new Promise((resolve, reject) => {
+        loader.load("../../StaticFiles/models/" + name + ".glb", data => resolve(data.scene.children[0]), null, reject);
     });
 }
 

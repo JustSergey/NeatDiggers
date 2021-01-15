@@ -13,6 +13,7 @@ export const Message = {
     ActionRemains: "Actions remains:",
     ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
     Button: {
+        Use: "Use",
         Drop: "Drop",
         RollDice: "Roll dice",
         Dig: "Dig",
