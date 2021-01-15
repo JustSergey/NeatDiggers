@@ -46,6 +46,13 @@ namespace NeatDiggers.GameServer
             return rooms.Remove(code);
         }
 
+        public static bool RemoveEmptyRoom(Room room)
+        {
+            if (room.Players.Count == 0)
+                return rooms.Remove(room.Code);
+            return false;
+        }
+
         public static bool AddUser(string id, string code)
         {
             if (!users.ContainsKey(id))
