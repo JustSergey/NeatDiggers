@@ -11,7 +11,7 @@ namespace NeatDiggers.GameServer.Items
         {
             Name = ItemName.DoubleDamage;
             Title = "Двойной урон";
-            Description = "Увеличивает весь дальний урон в 2 раза на 1 круг за 3 сброса";
+            Description = "Увеличивает урон в 2 раза на 1 круг за 3 сброса";
             Type = ItemType.Active;
             Target = Target.None;
             WeaponHanded = WeaponHanded.None;
