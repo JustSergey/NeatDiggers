@@ -105,12 +105,12 @@ namespace NeatDiggers.GameServer
             }
         }
 
-        public void AddCancelingAction(int playerTurn, int round, Action<Room> action)
+        public void AddCancelingAction(int round, Action<Room> action)
         {
-            if (cancelingActions.ContainsKey((playerTurn, round)))
-                cancelingActions[(playerTurn, round)].Add(action);
+            if (cancelingActions.ContainsKey((PlayerTurn, round)))
+                cancelingActions[(PlayerTurn, round)].Add(action);
             else
-                cancelingActions[(playerTurn, round)] = new List<Action<Room>> { action };
+                cancelingActions[(PlayerTurn, round)] = new List<Action<Room>> { action };
         }
 
         public Item Dig()
@@ -131,6 +131,7 @@ namespace NeatDiggers.GameServer
                 {
                     FlagOnTheGround = false;
                     player.WithFlag = true;
+                    player.Speed -= 2;
                     return true;
                 }
             }
@@ -139,9 +140,13 @@ namespace NeatDiggers.GameServer
 
         public void DropTheFlag(Player player)
         {
-            FlagPosition = player.Position;
-            player.WithFlag = false;
-            FlagOnTheGround = true;
+            if (player.WithFlag)
+            {
+                FlagPosition = player.Position;
+                player.WithFlag = false;
+                FlagOnTheGround = true;
+                player.Speed += 2;
+            }
         }
 
         public bool CheckWinner(Player player)

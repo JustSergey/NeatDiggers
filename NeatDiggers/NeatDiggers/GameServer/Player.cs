@@ -29,6 +29,7 @@ namespace NeatDiggers.GameServer
         public int Hands { get; set; }
         public int Armor { get; set; }
         public int Score { get; set; }
+        public List<string> Effects { get; set; }
 
         public Player(string id, string name)
         {
@@ -49,6 +50,7 @@ namespace NeatDiggers.GameServer
             Hands = 2;
             Armor = 0;
             Score = 0;
+            Effects = new List<string>();
         }
 
         public void LevelUp()

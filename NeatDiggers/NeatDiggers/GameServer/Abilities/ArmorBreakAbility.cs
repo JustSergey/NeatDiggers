@@ -29,8 +29,18 @@ namespace NeatDiggers.GameServer.Abilities
                 gameAction.CurrentPlayer.Inventory.Drop -= consumption;
                 string id = gameAction.TargetPlayerId;
                 room.GetPlayer(id).Armor -= armor;
-                Action<Room> cancelingAction = (Room room) => room.GetPlayer(id).Armor += armor;
-                room.AddCancelingAction(room.PlayerTurn, room.Round + time, cancelingAction);
+                room.GetPlayer(id).Effects.Add($"Сломана броня (-{armor})");
+                Action<Room> cancelingAction = (Room room) =>
+                {
+                    Player p = room.GetPlayer(id);
+                    if (p != null)
+                    {
+                        p.Armor += armor;
+                        p.Effects.Remove($"Сломана броня (-{armor})");
+                    }
+                    room.GetPlayer(id).Armor += armor;
+                };
+                room.AddCancelingAction(room.Round + time, cancelingAction);
                 return true;
             }
             return false;

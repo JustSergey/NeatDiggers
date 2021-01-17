@@ -22,13 +22,22 @@ namespace NeatDiggers.GameServer.Abilities
 
         public override bool Use(Room room, GameAction gameAction)
         {
-            if (gameAction.CurrentPlayer.Inventory.Drop >= consumption)
+            Player player = gameAction.CurrentPlayer;
+            if (player.Inventory.Drop >= consumption)
             {
-                gameAction.CurrentPlayer.Inventory.Drop -= consumption;
-                gameAction.CurrentPlayer.Armor += 10000;
-                string id = gameAction.CurrentPlayer.Id;
-                Action<Room> cancelingAction = (Room room) => room.GetPlayer(id).Armor -= 10000;
-                room.AddCancelingAction(room.PlayerTurn, room.Round + time, cancelingAction);
+                player.Inventory.Drop -= consumption;
+                player.Armor += 10000;
+                player.Effects.Add("Неуязвимость");
+                Action<Room> cancelingAction = (Room room) =>
+                {
+                    Player p = room.GetPlayer(player.Id);
+                    if (p != null)
+                    {
+                        p.Armor -= 10000;
+                        p.Effects.Remove("Неуязвимость");
+                    }
+                };
+                room.AddCancelingAction(room.Round + time, cancelingAction);
                 return true;
             }
             return false;
