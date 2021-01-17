@@ -238,13 +238,15 @@ namespace NeatDiggers.Hubs
                     targetPosition.IsInMap(room.GetGameMap()) &&
                     room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
+                    gameAction.CurrentPlayer.Position = targetPosition;
                     if (targetPosition.Equals(gameAction.CurrentPlayer.SpawnPoint))
                     {
                         gameAction.CurrentPlayer.Score++;
                         room.DropTheFlag(gameAction.CurrentPlayer);
                         room.FlagPosition = room.GetGameMap().FlagSpawnPoint;
+                        if (room.CheckWinner(gameAction.CurrentPlayer))
+                            Server.RemoveRoom(room.Code);
                     }
-                    gameAction.CurrentPlayer.Position = targetPosition;
                     return true;
                 }
             }
