@@ -19,18 +19,21 @@ namespace NeatDiggers.GameServer
         public Vector FlagPosition { get; set; }
         public bool FlagOnTheGround { get; set; }
         public int Round { get; private set; }
+        public Player Winner { get; private set; }
         private GameMap gameMap;
+        private int scoreToWin;
         
         Dictionary<(int, int), List<Action<Room>>> cancelingActions;
         Deck deck;
         List<Item> items;
         int nextItem;
 
-        public Room(string code, GameMap gameMap, Deck deck)
+        public Room(string code, GameMap gameMap, Deck deck, int scoreToWin)
         {
             IsStarted = false;
             Code = code;
             this.gameMap = gameMap;
+            this.scoreToWin = scoreToWin;
             Players = new List<Player>();
             Spectators = new List<string>();
             Round = 0;
@@ -102,12 +105,12 @@ namespace NeatDiggers.GameServer
             }
         }
 
-        public void AddCancelingAction(int playerTurn, int round, Action<Room> action)
+        public void AddCancelingAction(int round, Action<Room> action)
         {
-            if (cancelingActions.ContainsKey((playerTurn, round)))
-                cancelingActions[(playerTurn, round)].Add(action);
+            if (cancelingActions.ContainsKey((PlayerTurn, round)))
+                cancelingActions[(PlayerTurn, round)].Add(action);
             else
-                cancelingActions[(playerTurn, round)] = new List<Action<Room>> { action };
+                cancelingActions[(PlayerTurn, round)] = new List<Action<Room>> { action };
         }
 
         public Item Dig()
@@ -128,6 +131,7 @@ namespace NeatDiggers.GameServer
                 {
                     FlagOnTheGround = false;
                     player.WithFlag = true;
+                    player.Speed -= 2;
                     return true;
                 }
             }
@@ -136,9 +140,23 @@ namespace NeatDiggers.GameServer
 
         public void DropTheFlag(Player player)
         {
-            FlagPosition = player.Position;
-            player.WithFlag = false;
-            FlagOnTheGround = true;
+            if (player.WithFlag)
+            {
+                FlagPosition = player.Position;
+                player.WithFlag = false;
+                FlagOnTheGround = true;
+                player.Speed += 2;
+            }
+        }
+
+        public bool CheckWinner(Player player)
+        {
+            if (player.Score >= scoreToWin)
+            {
+                Winner = player;
+                return true;
+            }
+            return false;
         }
 
         public bool Disconnect(string id)

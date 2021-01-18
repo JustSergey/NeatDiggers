@@ -20,9 +20,20 @@ namespace NeatDiggers.GameServer.Items
 
         public override bool Use(Room room, GameAction gameAction)
         {
-            room.Players.ForEach(p => p.Speed -= 2);
-            Action<Room> cancelingAction = (Room room) => room.Players.ForEach(p => p.Speed += 2);
-            room.AddCancelingAction(room.PlayerTurn, room.Round + 2, cancelingAction);
+            room.Players.ForEach(p => 
+            {
+                p.Speed -= 2;
+                p.Effects.Add("Дождь (-2 к скорости)");
+            });
+            Action<Room> cancelingAction = (Room room) =>
+            {
+                room.Players.ForEach(p =>
+                {
+                    p.Speed += 2;
+                    p.Effects.Remove("Дождь (-2 к скорости)");
+                });
+            };
+            room.AddCancelingAction(room.Round + 2, cancelingAction);
             return true;
         }
     }

@@ -231,20 +231,24 @@ namespace NeatDiggers.Hubs
         {
             if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
+                Player player = gameAction.CurrentPlayer;
                 Vector targetPosition = gameAction.TargetPosition;
                 int x = targetPosition.X;
                 int y = targetPosition.Y;
-                if (gameAction.CurrentPlayer.Position.CheckAvailability(targetPosition, dice + gameAction.CurrentPlayer.Speed) &&
+                if ((player.Position.CheckAvailability(targetPosition, 1) ||
+                    player.Position.CheckAvailability(targetPosition, dice + player.Speed)) &&
                     targetPosition.IsInMap(room.GetGameMap()) &&
                     room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
-                    if (targetPosition.Equals(gameAction.CurrentPlayer.SpawnPoint))
+                    player.Position = targetPosition;
+                    if (player.WithFlag && targetPosition.Equals(player.SpawnPoint))
                     {
-                        gameAction.CurrentPlayer.Score++;
-                        room.DropTheFlag(gameAction.CurrentPlayer);
+                        player.Score++;
+                        room.DropTheFlag(player);
                         room.FlagPosition = room.GetGameMap().FlagSpawnPoint;
+                        if (room.CheckWinner(player))
+                            Server.RemoveRoom(room.Code);
                     }
-                    gameAction.CurrentPlayer.Position = targetPosition;
                     return true;
                 }
             }
