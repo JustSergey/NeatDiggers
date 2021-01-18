@@ -19,13 +19,17 @@ namespace NeatDiggers.GameServer.Items
         public override bool Use(Room room, GameAction gameAction)
         {
             List<Item> items = room.GetPlayer(gameAction.TargetPlayerId).Inventory.Items;
-            int rand = new Random().Next(items.Count);
-            Item item = items[rand];
-            items.RemoveAt(rand);
-            if (item.Type == ItemType.Passive)
-                item.Get(room, gameAction);
-            gameAction.CurrentPlayer.Inventory.Items.Add(item);
-            return true;
+            if (items.Count > 0)
+            {
+                int rand = new Random().Next(items.Count);
+                Item item = items[rand];
+                items.RemoveAt(rand);
+                if (item.Type == ItemType.Passive)
+                    item.Get(room, gameAction);
+                gameAction.CurrentPlayer.Inventory.Items.Add(item);
+                return true;
+            }
+            return false;
         }
     }
 }
