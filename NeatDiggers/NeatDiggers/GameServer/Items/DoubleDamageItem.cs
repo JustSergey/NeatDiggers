@@ -25,17 +25,11 @@ namespace NeatDiggers.GameServer.Items
             {
                 player.Inventory.Drop -= 3;
                 player.MultiplyDamage *= 2.0;
-                player.Effects.Add("Урон х2");
-                Action<Room> cancelingAction = (Room room) =>
+                player.Effects.Add(new Effect(p => p.MultiplyDamage /= 2.0)
                 {
-                    Player p = room.GetPlayer(player.Id);
-                    if (p != null)
-                    {
-                        p.MultiplyDamage /= 2.0;
-                        p.Effects.Remove("Урон х2");
-                    }
-                };
-                room.AddCancelingAction(room.Round + 1, cancelingAction);
+                    Title = "Урон x2",
+                    Duration = 1
+                });
                 return true;
             }
             return false;

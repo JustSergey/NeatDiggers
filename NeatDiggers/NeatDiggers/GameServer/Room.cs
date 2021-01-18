@@ -23,7 +23,6 @@ namespace NeatDiggers.GameServer
         private GameMap gameMap;
         private int scoreToWin;
         
-        Dictionary<(int, int), List<Action<Room>>> cancelingActions;
         Deck deck;
         List<Item> items;
         int nextItem;
@@ -37,7 +36,6 @@ namespace NeatDiggers.GameServer
             Players = new List<Player>();
             Spectators = new List<string>();
             Round = 0;
-            cancelingActions = new Dictionary<(int, int), List<Action<Room>>>();
             this.deck = deck;
             items = deck.Shuffle();
             nextItem = items.Count - 1;
@@ -88,29 +86,14 @@ namespace NeatDiggers.GameServer
 
         public void NextTurn()
         {
-            Players[PlayerTurn].IsTurn = false;
+            Players[PlayerTurn].EndTurn();
             PlayerTurn++;
             if (PlayerTurn >= Players.Count)
             {
                 PlayerTurn = 0;
                 Round++;
             }
-            Players[PlayerTurn].IsTurn = true;
-
-            if (cancelingActions.TryGetValue((PlayerTurn, Round), out List<Action<Room>> actions))
-            {
-                foreach (Action<Room> action in actions)
-                    action(this);
-                cancelingActions.Remove((PlayerTurn, Round));
-            }
-        }
-
-        public void AddCancelingAction(int round, Action<Room> action)
-        {
-            if (cancelingActions.ContainsKey((PlayerTurn, round)))
-                cancelingActions[(PlayerTurn, round)].Add(action);
-            else
-                cancelingActions[(PlayerTurn, round)] = new List<Action<Room>> { action };
+            Players[PlayerTurn].SetTurn();
         }
 
         public Item Dig()

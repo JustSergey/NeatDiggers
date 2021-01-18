@@ -25,17 +25,11 @@ namespace NeatDiggers.GameServer.Items
             {
                 player.Inventory.Drop -= 2;
                 player.Armor += 10000;
-                player.Effects.Add("Неуязвимость");
-                Action<Room> cancelingAction = (Room room) =>
+                player.Effects.Add(new Effect(p => p.Armor -= 10000) 
                 {
-                    Player p = room.GetPlayer(player.Id);
-                    if (p != null)
-                    {
-                        p.Armor -= 10000;
-                        p.Effects.Remove("Неуязвимость");
-                    }
-                };
-                room.AddCancelingAction(room.Round + 1, cancelingAction);
+                    Title = "Неуязвимость",
+                    Duration = 1
+                });
                 return true;
             }
             return false;

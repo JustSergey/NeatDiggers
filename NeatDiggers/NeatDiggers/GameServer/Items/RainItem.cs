@@ -23,17 +23,12 @@ namespace NeatDiggers.GameServer.Items
             room.Players.ForEach(p => 
             {
                 p.Speed -= 2;
-                p.Effects.Add("Дождь (-2 к скорости)");
-            });
-            Action<Room> cancelingAction = (Room room) =>
-            {
-                room.Players.ForEach(p =>
+                p.Effects.Add(new Effect(p => p.Speed += 2)
                 {
-                    p.Speed += 2;
-                    p.Effects.Remove("Дождь (-2 к скорости)");
+                    Title = "Дождь (скорость -2)",
+                    Duration = 2
                 });
-            };
-            room.AddCancelingAction(room.Round + 2, cancelingAction);
+            });
             return true;
         }
     }
