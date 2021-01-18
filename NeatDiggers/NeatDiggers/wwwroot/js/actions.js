@@ -16,9 +16,10 @@ const Action = {
     maxCount: 2,
     count: 2,
     diceValue: -1,
-    'finishAction': function () {
+    finishAction: function () {
         this.count--;
         turn.innerText = Message.ActionRemains + Action.count;
+        Action.diceValue = -1;
         count.innerText = Message.NeedRollDice;
         if (this.count < 1) {
             btnDig.disabled = true;
@@ -154,10 +155,6 @@ const Action = {
         count.innerText = Action.diceValue;
         let playerPos = core.sPlayer.info.position;
         let map = core.mapArray;
-        let a1 = Action.diceValue % 2 == 0;
-        let a2 = map.map[playerPos.x * map.width + playerPos.y] == 3;
-        let a3 = Action.Dig.Can;
-        let s = a1 && a2 && a3;
         btnDig.disabled = !(Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can);
     },
     EndTurn: async function () {
@@ -178,9 +175,9 @@ const Action = {
 };
 
 function getPlayers(raycaster) {
+    let players = new Array();
     let intersectsObjects = raycaster.intersectObjects(core.scene.children);
     if (intersectsObjects.length > 0) {
-        let players = new Array();
         let position = intersectsObjects[0].object.position;
         for (var i = 0; i < core.sPlayers.children.length; i++) {
             let player = core.sPlayers.children[i];
@@ -194,8 +191,8 @@ function getPlayers(raycaster) {
                 players.splice(i, 1);
             }
         }
-        return players;
     }
+    return players;
 }
 
 let ItemsActions = {
@@ -229,6 +226,7 @@ let ItemsActions = {
         },
         showHint: function (players) {
             if (!this.listen) return;
+            target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
                 btn.style.pointerEvents = "all";
@@ -313,6 +311,8 @@ export function updateTurn(bool, action) {
         count.innerText = Message.NeedRollDice;
         $(".ui").show();
         div.style.display = 'block';
+        let playerPos = core.sPlayer.info.position;
+        let map = core.mapArray;
         btnDig.disabled = !(Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can);
     }
 }
@@ -494,7 +494,6 @@ function pointerUp(event) {
         }
 
         Action.Attack.showHint(players);
-        target.visible = false;
         ItemsActions.onPlayer.showHint(players);
 
         hint.style.left = event.clientX + "px";
