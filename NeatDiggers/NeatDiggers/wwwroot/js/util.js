@@ -1,9 +1,16 @@
-﻿
+﻿import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
+const loader = new GLTFLoader();
 
 export function checkAvailability(startPoint, targetPoint, radius) {
     let x = targetPoint.x - startPoint.x;
     let y = targetPoint.y - startPoint.y;
     return radius >= Math.round(Math.sqrt(x * x + y * y));
+}
+
+export async function modelLoader(name) {
+    return new Promise((resolve, reject) => {
+        loader.load("../../StaticFiles/models/" + name + ".glb", data => resolve(data.scene.children[0]), null, reject);
+    });
 }
 
 export const Message = {
@@ -13,13 +20,22 @@ export const Message = {
     ActionRemains: "Actions remains:",
     ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
     Button: {
-        Use: "Use",
-        Passive: "Is Passive Item",
         Drop: "Drop",
+        Passive: "Is Passive Item",
+        Use: {
+            None: "Use",
+            Player: "Use on player",
+            Position: "Use on position",
+        },
+        Equip: {
+            Armor: "Equip",
+            Left: "Left",
+            Right: "Right",
+            Two: "Two-handed",
+        },
         RollDice: "Roll dice",
         Dig: "Dig",
-        EndTurn: "End turn",
-        Equip: "Equip"
+        EndTurn: "End turn"
     }
 }
 
@@ -40,14 +56,24 @@ export const Conection = {
     }
 }
 
+export const Target = {
+    None: 0,
+    Player: 1,
+    Position: 2
+}
 
-
-export const  ItemType = {
+export const ItemType = {
     //Event,
     Passive: 0,
     Active: 1,
     Weapon: 2,
     Armor: 3
+}
+
+export const WeaponHanded = {
+    None: 0,
+    One: 1,
+    Two: 2
 }
 
 export const GameActionType = {

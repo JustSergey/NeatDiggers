@@ -16,9 +16,9 @@ export async function init(connect, id) {
 }
 
 let isActionInit;
-export function updateRoom(room, action) {
+export async function updateRoom(room, action) {
     if (room.isStarted && !isActionInit) {
-        actions.init()
+        await actions.init()
         isActionInit = true;
     }
 

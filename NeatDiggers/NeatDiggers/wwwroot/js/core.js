@@ -1,14 +1,25 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as actions from "./actions.js";
-import { GLTFLoader } from '../lib/three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from '../lib/three/examples/jsm/controls/OrbitControls.js';
+import { modelLoader } from './util.js';
 
 
 export let controls;
 let  camera, renderer;
 export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
-let pandora, jupiter, box_1, box_2, box_3, box_4, spawn, dig_1, dig_2, flag;
-const loader = new GLTFLoader();
+let models = {
+    pandora: null,
+    jupiter: null,
+    box_1: null,
+    box_2: null,
+    box_3: null,
+    box_4: null,
+    spawn: null,
+    dig_1: null,
+    dig_2: null,
+    flag: null
+}
+
 
 let centerMap;
 
@@ -76,8 +87,8 @@ function placePlayers(players, userId) {
             let material = new THREE.MeshPhongMaterial({ color: 0x6cc924 });
             let cube = new THREE.Mesh(boxGeometry, material)
             switch (players[i].character.name) {
-                case 1: cube = pandora.clone(); break;
-                case 3: cube = jupiter.clone(); break;
+                case 1: cube = models.pandora.clone(); break;
+                case 3: cube = models.jupiter.clone(); break;
             }
 
             cube.position.set(players[i].position.x, players[i].position.y, 1);
@@ -112,33 +123,34 @@ async function drawMap(map) {
 }
 
 async function loadModels() {
-    pandora = await modelLoader("pandora");
-    pandora.castShadow = true;
-    pandora.receiveShadow = true;
-    jupiter = await modelLoader("jupiter");
-    jupiter.castShadow = true;
-    jupiter.receiveShadow = true;
-    flag = await modelLoader("flag");
-    flag.castShadow = true;
-    flag.receiveShadow = true;
-    box_1 = await modelLoader("box_1");
-    box_1.receiveShadow = true;
-    box_2 = await modelLoader("box_2");
-    box_2.receiveShadow = true;
-    box_3 = await modelLoader("box_3");
-    box_3.receiveShadow = true;
-    box_4 = await modelLoader("box_4");
-    box_4.receiveShadow = true;
-    spawn = await modelLoader("spawn");
-    spawn.receiveShadow = true;
-    dig_1 = await modelLoader("dig_1");
-    dig_1.receiveShadow = true;
-    dig_2 = await modelLoader("dig_2");
-    dig_2.receiveShadow = true;
+    models.pandora = await modelLoader("pandora");
+    models.pandora.castShadow = true;
+    models.pandora.receiveShadow = true;
+    models.jupiter = await modelLoader("jupiter");
+    models.jupiter.castShadow = true;
+    models.jupiter.receiveShadow = true;
+
+    models.flag = await modelLoader("flag");
+    models.flag.castShadow = true;
+    models.flag.receiveShadow = true;
+    models.box_1 = await modelLoader("box_1");
+    models.box_1.receiveShadow = true;
+    models.box_2 = await modelLoader("box_2");
+    models.box_2.receiveShadow = true;
+    models.box_3 = await modelLoader("box_3");
+    models.box_3.receiveShadow = true;
+    models.box_4 = await modelLoader("box_4");
+    models.box_4.receiveShadow = true;
+    models.spawn = await modelLoader("spawn");
+    models.spawn.receiveShadow = true;
+    models.dig_1 = await modelLoader("dig_1");
+    models.dig_1.receiveShadow = true;
+    models.dig_2 = await modelLoader("dig_2");
+    models.dig_2.receiveShadow = true;
 }
 
 function drawFlag(pos) {
-    sFlag = flag.clone();
+    sFlag = models.flag.clone();
     scene.add(sFlag);
     sFlag.position.set(pos.x, pos.y, 1);
 }
@@ -165,17 +177,17 @@ function drawFloor(map) {
                 switch (map.map[x * map.width + y]) {
                     case Cell.Empty:
                         switch (getRandomInt(4)) {
-                            case 0: cube = box_1.clone(); break;
-                            case 1: cube = box_2.clone(); break;
-                            case 2: cube = box_3.clone(); break;
-                            case 3: cube = box_4.clone(); break;
+                            case 0: cube = models.box_1.clone(); break;
+                            case 1: cube = models.box_2.clone(); break;
+                            case 2: cube = models.box_3.clone(); break;
+                            case 3: cube = models.box_4.clone(); break;
                         }
                         break;
                     case Cell.Wall: cube = new THREE.Mesh(boxGeometry, materialWall); break;
                     case Cell.Digging:
                         switch (getRandomInt(2)) {
-                            case 0: cube = dig_1.clone(); break;
-                            case 1: cube = dig_2.clone(); break;
+                            case 0: cube = models.dig_1.clone(); break;
+                            case 1: cube = models.dig_2.clone(); break;
                         }
                         break;
                 }
@@ -189,7 +201,7 @@ function drawFloor(map) {
 
 function drawSpawnPoints(spawnPoints) {
     for (var i = 0; i < spawnPoints.length; i++) {
-        let cube = spawn.clone();
+        let cube = models.spawn.clone();
         scene.add(cube);
         cube.position.set(spawnPoints[i].x, spawnPoints[i].y, 0.01);
     }
@@ -248,11 +260,7 @@ function sceneInit(target) {
     scene.add(ambientLight);
     scene.add(sPlayers);}
 
-function modelLoader(name) {
-    return new Promise((resolve, reject) => {
-        loader.load("../../StaticFiles/models/" + name + ".glb", data => resolve(data.scene.children[0]), null, reject);
-    });
-}
+
 
 function getPlayer(userId) {
     for (var i = 0; i < sPlayers.children.length; i++)

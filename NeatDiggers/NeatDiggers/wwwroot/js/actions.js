@@ -2,7 +2,7 @@
 import * as core from "./core.js";
 
 import { doAction, invoke } from './game.js';
-import { checkAvailability, Message, GameActionType, ItemType } from './util.js';
+import { checkAvailability, Message, GameActionType, ItemType, Target, WeaponHanded, modelLoader } from './util.js';
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
@@ -10,6 +10,7 @@ const mouseUp = new THREE.Vector2();
 const mouseDown = new THREE.Vector2();
 
 let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, endTurnInfo, playerHealth, inventory;
+let target;
 
 const Action = {
     maxCount: 2,
@@ -196,6 +197,9 @@ const Action = {
             Action.Dig.Can = true;
             btnDig.disabled = false;
             btnRollDice.disabled = false;
+            target.visible = false;
+            ItemsActions.onPlayer.listen = false;
+            ItemsActions.onPosition.listen = false;
         }
     },
 };
@@ -211,12 +215,56 @@ let ItemsActions = {
     equip: function (inventory) {
 
     },
-    use: function (item){
+    use: async function (item) {
         let action = {
             Type: GameActionType.UseItem,
             Item: item
         };
-        doAction(action);
+        let success = await doAction(action);
+        if (success) {
+            Action.finishAction();
+        }
+    },
+    onPlayer: {
+        listen: false,
+        item: null,
+        init: function (item) {
+            this.item = item;
+            this.listen = true;
+            target.visible = true;
+        },
+        use: async function () {
+            if (!this.listen) return;
+            this.listen = false;
+            this.item = null;
+            target.visible = false;
+        }
+    },
+    onPosition: {
+        listen: false,
+        item: null,
+        init: function (item) {
+            this.item = item;
+            this.listen = true;
+            target.visible = true;
+            target.position.set();
+        },
+        use: async function () {
+            if (!this.listen) return;
+            let action = {
+                Type: GameActionType.UseItem,
+                TargetPosition: target.position,
+                Item: this.item
+            };
+            let success = await doAction(action);
+            target.visible = false;
+            if (success) {
+                Action.finishAction();
+                this.listen = false;
+                this.item = null;
+                target.position.set();
+            }
+        }
     }
 }
 
@@ -227,7 +275,11 @@ export function setCamera(cam) {
     camera = cam;
 }
 
-export function init() {
+export async function init() {
+    target = await modelLoader("target");
+    target.position.set();
+    target.visible = false;
+    core.scene.add(target);
     document.addEventListener('pointerup', pointerUp, false);
     document.addEventListener('pointermove', pointerMove, false);
     document.addEventListener('pointerdown', pointerDown, false);
@@ -283,19 +335,47 @@ function updateItems(items) {
 
         switch (item.type) {
             case ItemType.Active:
-                itemUse.innerText = Message.Button.Use;
-                itemUse.onclick = function () { ItemsActions.use(item); };
+                switch (item.target) {
+                    case Target.None:
+                        itemUse.innerText = Message.Button.Use.None;
+                        itemUse.onclick = function () { ItemsActions.use(item); };
+                        break;
+                    case Target.Player:
+                        itemUse.innerText = Message.Button.Use.Player;
+                        itemUse.onclick = function () {
+                            ItemsActions.onPlayer.init(item);
+                        };
+                        break;
+                    case Target.Position:
+                        itemUse.innerText = Message.Button.Use.Position;
+                        itemUse.onclick = function () {
+                            ItemsActions.onPosition.init(item);
+                        };
+                        break;
+                    default:
+                }
                 break;
             case ItemType.Passive:
                 itemUse.innerText = Message.Button.Passive;
                 itemUse.disabled = true;
                 break;
             case ItemType.Armor:
-                itemUse.innerText = Message.Button.Equip;
+                itemUse.innerText = Message.Button.Equip.Armor;
                 itemUse.disabled = true;
                 break;
             case ItemType.Weapon:
-                itemUse.innerText = Message.Button.Equip;
+                switch (item.weaponHanded) {
+                    case WeaponHanded.One:
+                        itemUse.innerText = Message.Button.Equip.Left;
+                        //swap
+                        break;
+                    case WeaponHanded.Two:
+                        itemUse.innerText = Message.Button.Equip.Two;
+                        //swap
+                        break;
+                    default:
+                }
+
                 itemUse.disabled = true;
                 break;
             default:
@@ -394,6 +474,8 @@ function pointerUp(event) {
 
     if (!isMyTurn || Action.count < 1) return;
     Action.Move.drop();
+    ItemsActions.onPlayer.use();
+    ItemsActions.onPosition.use();
 }
 
 function pointerMove(event) {
@@ -404,6 +486,14 @@ function pointerMove(event) {
     raycaster.setFromCamera(mouse, camera);
 
     Action.Move.move(raycaster);
+
+    if (target.visible) {
+        let intersectsObjects = raycaster.intersectObjects(core.scene.children);
+        if (intersectsObjects.length > 0)
+            target.position.set(intersectsObjects[0].object.position.x, intersectsObjects[0].object.position.y, 0);
+        else
+            target.position.set();
+    }
 }
 
 function pointerDown(event) {
