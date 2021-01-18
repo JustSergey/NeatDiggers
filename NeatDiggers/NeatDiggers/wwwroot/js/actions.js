@@ -241,13 +241,13 @@ let ItemsActions = {
                         Item: ItemsActions.onPlayer.item
                     }
                     let success = await doAction(action);
-                    hint.style.display = 'none';
-                    if (success) {
+
+                    if (success)
                         Action.finishAction();
-                        this.listen = false;
-                        this.item = null;
-                        target.position.set();
-                    }
+                    hint.style.display = 'none';
+                    this.listen = false;
+                    this.item = null;
+                    target.position.set();
                 }
                 hint.appendChild(btn);
                 hint.style.display = 'block';
@@ -272,12 +272,11 @@ let ItemsActions = {
             };
             let success = await doAction(action);
             target.visible = false;
-            if (success) {
+            if (success)
                 Action.finishAction();
-                this.listen = false;
-                this.item = null;
-                target.position.set();
-            }
+            this.listen = false;
+            this.item = null;
+            target.position.set();
         }
     }
 }
@@ -348,6 +347,8 @@ function updateItems(items) {
         itemDrop.classList.add("ui");
         itemDrop.onclick = function () { ItemsActions.drop(item); };
         itemDescription.innerText = item.title + " (" + item.description + ")";
+        itemDescription.style.marginTop = "1.5rem";
+        itemDescription.style.marginBottom = "0.25rem";
 
         switch (item.type) {
             case ItemType.Active:
