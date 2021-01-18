@@ -111,59 +111,32 @@ const Action = {
     },
     Attack: {
         Can: true,
-        'showHint': async function (raycaster, x, y) {
-            let intersectsObjects = raycaster.intersectObjects(core.scene.children);
-            if (intersectsObjects.length > 0) {
-                while (hint.firstChild) {
-                    hint.removeChild(hint.firstChild);
-                }
+        showHint: async function (players) {
+            let radius = await invoke("GetAttackRadius");
 
-                let players = new Array();
-                let position = intersectsObjects[0].object.position;
-                for (var i = 0; i < core.sPlayers.children.length; i++) {
-                    let player = core.sPlayers.children[i];
-                    if (player.info.position.x == position.x && player.info.position.y == position.y) {
-                        players.push(player);
+            for (var i = 0; i < players.length; i++) {
+                let btn = document.createElement('button');
+                btn.style.pointerEvents = "all";
+                if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
+                    btn.disabled = true;
+
+                let playerId = players[i].info.id;
+                let playerName = players[i].info.name;
+                let playerHealth = players[i].info.health;
+                let playerMaxHealth = players[i].info.character.maxHealth;
+                btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
+                btn.onmousedown = function () {
+                    let action = {
+                        Type: GameActionType.Attack,
+                        TargetPlayerId: playerId
                     }
-                }
-
-                for (var i = 0; i < players.length; i++) {
-                    if (players[i].info.id == core.sPlayer.info.id) {
-                        players.splice(i, 1);
-                    }
-                }
-
-                let radius = await invoke("GetAttackRadius");
-                if (players.length < 1) {
+                    doAction(action);
                     hint.style.display = 'none';
-                    return;
+                    Action.Attack.Can = false;
+                    Action.finishAction();
                 }
-                for (var i = 0; i < players.length; i++) {
-                    let btn = document.createElement('button');
-                    btn.style.pointerEvents = "all";
-                    if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
-                        btn.disabled = true;
-
-                    let playerId = players[i].info.id;
-                    let playerName = players[i].info.name;
-                    let playerHealth = players[i].info.health;
-                    let playerMaxHealth = players[i].info.character.maxHealth;
-                    btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
-                    btn.onmousedown = function () {
-                        let action = {
-                            Type: GameActionType.Attack,
-                            TargetPlayerId: playerId
-                        }
-                        doAction(action);
-                        hint.style.display = 'none';
-                        Action.Attack.Can = false;
-                        Action.finishAction();
-                    }
-                    hint.appendChild(btn);
-                    hint.style.display = 'block';
-                }
-                hint.style.left = x + "px";
-                hint.style.top = y + "px";
+                hint.appendChild(btn);
+                hint.style.display = 'block';
             }
         },
     },
@@ -204,6 +177,27 @@ const Action = {
     },
 };
 
+function getPlayers(raycaster) {
+    let intersectsObjects = raycaster.intersectObjects(core.scene.children);
+    if (intersectsObjects.length > 0) {
+        let players = new Array();
+        let position = intersectsObjects[0].object.position;
+        for (var i = 0; i < core.sPlayers.children.length; i++) {
+            let player = core.sPlayers.children[i];
+            if (player.info.position.x == position.x && player.info.position.y == position.y) {
+                players.push(player);
+            }
+        }
+
+        for (var i = 0; i < players.length; i++) {
+            if (players[i].info.id == core.sPlayer.info.id) {
+                players.splice(i, 1);
+            }
+        }
+        return players;
+    }
+}
+
 let ItemsActions = {
     drop: function (item) {
         let action = {
@@ -233,11 +227,33 @@ let ItemsActions = {
             this.listen = true;
             target.visible = true;
         },
-        use: async function () {
+        showHint: function (players) {
             if (!this.listen) return;
-            this.listen = false;
-            this.item = null;
-            target.visible = false;
+            for (var i = 0; i < players.length; i++) {
+                let btn = document.createElement('button');
+                btn.style.pointerEvents = "all";
+
+                let playerId = players[i].info.id;
+                let playerName = players[i].info.name;
+                btn.innerText = "Use on: " + playerName;
+                btn.onmousedown = async function () {
+                    let action = {
+                        Type: GameActionType.UseItem,
+                        TargetPlayerId: playerId,
+                        Item: ItemsActions.onPlayer.item
+                    }
+                    let success = await doAction(action);
+                    hint.style.display = 'none';
+                    if (success) {
+                        Action.finishAction();
+                        this.listen = false;
+                        this.item = null;
+                        target.position.set();
+                    }
+                }
+                hint.appendChild(btn);
+                hint.style.display = 'block';
+            }
         }
     },
     onPosition: {
@@ -470,11 +486,25 @@ function pointerUp(event) {
     mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouseUp, camera);
-    Action.Attack.showHint(raycaster, event.clientX, event.clientY);
+
+    let players = getPlayers(raycaster);
+    if (players.length > 0) {
+        while (hint.firstChild) {
+            hint.removeChild(hint.firstChild);
+        }
+
+        Action.Attack.showHint(players);
+        target.visible = false;
+        ItemsActions.onPlayer.showHint(players);
+
+        hint.style.left = event.clientX + "px";
+        hint.style.top = event.clientY + "px";
+    }
+    else
+        hint.style.display = 'none';
 
     if (!isMyTurn || Action.count < 1) return;
     Action.Move.drop();
-    ItemsActions.onPlayer.use();
     ItemsActions.onPosition.use();
 }
 
