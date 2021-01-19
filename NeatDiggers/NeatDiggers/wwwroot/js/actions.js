@@ -36,8 +36,7 @@ let ui = {
         },
         update: function (action) {
             if (action != null && action.type == GameActionType.DropItem) return;
-            this.turn.innerText = Action.count < 1 ? Message.YouMove : Message.ActionRemains + Action.count;
-            this.actionCount.innerText = Message.NeedRollDice;
+            Action.finishAction();
         }
     },
     button: {
@@ -66,6 +65,9 @@ let ui = {
             ui.div.appendChild(this.dig);
             ui.div.appendChild(this.rollDice);
             ui.div.appendChild(this.end);
+        },
+        update: function () {
+            this.rollDice.disabled = Action.count < 1;
         }
     },
     player: {
@@ -73,6 +75,7 @@ let ui = {
         name: document.createElement("p"),
         health: document.createElement("p"),
         level: document.createElement("p"),
+        score: document.createElement("p"),
         weaponType: document.createElement("p"),
         abilities: {
             container: document.createElement("div"),
@@ -97,25 +100,100 @@ let ui = {
         },
         inventory: {
             container: document.createElement("div"),
-            //title: document.createElement("p"),
             leftWeapon: document.createElement("p"),
             rightWeapon: document.createElement("p"),
             armor: document.createElement("p"),
-            items: null,
-            drop: null,
+            drop: document.createElement("p"),
+            items: {
+                container: document.createElement("div"),
+                title: document.createElement("p"),
+                init: function () {
+                    this.title.innerText = Message.Inventory.Title;
+                    this.container.classList.add("items");
+                    ui.player.inventory.container.appendChild(this.title);
+                    ui.player.inventory.container.appendChild(this.container);
+                },
+                update: function (items) {
+                    this.clear();
+
+                    for (var i = 0; i < items.length; i++) {
+                        let item = items[i];
+                        let itemUse = document.createElement("button");
+                        let itemDrop = document.createElement("button");
+                        let itemDescription = document.createElement("p");
+
+                        itemUse.style.pointerEvents = "all";
+                        itemUse.classList.add("ui");
+                        switch (item.type) {
+                            case ItemType.Active:
+                                switch (item.target) {
+                                    case Target.None:
+                                        itemUse.innerText = Message.Button.Use.None;
+                                        itemUse.onclick = function () { ItemsActions.use(item); };
+                                        break;
+                                    case Target.Player:
+                                        itemUse.innerText = Message.Button.Use.Player;
+                                        itemUse.onclick = function () { ItemsActions.onPlayer.init(item); };
+                                        break;
+                                    case Target.Position:
+                                        itemUse.innerText = Message.Button.Use.Position;
+                                        itemUse.onclick = function () { ItemsActions.onPosition.init(item); };
+                                        break;
+                                    default:
+                                }
+                                break;
+                            case ItemType.Passive:
+                                itemUse.innerText = Message.Button.Passive;
+                                itemUse.disabled = true;
+                                break;
+                            case ItemType.Armor:
+                                itemUse.innerText = Message.Button.Equip.Armor;
+                                itemUse.disabled = true;
+                                break;
+                            case ItemType.Weapon:
+                                switch (item.weaponHanded) {
+                                    case WeaponHanded.One:
+                                        itemUse.innerText = Message.Button.Equip.Left;
+                                        //swap
+                                        break;
+                                    case WeaponHanded.Two:
+                                        itemUse.innerText = Message.Button.Equip.Two;
+                                        //swap
+                                        break;
+                                    default:
+                                }
+                                itemUse.disabled = true;
+                                break;
+                        }
+                        itemDrop.style.pointerEvents = "all";
+                        itemDrop.classList.add("ui");
+                        itemDrop.innerText = Message.Button.Drop;
+                        itemDrop.onclick = function () { ItemsActions.drop(item); };
+
+                        itemDescription.innerText = item.title + " (" + item.description + ")";
+
+                        this.container.appendChild(itemDescription);
+                        this.container.appendChild(itemUse);
+                        this.container.appendChild(itemDrop);
+                    }
+                },
+                clear: function () { ui.clear(this.container); }
+            },
             init: function () {
-                //this.title.innerText = Message.Title.Inventory;
                 this.container.classList.add("inventory");
-                //ui.player.container.appendChild(this.title);
                 ui.player.container.appendChild(this.container);
                 this.container.appendChild(this.leftWeapon);
                 this.container.appendChild(this.rightWeapon);
                 this.container.appendChild(this.armor);
+                this.container.appendChild(this.drop);
+                this.container.appendChild(this.items.container);
             },
             update: function (inventory) {
                 this.leftWeapon.innerText = Message.Inventory.LeftWeapon + inventory.leftWeapon.title;
                 this.rightWeapon.innerText = Message.Inventory.RightWeapon + inventory.rightWeapon.title;
                 this.armor.innerText = Message.Inventory.Armor + inventory.armor.title;
+                this.drop.innerText = Message.Inventory.Drop + inventory.drop;
+                this.items.update(inventory.items);
             }
         },
         init: function () {
@@ -127,6 +205,7 @@ let ui = {
             this.container.appendChild(this.name);
             this.container.appendChild(this.health);
             this.container.appendChild(this.level);
+            this.container.appendChild(this.score);
             this.container.appendChild(this.weaponType);
             this.abilities.init();
             this.inventory.init();
@@ -135,6 +214,7 @@ let ui = {
             this.name.innerText = player.name + " (" + player.character.title + ")";
             this.health.innerText = Message.Health + player.health + "/" + player.character.maxHealth;
             this.level.innerText = Message.Level + player.level;
+            this.score.innerText = Message.Score + player.score;
             this.weaponType.innerText = Message.WeaponType + getKeyByValue(WeaponType, player.character.weaponType);
 
             this.abilities.update(player.character.abilities);
@@ -162,6 +242,7 @@ let ui = {
     update: function (player, action, isMyTurn) {
         this.player.update(player);
         this.message.update(action);
+        this.button.update();
 
         if (isMyTurn) $(".ui").show();
     },
@@ -183,7 +264,6 @@ const Action = {
     count: 2,
     diceValue: -1,
     finishAction: function () {
-        this.count--;
         ui.message.turn.innerText = Message.ActionRemains + Action.count;
         Action.diceValue = -1;
         ui.message.actionCount.innerText = Message.NeedRollDice;
@@ -244,6 +324,7 @@ const Action = {
             let success = await doAction(action);
             if (success) {
                 this.Can = false;
+                Action.count--;
                 Action.finishAction();
             }
             else
@@ -271,6 +352,7 @@ const Action = {
             if (success) {
                 ui.button.dig.disabled = true;
                 Action.Dig.Can = false;
+                Action.count--;
                 Action.finishAction();
             }
         }
@@ -299,6 +381,7 @@ const Action = {
                     doAction(action);
                     ui.hint.hide();
                     Action.Attack.Can = false;
+                    Action.count--;
                     Action.finishAction();
                 }
                 ui.hint.container.appendChild(btn);
@@ -372,6 +455,7 @@ let ItemsActions = {
         };
         let success = await doAction(action);
         if (success) {
+            Action.count--;
             Action.finishAction();
         }
     },
@@ -401,8 +485,11 @@ let ItemsActions = {
                     }
                     let success = await doAction(action);
 
-                    if (success)
+                    if (success) {
+                        Action.count--;
                         Action.finishAction();
+                    }
+
                     ui.hint.hide();
                     this.listen = false;
                     this.item = null;
@@ -431,8 +518,11 @@ let ItemsActions = {
             };
             let success = await doAction(action);
             target.visible = false;
-            if (success)
+            if (success) {
+                Action.count--;
                 Action.finishAction();
+            }
+
             this.listen = false;
             this.item = null;
             target.position.set();
@@ -475,7 +565,6 @@ export function updateTurn(bool, action) {
 }
 
 function updateInventory(inv) {
-    //updateItems(inv.items);
 
     //if (core.sPlayer.info.inventory.items.length > 6) {
     //    btnEndTurn.disabled = true;
@@ -487,91 +576,6 @@ function updateInventory(inv) {
     //}
 }
 
-//function updateItems(items) {
-//    while (inventory.firstChild) {
-//        inventory.removeChild(inventory.firstChild);
-//    }
-
-//    for (var i = 0; i < items.length; i++) {
-//        let item = items[i];
-//        let itemUse = document.createElement("button");
-//        let itemDrop = document.createElement("button");
-//        let itemDescription = document.createElement("p");
-
-//        itemUse.style.pointerEvents = "all";
-//        itemUse.classList.add("ui");
-//        itemDrop.innerText = Message.Button.Drop;
-//        itemDrop.style.pointerEvents = "all";
-//        itemDrop.classList.add("ui");
-//        itemDrop.onclick = function () { ItemsActions.drop(item); };
-//        itemDescription.innerText = item.title + " (" + item.description + ")";
-//        itemDescription.style.marginTop = "1.5rem";
-//        itemDescription.style.marginBottom = "0.25rem";
-
-//        switch (item.type) {
-//            case ItemType.Active:
-//                switch (item.target) {
-//                    case Target.None:
-//                        itemUse.innerText = Message.Button.Use.None;
-//                        itemUse.onclick = function () { ItemsActions.use(item); };
-//                        break;
-//                    case Target.Player:
-//                        itemUse.innerText = Message.Button.Use.Player;
-//                        itemUse.onclick = function () {
-//                            ItemsActions.onPlayer.init(item);
-//                        };
-//                        break;
-//                    case Target.Position:
-//                        itemUse.innerText = Message.Button.Use.Position;
-//                        itemUse.onclick = function () {
-//                            ItemsActions.onPosition.init(item);
-//                        };
-//                        break;
-//                    default:
-//                }
-//                break;
-//            case ItemType.Passive:
-//                itemUse.innerText = Message.Button.Passive;
-//                itemUse.disabled = true;
-//                break;
-//            case ItemType.Armor:
-//                itemUse.innerText = Message.Button.Equip.Armor;
-//                itemUse.disabled = true;
-//                break;
-//            case ItemType.Weapon:
-//                switch (item.weaponHanded) {
-//                    case WeaponHanded.One:
-//                        itemUse.innerText = Message.Button.Equip.Left;
-//                        //swap
-//                        break;
-//                    case WeaponHanded.Two:
-//                        itemUse.innerText = Message.Button.Equip.Two;
-//                        //swap
-//                        break;
-//                    default:
-//                }
-
-//                itemUse.disabled = true;
-//                break;
-//            default:
-//        }
-
-//        inventory.appendChild(itemDescription);
-//        inventory.appendChild(itemUse);
-//        inventory.appendChild(itemDrop);
-//    }
-//}
-
-function guiInit() {
-
-    //inventory = document.createElement("div");
-    //inventory.style.color = "white";
-    //inventory.onselectstart = false;
-    //inventory.onmousedown = false;
-    //div.appendChild(inventory);
-
-    $(".ui").hide();
-}
 
 function pointerUp(event) {
     core.controls.enabled = true;
