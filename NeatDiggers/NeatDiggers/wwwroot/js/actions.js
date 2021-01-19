@@ -6,8 +6,6 @@ import { checkAvailability, Message, GameActionType, ItemType, Target, WeaponHan
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
-const mouseUp = new THREE.Vector2();
-const mouseDown = new THREE.Vector2();
 
 let div, hint, turn, count, btnRollDice, btnDig, btnEndTurn, endTurnInfo, playerHealth, inventory;
 let target;
@@ -38,19 +36,18 @@ const Action = {
             dragObject: null,
             oldPosition: new THREE.Vector3()
         },
-        'take': function () {
-            let intersectsPlayer = raycaster.intersectObjects(new Array(core.sPlayer));
-            if (intersectsPlayer.length > 0 && this.Can) {
+        'take': function (player) {
+            if (player != null && this.Can) {
                 core.controls.enabled = false;
                 if (this.Can) {
-                    this.Add.objIntersect.copy(intersectsPlayer[0].point);
+                    this.Add.objIntersect.copy(player.point);
                     this.Add.plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), this.Add.objIntersect);
-                    this.Add.shift.subVectors(intersectsPlayer[0].object.position, intersectsPlayer[0].point);
+                    this.Add.shift.subVectors(player.position, player.point);
                     this.Add.isDragging = true;
-                    this.Add.dragObject = intersectsPlayer[0].object;
-                    this.Add.oldPosition.x = intersectsPlayer[0].object.position.x;
-                    this.Add.oldPosition.y = intersectsPlayer[0].object.position.y;
-                    this.Add.oldPosition.z = intersectsPlayer[0].object.position.z;
+                    this.Add.dragObject = player;
+                    this.Add.oldPosition.x = player.position.x;
+                    this.Add.oldPosition.y = player.position.y;
+                    this.Add.oldPosition.z = player.position.z;
                 }
             }
         },
@@ -175,20 +172,26 @@ const Action = {
 };
 
 function getPlayers(raycaster) {
-    let players = new Array();
+    let players = {
+        user: null,
+        other: new Array()
+    }
     let intersectsObjects = raycaster.intersectObjects(core.scene.children);
     if (intersectsObjects.length > 0) {
         let position = intersectsObjects[0].object.position;
+        players.point = intersectsObjects[0].point
         for (var i = 0; i < core.sPlayers.children.length; i++) {
             let player = core.sPlayers.children[i];
             if (player.info.position.x == position.x && player.info.position.y == position.y) {
-                players.push(player);
+                players.other.push(player);
             }
         }
 
-        for (var i = 0; i < players.length; i++) {
-            if (players[i].info.id == core.sPlayer.info.id) {
-                players.splice(i, 1);
+        for (var i = 0; i < players.other.length; i++) {
+            if (players.other[i].info.id == core.sPlayer.info.id) {
+                players.user = players.other[i];
+                players.user.point = intersectsObjects[0].point;
+                players.other.splice(i, 1);
             }
         }
     }
@@ -484,11 +487,11 @@ function guiInit() {
 
 function pointerUp(event) {
     core.controls.enabled = true;
-    mouseUp.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseUp.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouseUp, camera);
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
+    raycaster.setFromCamera(mouse, camera);
 
-    let players = getPlayers(raycaster);
+    let players = getPlayers(raycaster).other;
     if (players.length > 0) {
         while (hint.firstChild) {
             hint.removeChild(hint.firstChild);
@@ -529,8 +532,11 @@ function pointerMove(event) {
 function pointerDown(event) {
     if (!isMyTurn || Action.count < 1) return;
 
-    mouseDown.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouseDown.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
+    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
 
-    Action.Move.take();
+    raycaster.setFromCamera(mouse, camera);
+
+    let player = getPlayers(raycaster).user;
+    Action.Move.take(player);
 }
