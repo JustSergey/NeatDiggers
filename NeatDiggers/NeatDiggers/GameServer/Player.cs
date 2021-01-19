@@ -55,10 +55,10 @@ namespace NeatDiggers.GameServer
 
         public void LevelUp()
         {
-            if (Character.Abilities.Count > Level && 
-                Character.Abilities[Level].Type == Abilities.AbilityType.Passive)
+            if (Character.Abilities.Count > Level)
             {
-                Character.Abilities[Level].Get(this);
+                if (Character.Abilities[Level].Type == Abilities.AbilityType.Passive)
+                    Character.Abilities[Level].Get(this);
                 Character.Abilities[Level].IsActive = true;
             }
             Level++;
