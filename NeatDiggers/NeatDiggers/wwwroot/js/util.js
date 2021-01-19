@@ -14,8 +14,17 @@ export async function modelLoader(name) {
 }
 
 export const Message = {
+    Inventory: {
+        Title: "Inventory: ",
+        LeftWeapon: "Left weapon: ",
+        RightWeapon: "Right weapon: ",
+        Armor: "Armor: ",
+    },
     NeedRollDice: "You need to roll the dice.",
-    Health: "Health:",
+    Health: "Health: ",
+    Level: "Level: ",
+    WeaponType: "Weapon type: ",
+    Abilities: "Abilities: ",
     YouMove: "Your move!",
     ActionRemains: "Actions remains:",
     ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
@@ -56,6 +65,20 @@ export const Conection = {
     }
 }
 
+export const Ability = {
+    Name: {
+        Speed: 0,
+        Shuriken: 1,
+        Heal: 2,
+        Damage: 3,
+        Distance: 4,
+        Armor: 5,
+        Invul: 6,
+        ArmorBreak: 6
+    }
+
+}
+
 export const Target = {
     None: 0,
     Player: 1,
@@ -83,6 +106,16 @@ export const GameActionType = {
     UseItem: 3,
     DropItem: 4,
     UseAbility: 5
+}
+
+export const WeaponType = {
+    'None': 0,
+    'Melee': 1,
+    'Ranged': 2
+}
+
+export function getKeyByValue(object, value) {
+    return Object.keys(object).find(key => object[key] === value);
 }
 
 //export function move(obj, pos) {
