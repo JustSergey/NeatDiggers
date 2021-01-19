@@ -187,7 +187,7 @@ let ui = {
                 this.container.appendChild(this.rightWeapon);
                 this.container.appendChild(this.armor);
                 this.container.appendChild(this.drop);
-                this.container.appendChild(this.items.container);
+                this.items.init();
             },
             update: function (inventory) {
                 this.leftWeapon.innerText = Message.Inventory.LeftWeapon + inventory.leftWeapon.title;
@@ -217,6 +217,9 @@ let ui = {
             this.level.innerText = Message.Level + player.level;
             this.score.innerText = Message.Score + player.score;
             this.weaponType.innerText = Message.WeaponType + getKeyByValue(WeaponType, player.character.weaponType);
+
+            this.abilities.update(player.character.abilities);
+            this.inventory.update(player.inventory);
         }
     },
     init: function () {
@@ -242,11 +245,10 @@ let ui = {
         this.message.update(action);
         this.button.update();
 
-        if (isMyTurn) {
-            this.player.abilities.update(player.character.abilities);
-            this.player.inventory.update(player.inventory);
+        if (isMyTurn)
             $(".ui").show();
-        }
+        else
+            $(".ui").hide();
     },
     clear: function (container) {
         while (container.firstChild)
