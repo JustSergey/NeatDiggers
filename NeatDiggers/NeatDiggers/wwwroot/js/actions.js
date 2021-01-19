@@ -124,6 +124,7 @@ let ui = {
 
                         itemUse.style.pointerEvents = "all";
                         itemUse.classList.add("ui");
+                        itemUse.classList.add("itemButton");
                         switch (item.type) {
                             case ItemType.Active:
                                 switch (item.target) {
@@ -216,9 +217,6 @@ let ui = {
             this.level.innerText = Message.Level + player.level;
             this.score.innerText = Message.Score + player.score;
             this.weaponType.innerText = Message.WeaponType + getKeyByValue(WeaponType, player.character.weaponType);
-
-            this.abilities.update(player.character.abilities);
-            this.inventory.update(player.inventory);
         }
     },
     init: function () {
@@ -244,7 +242,11 @@ let ui = {
         this.message.update(action);
         this.button.update();
 
-        if (isMyTurn) $(".ui").show();
+        if (isMyTurn) {
+            this.player.abilities.update(player.character.abilities);
+            this.player.inventory.update(player.inventory);
+            $(".ui").show();
+        }
     },
     clear: function (container) {
         while (container.firstChild)
@@ -272,6 +274,7 @@ const Action = {
             ui.button.dig.disabled = true;
             ui.button.rollDice.disabled = true;
             ui.message.actionCount.innerText = "";
+            $(".itemButton").prop("disabled", true);
         }
     },
     Move: {
