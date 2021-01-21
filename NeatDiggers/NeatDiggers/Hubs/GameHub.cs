@@ -277,8 +277,9 @@ namespace NeatDiggers.Hubs
                 {
                     gameAction.CurrentPlayer.Inventory.Drop -= consumption;
 
-                    targetPlayer.Health -=
-                        playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+                    int resultDamage = playerAttackDamage - enemyArmorStrength - enemyArmorBuff;
+                    if (resultDamage > 0)
+                        targetPlayer.Health -= resultDamage;
 
                     if (enemyArmor.Type == ItemType.Armor)
                     {
