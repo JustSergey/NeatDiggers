@@ -14,10 +14,10 @@
     <div class="row form-group pt-3">
         <form class="form-inline" method="post">
             <div class="col-2">
-                <input class="form-control" type="search" id="codeInput" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required="True">
+                <input class="form-control" type="search" id="codeInput" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required>
             </div>
             <div class="col-4">
-                <input class="form-control" type="search" id="nameInput" name="name" placeholder="Enter name" aria-describedby="lobby-code" value="Player" required="True">
+                <input class="form-control" type="search" id="nameInput" name="name" placeholder="Enter name" aria-describedby="lobby-code" value="Player" required>
             </div>
             <div class="col-3">
                 <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
@@ -41,35 +41,43 @@
 <!-- Modal -->
 <div class="modal fade" id="CreateLobbyModal" tabindex="-1" aria-labelledby="CreateLobbyModal" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="CreateLobbyModal">Create lobby</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-6">
-                        <h4>Select Map</h4>
-                        <select class="form-control">
-                            <option>Map 1</option>
-                        </select>
+        <form asp-controller="Game" asp-action="CreateLobby" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="CreateLobbyModal">Create lobby</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <h4>Select Map</h4>
+                            <select name="map" class="form-control">
+                                <option value="0">Standart</option>
+                                <option value="1">Diagonal</option>
+                                <option value="2">Large</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <h4>Select Deck</h4>
+                            <select class="form-control">
+                                <option>Standart</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <h4>Set Score</h4>
+                            <input class="form-control" type="search" name="maxScore" value="3" placeholder="Set max Score" required>
+                        </div>
                     </div>
-                    <div class="col-6">
-                        <h4>Select Deck</h4>
-                        <select class="form-control">
-                            <option>Deck 1</option>
-                        </select>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <div class="form-inline">
+                        <button class="btn btn-primary" type="submit">Create</button>
                     </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <form class="form-inline" asp-controller="Game" asp-action="CreateLobby" method="post">
-                    <button class="btn btn-primary" type="submit">Create</button>
-                </form>
-            </div>
-        </div>
+        </form>
     </div>
 </div>

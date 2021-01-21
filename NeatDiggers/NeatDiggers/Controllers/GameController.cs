@@ -17,9 +17,23 @@ namespace NeatDiggers.Controllers
             return View(rooms);
         }
 
-        public IActionResult CreateLobby()
+        public IActionResult CreateLobby(int map, int maxScore)
         {
-            string code = Server.CreateRoom(new LargeGameMap(), new StandartDeck(), 3);
+            GameMap gameMap;
+            switch ((GameMapType)map)
+            {
+                case GameMapType.Diagonal:
+                    gameMap = new DiagonalGameMap();
+                    break;
+                case GameMapType.Large:
+                    gameMap = new LargeGameMap();
+                    break;
+                default:
+                    gameMap = new StandartGameMap();
+                    break;
+            }
+
+            string code = Server.CreateRoom(gameMap, new StandartDeck(), maxScore);
             return RedirectToAction("Watch", "Game", new { code });
         }
 
