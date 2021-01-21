@@ -5,6 +5,13 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer.Maps
 {
+    public enum GameMapType
+    {
+        Standart,
+        Diagonal,
+        Large
+    }
+
     public enum Cell
     {
         None,
