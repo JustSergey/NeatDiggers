@@ -203,7 +203,7 @@ let ui = {
 
                 if (inventory.leftWeapon.title != null)
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
-                if (inventory.armor.title != null)
+                if (inventory.rightWeapon.title != null)
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
                 if (inventory.armor.title != null)
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
@@ -500,7 +500,6 @@ let ItemsActions = {
         arrayRemove(inventory.items, item);
 
         await ChangeInventory(inventory);
-        ui.update();
     },
     use: async function (item) {
         let action = {
