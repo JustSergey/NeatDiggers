@@ -73,11 +73,8 @@ let ui = {
             ui.div.appendChild(this.takeFlag);
             ui.div.appendChild(this.end);
         },
-        update: function (action, isMyTurn) {
+        update: function () {
             this.rollDice.disabled = Action.count < 1;
-            if (isMyTurn && action != null) {
-                this.takeFlag.disabled = false;
-            }
         }
     },
     player: {
@@ -253,7 +250,7 @@ let ui = {
     update: function (player, action, isMyTurn) {
         this.player.update(player);
         this.message.update(action);
-        this.button.update(action, isMyTurn);
+        this.button.update();
 
         if (isMyTurn)
             $(".ui").show();
@@ -267,16 +264,14 @@ let ui = {
 }
 let target;
 
+export function ShowTakeFlagButton(isActive) {
+    ui.button.takeFlag.disabled = !isActive;
+}
+
 function isPlayerCanDig() {
     let playerPos = core.sPlayer.info.position;
     let map = core.mapArray;
     return Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can
-}
-
-function isPlayerCanTakeFlag() {
-    let playerPos = core.sPlayer.info.position;
-    let map = core.mapArray;
-    return
 }
 
 const Action = {
@@ -291,6 +286,7 @@ const Action = {
         if (this.count < 1) {
             ui.button.dig.disabled = true;
             ui.button.rollDice.disabled = true;
+            ui.button.takeFlag.disabled = true;
             ui.message.actionCount.innerText = "";
             $(".itemButton").prop("disabled", true);
         }

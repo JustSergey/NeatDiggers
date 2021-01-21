@@ -23,8 +23,16 @@ export async function updateRoom(room, action) {
     }
 
     core.updatePlayers(room.players, userId);
-    core.UpdateFlag(getFlagPosition(room), room.flagOnTheGround);
+    let flagPosition = getFlagPosition(room);
+    core.UpdateFlag(flagPosition, room.flagOnTheGround);
+    let playerPosition = room.players[room.playerTurn].position;
+    let ss = isEqualVector(playerPosition, flagPosition);
+    actions.ShowTakeFlagButton(room.flagOnTheGround && isEqualVector(playerPosition, flagPosition));
     actions.updateTurn(room.players[room.playerTurn].id == userId, action);
+}
+
+function isEqualVector(vec1, vec2) {
+    return vec1.x == vec2.x && vec1.y == vec2.y;
 }
 
 function getFlagPosition(room) {
