@@ -1,7 +1,7 @@
 ﻿import * as THREE from '../lib/three/build/three.module.js';
 import * as core from "./core.js";
 
-import { doAction, invoke } from './game.js';
+import { doAction, invoke, ChangeInventory } from './game.js';
 import { checkAvailability, Message, GameActionType, ItemType, Target, WeaponHanded, modelLoader, WeaponType, getKeyByValue, Ability } from './util.js';
 
 const raycaster = new THREE.Raycaster();
@@ -131,9 +131,9 @@ let ui = {
 
                         itemUse.style.pointerEvents = "all";
                         itemUse.classList.add("ui");
-                        itemUse.classList.add("itemButton");
                         switch (item.type) {
                             case ItemType.Active:
+                                itemUse.classList.add("itemButton");
                                 switch (item.target) {
                                     case Target.None:
                                         itemUse.innerText = Message.Button.Use.None;
@@ -156,7 +156,7 @@ let ui = {
                                 break;
                             case ItemType.Armor:
                                 itemUse.innerText = Message.Button.Equip.Armor;
-                                itemUse.disabled = true;
+                                itemUse.onclick = function () { ItemsActions.equipArmor(item); };
                                 break;
                             case ItemType.Weapon:
                                 switch (item.weaponHanded) {
@@ -197,9 +197,17 @@ let ui = {
                 this.items.init();
             },
             update: function (inventory) {
-                this.leftWeapon.innerText = Message.Inventory.LeftWeapon + inventory.leftWeapon.title;
-                this.rightWeapon.innerText = Message.Inventory.RightWeapon + inventory.rightWeapon.title;
-                this.armor.innerText = Message.Inventory.Armor + inventory.armor.title;
+                this.leftWeapon.innerText = Message.Inventory.LeftWeapon;
+                this.armor.innerText = Message.Inventory.Armor;
+                this.rightWeapon.innerText = Message.Inventory.RightWeapon;
+
+                if (inventory.leftWeapon.title != null)
+                    this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
+                if (inventory.armor.title != null)
+                    this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
+                if (inventory.armor.title != null)
+                    this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
+
                 this.drop.innerText = Message.Inventory.Drop + inventory.drop;
                 this.items.update(inventory.items);
             }
@@ -467,6 +475,15 @@ function getPlayers(raycaster) {
     return players;
 }
 
+function arrayRemove(arr, value) {
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i].name == value.name) {
+            arr.splice(i, 1);
+            return;
+        }
+    }
+}
+
 let ItemsActions = {
     drop: function (item) {
         let action = {
@@ -475,8 +492,15 @@ let ItemsActions = {
         };
         doAction(action);
     },
-    equip: function (inventory) {
+    equipArmor: async function (item) {
+        let inventory = core.sPlayer.info.inventory;
+        if (inventory.armor.title != null)
+            inventory.items.push(inventory.armor);
+        inventory.armor = item;
+        arrayRemove(inventory.items, item);
 
+        await ChangeInventory(inventory);
+        ui.update();
     },
     use: async function (item) {
         let action = {

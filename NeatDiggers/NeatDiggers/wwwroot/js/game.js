@@ -56,3 +56,10 @@ export async function invoke(action) {
     });
     return success;
 }
+
+export async function ChangeInventory(inventory) {
+    let success = await connection.invoke('ChangeInventory', inventory).catch(function (err) {
+        return console.error(err.toString());
+    });
+    return success;
+}
