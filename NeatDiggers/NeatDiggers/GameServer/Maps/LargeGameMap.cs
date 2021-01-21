@@ -5,26 +5,30 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer.Maps
 {
-    public class StandartGameMap : GameMap
+    public class LargeGameMap : GameMap
     {
-        public StandartGameMap()
+        public LargeGameMap()
         {
             string[] map = 
-                @"NEDEEESEEEDEN
-NEEEENENEEEEN
-NNNNENENENNNN
-EDENENNNENEDE
-EEEEEEEEEEEEE
-ENNNEDEDENNNE
-SEENEEFEENEES
-ENNNEDEDENNNE
-EEEEEEEEEEEEE
-EDENENNNENEDE
-NNNNENENENNNN
-NEEEENENEEEEN
-NEDEEESEEEDEN".Replace("\r", "").Split('\n');
-            Width = 13;
-            Height = 13;
+                @"NNNEEEEESEEEEENNN
+NNNEDEEEEEEEDENNN
+NNNEEEENNNEEEENNN
+EEENNEENNNEENNEEE
+EDENNEEEEEEENNEDE
+EEEEEENNENNEEEEEE
+EEEEENDEEEDNEEEEE
+EENNENEEEEENENNEE
+SENNEEEEFEEEENNES
+EENNENEEEEENENNEE
+EEEEENDEEEDNEEEEE
+EEEEEENNENNEEEEEE
+EDENNEEEEEEENNEDE
+EEENNEENNNEENNEEE
+NNNEEEENNNEEEENNN
+NNNEDEEEEEEEDENNN
+NNNEEEEESEEEEENNN".Replace("\r", "").Split('\n');
+            Width = 17;
+            Height = 17;
             SpawnPoints = new List<Vector>();
             Map = new Cell[Width, Height];
             for (int x = 0; x < Width; x++)
