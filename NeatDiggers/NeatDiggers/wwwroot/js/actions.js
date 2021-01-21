@@ -382,7 +382,7 @@ const Action = {
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
                 btn.style.pointerEvents = "all";
-                if (!checkAvailability(core.sPlayer.position, players[i].info.position, radius) || !this.Can)
+                if (!(checkAvailability(core.sPlayer.position, players[i].info.position, radius) && this.Can && Action.count > 0))
                     btn.disabled = true;
 
                 let playerId = players[i].info.id;
@@ -395,11 +395,13 @@ const Action = {
                         Type: GameActionType.Attack,
                         TargetPlayerId: playerId
                     }
-                    doAction(action);
+                    let success = doAction(action);
                     ui.hint.hide();
-                    Action.Attack.Can = false;
-                    Action.count--;
-                    Action.finishAction();
+                    if (success) {
+                        Action.Attack.Can = false;
+                        Action.count--;
+                        Action.finishAction();
+                    }
                 }
                 ui.hint.container.appendChild(btn);
                 ui.hint.show();
@@ -496,7 +498,7 @@ let ItemsActions = {
             target.visible = true;
         },
         showHint: function (players) {
-            if (!this.listen) return;
+            if (!this.listen || Action.count < 1) return;
             target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
@@ -538,7 +540,7 @@ let ItemsActions = {
             target.position.set();
         },
         use: async function () {
-            if (!this.listen) return;
+            if (!this.listen || action.count < 1) return;
             let action = {
                 Type: GameActionType.UseItem,
                 TargetPosition: target.position,
