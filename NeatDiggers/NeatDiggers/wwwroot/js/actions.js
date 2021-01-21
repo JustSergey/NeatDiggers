@@ -128,6 +128,7 @@ let ui = {
                         let itemUse = document.createElement("button");
                         let itemDrop = document.createElement("button");
                         let itemDescription = document.createElement("p");
+                        let itemRight = null;
 
                         itemUse.style.pointerEvents = "all";
                         itemUse.classList.add("ui");
@@ -161,16 +162,19 @@ let ui = {
                             case ItemType.Weapon:
                                 switch (item.weaponHanded) {
                                     case WeaponHanded.One:
+                                        itemRight = document.createElement("button");
+                                        itemRight.style.pointerEvents = "all";
                                         itemUse.innerText = Message.Button.Equip.Left;
-                                        //swap
+                                        itemRight.innerText = Message.Button.Equip.Right;
+                                        itemUse.onclick = function () { ItemsActions.equipLeft(item); };
+                                        itemRight.onclick = function () { ItemsActions.equipRight(item); };
                                         break;
                                     case WeaponHanded.Two:
                                         itemUse.innerText = Message.Button.Equip.Two;
-                                        //swap
+                                        itemUse.onclick = function () { ItemsActions.equipTwo(item); };
                                         break;
                                     default:
                                 }
-                                itemUse.disabled = true;
                                 break;
                         }
                         itemDrop.style.pointerEvents = "all";
@@ -182,6 +186,7 @@ let ui = {
 
                         this.container.appendChild(itemDescription);
                         this.container.appendChild(itemUse);
+                        if (itemRight != null) this.container.appendChild(itemRight);
                         this.container.appendChild(itemDrop);
                     }
                 },
@@ -201,10 +206,16 @@ let ui = {
                 this.armor.innerText = Message.Inventory.Armor;
                 this.rightWeapon.innerText = Message.Inventory.RightWeapon;
 
-                if (inventory.leftWeapon.title != null)
-                    this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
+
                 if (inventory.rightWeapon.title != null)
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
+                else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
+                    this.leftWeapon.innerText = Message.Inventory.Two;
+                    this.rightWeapon.innerText = "";
+                }
+                if (inventory.leftWeapon.title != null)
+                    this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
+
                 if (inventory.armor.title != null)
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
 
@@ -499,7 +510,36 @@ let ItemsActions = {
         inventory.armor = item;
         arrayRemove(inventory.items, item);
 
-        await ChangeInventory(inventory);
+        let success = await ChangeInventory(inventory);
+    },
+    equipLeft: async function (item) {
+        let inventory = core.sPlayer.info.inventory;
+        if (inventory.leftWeapon.title != null)
+            inventory.items.push(inventory.leftWeapon);
+        inventory.leftWeapon = item;
+        arrayRemove(inventory.items, item);
+
+        let success = await ChangeInventory(inventory);
+    },
+    equipRight: function (item) {
+        let inventory = core.sPlayer.info.inventory;
+        if (inventory.rightWeapon.title != null)
+            inventory.items.push(inventory.rightWeapon);
+        inventory.rightWeapon = item;
+        arrayRemove(inventory.items, item);
+
+        ChangeInventory(inventory);
+    },
+    equipTwo: function (item) {
+        let inventory = core.sPlayer.info.inventory;
+        if (inventory.leftWeapon.title != null)
+            inventory.items.push(inventory.leftWeapon);
+        if (inventory.rightWeapon.title != null)
+            inventory.items.push(inventory.rightWeapon);
+        inventory.leftWeapon = item;
+        arrayRemove(inventory.items, item);
+
+        ChangeInventory(inventory);
     },
     use: async function (item) {
         let action = {

@@ -15,11 +15,12 @@ export async function modelLoader(name) {
 
 export const Message = {
     Inventory: {
-        Title: "Inventory: ",
-        LeftWeapon: "Left weapon: ",
-        RightWeapon: "Right weapon: ",
-        Armor: "Armor: ",
-        Drop: "Drop: ",
+        Title: "Inventory:",
+        LeftWeapon: "Left weapon:",
+        RightWeapon: "Right weapon:",
+        Two: "Two-handed:",
+        Armor: "Armor:",
+        Drop: "Drop:",
     },
     NeedRollDice: "You need to roll the dice.",
     Health: "Health: ",
