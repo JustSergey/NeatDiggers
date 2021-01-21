@@ -31,6 +31,7 @@ export const Message = {
     ActionRemains: "Actions remains:",
     ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
     Button: {
+        TakeFlag: "Take flag",
         Drop: "Drop",
         Passive: "Is Passive Item",
         Use: {
@@ -107,7 +108,8 @@ export const GameActionType = {
     Attack: 2,
     UseItem: 3,
     DropItem: 4,
-    UseAbility: 5
+    UseAbility: 5,
+    TakeTheFlag: 6
 }
 
 export const WeaponType = {

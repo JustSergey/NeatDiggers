@@ -42,32 +42,42 @@ let ui = {
     button: {
         dig: document.createElement("button"),
         rollDice: document.createElement("button"),
+        takeFlag: document.createElement("button"),
         end: document.createElement("button"),
         init: function () {
             this.dig.style.pointerEvents = "all";
             this.rollDice.style.pointerEvents = "all";
+            this.takeFlag.style.pointerEvents = "all";
             this.end.style.pointerEvents = "all";
 
             this.dig.classList.add("ui");
             this.rollDice.classList.add("ui");
+            this.takeFlag.classList.add("ui");
             this.end.classList.add("ui");
 
             this.dig.disabled = true;
+            this.takeFlag.disabled = true;
 
             this.dig.innerText = Message.Button.Dig;
             this.rollDice.innerText = Message.Button.RollDice;
+            this.takeFlag.innerText = Message.Button.TakeFlag;
             this.end.innerText = Message.Button.EndTurn;
 
             this.dig.onclick = Action.Dig.dig;
             this.rollDice.onclick = Action.RollDise;
+            this.takeFlag.onclick = Action.TakeFlag;
             this.end.onclick = Action.EndTurn;
 
             ui.div.appendChild(this.dig);
             ui.div.appendChild(this.rollDice);
+            ui.div.appendChild(this.takeFlag);
             ui.div.appendChild(this.end);
         },
-        update: function () {
+        update: function (action, isMyTurn) {
             this.rollDice.disabled = Action.count < 1;
+            if (isMyTurn && action != null) {
+                this.takeFlag.disabled = false;
+            }
         }
     },
     player: {
@@ -243,7 +253,7 @@ let ui = {
     update: function (player, action, isMyTurn) {
         this.player.update(player);
         this.message.update(action);
-        this.button.update();
+        this.button.update(action, isMyTurn);
 
         if (isMyTurn)
             $(".ui").show();
@@ -261,6 +271,12 @@ function isPlayerCanDig() {
     let playerPos = core.sPlayer.info.position;
     let map = core.mapArray;
     return Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can
+}
+
+function isPlayerCanTakeFlag() {
+    let playerPos = core.sPlayer.info.position;
+    let map = core.mapArray;
+    return
 }
 
 const Action = {
@@ -414,6 +430,17 @@ const Action = {
             ui.button.dig.disabled = true;
         }
     },
+    TakeFlag: async function () {
+        let action = {
+            Type: GameActionType.TakeTheFlag
+        };
+        let success = await doAction(action);
+        if (success) {
+            ui.button.takeFlag.disabled = true;
+            Action.count--;
+            Action.finishAction();
+        }
+    }
 };
 
 function getPlayers(raycaster) {
@@ -557,30 +584,7 @@ export async function init() {
 export function updateTurn(bool, action) {
     ui.update(core.sPlayer.info, action, bool);
     isMyTurn = bool;
-    //if (bool) {
-    //    if (action != null && action.type == GameActionType.DropItem) return;
-    //    //turn.innerText = Action.count < 1 ? Message.YouMove : Message.ActionRemains + Action.count;
-    //    //count.innerText = Message.NeedRollDice;
-    //    $(".ui").show();
-    //    //div.style.display = 'block';
-    //    //let playerPos = core.sPlayer.info.position;
-    //    //let map = core.mapArray;
-    //    //btnDig.disabled = !(Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can);
-    //}
 }
-
-function updateInventory(inv) {
-
-    //if (core.sPlayer.info.inventory.items.length > 6) {
-    //    btnEndTurn.disabled = true;
-    //    endTurnInfo.style.display = "block";
-    //}
-    //else {
-    //    btnEndTurn.disabled = false;
-    //    endTurnInfo.style.display = "none";
-    //}
-}
-
 
 function pointerUp(event) {
     core.controls.enabled = true;

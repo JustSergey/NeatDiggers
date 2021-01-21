@@ -17,7 +17,8 @@ let models = {
     spawn: null,
     dig_1: null,
     dig_2: null,
-    flag: null
+    flag: null,
+    flag_taked: null
 }
 
 
@@ -66,6 +67,20 @@ function animate() {
 export function updatePlayers(players, userId) {
     placePlayers(players, userId);
     removeReplasedPlayers(players);
+}
+
+export function UpdateFlag(pos, isflagOnTheGround) {
+    scene.remove(sFlag);
+    if (isflagOnTheGround) {
+        sFlag = models.flag.clone();
+        sFlag.position.set(pos.x, pos.y, 1);
+        scene.add(sFlag);
+    }
+    else {
+        sFlag = models.flag_taked.clone();
+        sFlag.position.set(pos.x, pos.y, 1);
+        scene.add(sFlag);
+    }
 }
 
 function removeReplasedPlayers(players) {
@@ -133,6 +148,9 @@ async function loadModels() {
     models.flag = await modelLoader("flag");
     models.flag.castShadow = true;
     models.flag.receiveShadow = true;
+    models.flag_taked = await modelLoader("flag_taked");
+    models.flag_taked.castShadow = true;
+    models.flag_taked.receiveShadow = true;
     models.box_1 = await modelLoader("box_1");
     models.box_1.receiveShadow = true;
     models.box_2 = await modelLoader("box_2");

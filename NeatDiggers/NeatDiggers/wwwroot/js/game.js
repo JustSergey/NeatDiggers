@@ -23,7 +23,16 @@ export async function updateRoom(room, action) {
     }
 
     core.updatePlayers(room.players, userId);
+    core.UpdateFlag(getFlagPosition(room), room.flagOnTheGround);
     actions.updateTurn(room.players[room.playerTurn].id == userId, action);
+}
+
+function getFlagPosition(room) {
+    if (!room.flagOnTheGround)
+        for (var i = 0; i < room.players.length; i++)
+            if (room.players[i].withFlag)
+                return room.players[i].position;
+    return room.flagPosition
 }
 
 export async function doAction(gameAction) {
