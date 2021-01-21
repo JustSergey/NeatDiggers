@@ -91,11 +91,16 @@ namespace NeatDiggers.GameServer
             List<Effect> effects = new List<Effect>(Effects.Count);
             foreach (Effect effect in Effects)
             {
-                effect.Duration--;
-                if (effect.Duration > 0)
+                if (effect.Duration == -1)
                     effects.Add(effect);
                 else
-                    effect.Cancel(this);
+                {
+                    effect.Duration--;
+                    if (effect.Duration > 0)
+                        effects.Add(effect);
+                    else
+                        effect.Cancel(this);
+                }
             }
             Effects = effects;
             IsTurn = true;

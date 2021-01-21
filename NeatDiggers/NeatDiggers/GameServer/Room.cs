@@ -115,6 +115,11 @@ namespace NeatDiggers.GameServer
                     FlagOnTheGround = false;
                     player.WithFlag = true;
                     player.Speed -= 2;
+                    player.Effects.Add(new Effect(p => p.Speed += 2)
+                    {
+                        Title = "Флаг (скорость -2)",
+                        Duration = -1
+                    });
                     return true;
                 }
             }
@@ -128,7 +133,12 @@ namespace NeatDiggers.GameServer
                 FlagPosition = player.Position;
                 player.WithFlag = false;
                 FlagOnTheGround = true;
-                player.Speed += 2;
+                Effect flagEffect = player.Effects.Find(e => e.Title == "Флаг (скорость -2)");
+                if (flagEffect != null)
+                {
+                    flagEffect.Cancel(player);
+                    player.Effects.Remove(flagEffect);
+                }
             }
         }
 
