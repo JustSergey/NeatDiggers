@@ -89,6 +89,7 @@ let ui = {
             title: document.createElement("p"),
             init: function () {
                 this.title.innerText = Message.Abilities;
+                this.title.classList.add("ui");
                 this.container.classList.add("abilities");
                 ui.player.container.appendChild(this.title);
                 ui.player.container.appendChild(this.container);
@@ -116,6 +117,7 @@ let ui = {
                 title: document.createElement("p"),
                 init: function () {
                     this.title.innerText = Message.Inventory.Title;
+                    this.title.classList.add("ui");
                     this.container.classList.add("items");
                     ui.player.inventory.container.appendChild(this.title);
                     ui.player.inventory.container.appendChild(this.container);
@@ -223,6 +225,26 @@ let ui = {
                 this.items.update(inventory.items);
             }
         },
+        effects: {
+            container: document.createElement("div"),
+            title: document.createElement("p"),
+            init: function () {
+                this.title.innerText = Message.Effects;
+                this.title.classList.add("ui");
+                this.container.classList.add("effects");
+                ui.player.inventory.container.appendChild(this.title);
+                ui.player.inventory.container.appendChild(this.container);
+            },
+            update: function (effects) {
+                this.clear();
+                for (var i = 0; i < effects.length; i++) {
+                    let description = document.createElement("p");
+                    description.innerText = effects[i].title;
+                    this.container.appendChild(description);
+                }
+            },
+            clear: function () { ui.clear(this.container); }
+        },
         init: function () {
             this.container.classList.add("player");
             this.container.style.pointerEvents = "none";
@@ -236,6 +258,7 @@ let ui = {
             this.container.appendChild(this.weaponType);
             this.abilities.init();
             this.inventory.init();
+            this.effects.init();
         },
         update: function (player) {
             this.name.innerText = player.name + " (" + player.character.title + ")";
@@ -246,6 +269,7 @@ let ui = {
 
             this.abilities.update(player.character.abilities);
             this.inventory.update(player.inventory);
+            this.effects.update(player.effects);
         }
     },
     init: function () {
