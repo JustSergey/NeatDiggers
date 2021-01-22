@@ -1,5 +1,5 @@
 ﻿@{
-ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Home Page";
 }
 <div class="container my-3">
     <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
@@ -30,34 +30,121 @@ ViewData["Title"] = "Home Page";
     </div>
     <div class="my-3">
         <h2>Описание</h2>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
+        <p>
+            Добро пожаловать в Neat Diggers глоток свежего воздуха в запретное время собираться и играть в настольные игры.
+            Вам и вашим друзьям предстоит отстоять честь и достоинство себя любимых и доказать всем что именно вы достойны считаться самым умным и ловким!
+        </p>
     </div>
     <div class="my-3">
         <h2>Об игре</h2>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
+        <p>
+            Представляю вашему вниманию настольную игру в цифровом формате!
+            Цель игры максимально проста, набрать необходимое количество очков для победы.
+            Где же взять очки спросите вы? На карте расположен единственный флаг, подберите его и донесите до своей базы.
+            Один флаг = одному баллу, как только вы донесёте его на карте, появится новый.
+            Но не стоит забывать, что флаг очень тяжёлый, с ним вы медленнее передвигаетесь и являетесь лакомым кусочком для других игроков.
+            Согласитесь, пока это не звучит впечатляюще. Добавим немного интриги, на карте есть места копания, встаньте на них и бросайте кубик, если повезёт,
+            то вы сможете получить ценное обмундирование или одноразовые предметы, которые могут кардинально перевесить чашу весов в сторону вышей победы.
+            Раскопки на самом деле могут удивить. 
+            Как вам возможность вызвать дождь на всей карте, что замедлит игроков или с помощью волшебного свитка украсть у другого игрока какой-нибудь предмет.
+        </p>
     </div>
     <div class="my-3">
         <h2>Как играть?</h2>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
-    </div>
-    <div class="my-3">
-        <h2>Кто победил?</h2>
-        <p>Lorem ipsum dolor sit, amet, consectetur adipisicing elit. Facilis sunt, est, quo ullam ad ipsum sequi dolore architecto impedit tempora unde possimus cupiditate veniam. Adipisci sed, quam voluptate recusandae autem.</p>
+        <p>Для начала создайте игровую комнату, выберите желаемую карту, колоду и укажите количество очков для победы.
+        После чего поделитесь кодом вашей комнаты с друзьями, выберите персонажей и можно приступать к самой игре.</p>
+        <form action="" class="my-3">
+            <div class="row">
+                <div class="col pt-1">
+                    <button type="button" class="col btn btn-success" data-toggle="modal" data-target="#CreateLobbyModal">Создать лобби</button>
+                </div>
+            </div>
+            <div class="row form-group pt-3">
+                <form class="form-inline" method="post">
+                    <div class="col-3">
+                        <input class="form-control" type="search" id="codeInput" name="code" placeholder="Введите код лобби" aria-describedby="lobby-code" required>
+                    </div>
+                    <div class="col-3">
+                        <input class="form-control" type="search" id="nameInput" name="name" placeholder="Укажите никнейм" aria-describedby="lobby-code" required>
+                    </div>
+                    <div class="col-3">
+                        <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Наблюдать</button>
+                    </div>
+                    <div class="col-3">
+                        <button type="submit" id="watchButton" class="col btn btn-primary" asp-controller="Game" asp-action="PlayersLobby">Играть</button>
+                    </div>
+                </form>
+            </div>
+        </form>
+        <p>
+            И так, вы появились на своей базе, именно сюда необходимо принести флаг.
+            Не пугайтесь, что на экране нет кнопок, возможно сейчас не ваш ход, все игроки ходят поочерёдно, скоро наступит и ваша очередь.
+            На каждый ход у вас есть два неповторяющихся действия. Обычно начинают с перемещения.
+            Смелее бросайте кубик! Сколько у вас выпало? Именно на столько клеток вы можете перетащить своего персонажа.
+            Уже успели оказаться на точке копания? Снова бросайте кубик! если выпало чётное число, то в вашем инвентаре появится от 1 до 3 предметов.
+            Кажется, ваш лимит по действиям закончился, самое время передать ход и прочитать что же такого интересного вам выпало.
+            Каждый предмет требует очко действия для использования, исключением является экипированные оружия и брони, и выбрасывать предметы тоже бесплатно.
+            А вот и снова ваш ход! Возможно, вы захотите сходить подобрать флаг или стать ещё сильнее.
+            В правом верхнем углу расположены особые умения вашего персонажа, они открываются за убийство персонажа другого игрока,
+            нажав на вражеского персонажа, откроется окно атаки, выберите цель и атакуйте.
+            Если количество очков здоровья персонажа падает до нуля, он теряет все свои предметы и возрождается на базе,
+            а последний кто нанёс удар получает в своё распоряжение новую способность.
+        </p>
     </div>
     <div class="my-3">
         <h2>Скачать</h2>
         <div class="media">
             <div class="media-body">
-                <p>Игра доступна к скачиванию в Google Play по Qr коду или по ссылке:
+                <p>
+                    Игра доступна к скачиванию на мобильные телефоны по ссылке:
                     <br>
-                    <a href="#https://play.google.com/store/apps/details?id=com.supercell.neatdiggers">https://play.google.com/store/apps/details?id=com.supercell.neatdiggers</a>
+                    <a href="#https://play.google.com/store/apps/details?id=com.supercell.neatdiggers">Скачать! (сервер жадный и не хочет делиться игрой :с)</a>
                 </p>
             </div>
             <img src="img/qr-code.svg" alt="Generic placeholder image" height="200">
         </div>
+    </div>
+</div>
+
+<div class="modal fade" id="CreateLobbyModal" tabindex="-1" aria-labelledby="CreateLobbyModal" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+        <form asp-controller="Game" asp-action="CreateLobby" method="post">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title" id="CreateLobbyModal">Создание лобби</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-4">
+                            <h4>Выбор карты</h4>
+                            <select name="map" class="form-control">
+                                <option value="0">Стандартная</option>
+                                <option value="1">Диагональная</option>
+                                <option value="2">Большая</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <h4>Выбор колоды</h4>
+                            <select class="form-control">
+                                <option>Стандартная</option>
+                            </select>
+                        </div>
+                        <div class="col-4">
+                            <h4>Кол-во очков</h4>
+                            <input class="form-control" type="search" name="maxScore" value="3" placeholder="Укажите победное число" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+                    <div class="form-inline">
+                        <button class="btn btn-primary" type="submit">Создать</button>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>

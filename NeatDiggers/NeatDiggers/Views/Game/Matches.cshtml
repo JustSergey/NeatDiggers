@@ -8,22 +8,22 @@
             <img class="img-fluid w-100 " src="~/img/match-cap.jpg" alt="First slide">
         </div>
         <div class="col pt-1">
-            <button type="button" class="col btn btn-success" data-toggle="modal" data-target="#CreateLobbyModal">Create lobby</button>
+            <button type="button" class="col btn btn-success" data-toggle="modal" data-target="#CreateLobbyModal">Создать лобби</button>
         </div>
     </div>
     <div class="row form-group pt-3">
         <form class="form-inline" method="post">
-            <div class="col-2">
-                <input class="form-control" type="search" id="codeInput" name="code" placeholder="Enter lobby code" aria-describedby="lobby-code" required>
-            </div>
-            <div class="col-4">
-                <input class="form-control" type="search" id="nameInput" name="name" placeholder="Enter name" aria-describedby="lobby-code" value="Player" required>
+            <div class="col-3">
+                <input class="form-control" type="search" id="codeInput" name="code" placeholder="Введите код лобби" aria-describedby="lobby-code" required>
             </div>
             <div class="col-3">
-                <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Watch</button>
+                <input class="form-control" type="search" id="nameInput" name="name" placeholder="Укажите никнейм" aria-describedby="lobby-code" required>
             </div>
             <div class="col-3">
-                <button type="submit" id="watchButton" class="col btn btn-primary" asp-controller="Game" asp-action="PlayersLobby">Play</button>
+                <button type="submit" id="watchButton" class="col btn btn-info" asp-controller="Game" asp-action="Watch">Наблюдать</button>
+            </div>
+            <div class="col-3">
+                <button type="submit" id="watchButton" class="col btn btn-primary" asp-controller="Game" asp-action="PlayersLobby">Играть</button>
             </div>
         </form>
     </div>
@@ -34,7 +34,7 @@
     @if (room.IsStarted)
     {
         <div class="border">
-            <img src="" alt="map"> | @room.Code | @room.Players.Count | @room.Round | Deck| <a class="btn btn-info" asp-route-code="@room.Code" asp-controller="Game" asp-action="Watch">Watch</a>
+            <img src="" alt="map"> | @room.Code | @room.Players.Count | @room.Round | Deck| <a class="btn btn-info" asp-route-code="@room.Code" asp-controller="Game" asp-action="Watch">Наблюдать</a>
         </div>
     }
 }
@@ -44,7 +44,7 @@
         <form asp-controller="Game" asp-action="CreateLobby" method="post">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h3 class="modal-title" id="CreateLobbyModal">Create lobby</h3>
+                    <h3 class="modal-title" id="CreateLobbyModal">Создание лобби</h3>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -52,29 +52,29 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-4">
-                            <h4>Select Map</h4>
+                            <h4>Выбор карты</h4>
                             <select name="map" class="form-control">
-                                <option value="0">Standart</option>
-                                <option value="1">Diagonal</option>
-                                <option value="2">Large</option>
+                                <option value="0">Стандартная</option>
+                                <option value="1">Диагональная</option>
+                                <option value="2">Большая</option>
                             </select>
                         </div>
                         <div class="col-4">
-                            <h4>Select Deck</h4>
+                            <h4>Выбор колоды</h4>
                             <select class="form-control">
-                                <option>Standart</option>
+                                <option>Стандартная</option>
                             </select>
                         </div>
                         <div class="col-4">
-                            <h4>Set Score</h4>
-                            <input class="form-control" type="search" name="maxScore" value="3" placeholder="Set max Score" required>
+                            <h4>Кол-во очков</h4>
+                            <input class="form-control" type="search" name="maxScore" value="3" placeholder="Укажите победное число" required>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
                     <div class="form-inline">
-                        <button class="btn btn-primary" type="submit">Create</button>
+                        <button class="btn btn-primary" type="submit">Создать</button>
                     </div>
                 </div>
             </div>

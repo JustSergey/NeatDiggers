@@ -11,21 +11,19 @@
     <header>
         <nav class="navbar navbar-expand-md navbar-dark bg-dark">
             <div class="container">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/img/logo.svg" alt="ND logo" width="30" height="30" class="d-inline-block align-top">Neat Diggers
-                </a>
+                <a class="navbar-brand mr-0" asp-area="" asp-controller="Home" asp-action="Index"><img src="~/img/logo.svg" alt="ND logo" width="30" height="30" class="d-inline-block align-top">Neat Diggers</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse justify-content-end" id="navbarNavAltMarkup">
                     <div class="navbar-nav">
-                        <a class="nav-item nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        <a class="nav-item nav-link" asp-area="" asp-controller="Game" asp-action="Matches">Matches</a>
-                        <a class="nav-item nav-link mr-sm-3" asp-area="" asp-controller="Community" asp-action="Index">Community</a>
+                        <a class="nav-item nav-link" asp-area="" asp-controller="Home" asp-action="Index">Главная</a>
+                        <a class="nav-item nav-link" asp-area="" asp-controller="Game" asp-action="Matches">Матчи</a>
+                        <a class="nav-item nav-link mr-sm-3" asp-area="" asp-controller="Community" asp-action="Index">Комьюнити</a>
                     </div>
                     <form class="form-inline" asp-controller="Community" asp-action="Search" method="post">
-                        <input class="form-control col mr-1" type="search" name="query" placeholder="Wiki search" aria-label="Search">
-                        <button class="btn btn-outline-success col-3" type="submit">Search</button>
+                        <input class="form-control col mr-1" type="search" name="query" placeholder="Wiki поиск" aria-label="Search">
+                        <button class="btn btn-outline-success col-3" type="submit">Поиск</button>
                     </form>
                 </div>
             </div>

@@ -4,6 +4,20 @@
 @model NeatDiggers.GameServer.Room
 
 <div id="lobby" class="jumbotron my-3">
+    <form action="" class="my-3">
+        <div class="row form-group pt-3">
+            <div class="col-3">
+                <input class="form-control" type="search" id="codeInput" name="code" aria-describedby="lobby-code" hidden required>
+                <p>Вы наблюдатель.</p>
+            </div>
+            <div class="col-3">
+                <input class="form-control" type="search" id="nameInput" name="name" placeholder="Укажите никнейм" aria-describedby="lobby-code" required>
+            </div>
+            <div class="col-3">
+                <button type="submit" id="watchButton" class="col btn btn-primary" asp-controller="Game" asp-action="PlayersLobby">Играть</button>
+            </div>
+        </div>
+    </form>
     <div class="row">
         <div class="col-8">
             <div class="row">
