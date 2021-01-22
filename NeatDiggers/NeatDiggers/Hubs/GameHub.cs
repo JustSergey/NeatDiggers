@@ -143,7 +143,8 @@ namespace NeatDiggers.Hubs
                         LeftWeapon = Item.CreateItem(inventory.LeftWeapon.Name),
                         RightWeapon = Item.CreateItem(inventory.RightWeapon.Name),
                         Armor = inventory.Armor,
-                        Items = inventory.Items.Select(i => i.Type == ItemType.Armor ? i : Item.CreateItem(i.Name)).ToList(),
+                        Items = inventory.Items.Where(i => i.Name != ItemName.Empty)
+                            .Select(i => i.Type == ItemType.Armor ? i : Item.CreateItem(i.Name)).ToList(),
                         Drop = player.Inventory.Drop
                     };
                     if (!CheckWeaponAvailability(newInventory.LeftWeapon, weaponType) ||
