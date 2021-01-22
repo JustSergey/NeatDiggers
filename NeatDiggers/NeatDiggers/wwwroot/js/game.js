@@ -26,6 +26,16 @@ export async function updateRoom(room, action) {
     let playerPosition = room.players[room.playerTurn].position;
     actions.ShowTakeFlagButton(room.flagOnTheGround && isEqualVector(playerPosition, flagPosition));
     actions.updateTurn(room.players[room.playerTurn].id == userId, action);
+    CheckWiner(room.winner);
+}
+
+function CheckWiner(winner) {
+    if (winner != null) {
+        $("#errorModal").modal();
+        $("#errorModalMessage").text("The winner is determined!");
+        $("#errorModalMessage").text(winner.name + " (" + winner.character.name + ")");
+        $("#errorModalFooter").hide();
+    }
 }
 
 function isEqualVector(vec1, vec2) {

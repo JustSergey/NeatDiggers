@@ -35,17 +35,19 @@
             <div>
                 <h3>Select Character:</h3>
                 <div class="row">
-                    @for (int i = 1; i < CharacterNames.Length; i++)
-                    {
-                        <div class="col-12">
-                            <button onclick="window.SelectCharacter('@i')" type="button" class="btn btn-primary">@CharacterNames[i]</button>
-                        </div>
-                    }
-                    <div class="col-12">
-                        <button id="ChangeReady" onclick="window.ChangeReady()" type="button" class="btn btn-info">ChangeReady</button>
+                    <div class="col-3">
+                        @for (int i = 1; i < CharacterNames.Length; i++)
+                        {
+                            <button onclick="window.SelectCharacter('@i')" type="button" class="col-12 btn btn-primary mb-2">@CharacterNames[i]</button> 
+                        }
                     </div>
-                    <div class="col-12">
-                        <button id="StartGame" onclick="window.StartGame()" type="button" class="btn btn-success">StartGame</button>
+                    <div id="info" class="col-9">
+                    </div>
+                    <div class="col-3">
+                        <button id="ChangeReady" onclick="window.ChangeReady()" type="button" class="col-12 btn btn-info">ChangeReady</button>
+                    </div>
+                    <div class="col-3">
+                        <button id="StartGame" onclick="window.StartGame()" type="button" class="col-12 btn btn-success">StartGame</button>
                     </div>
                 </div>
             </div>
@@ -57,14 +59,14 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" >Connection error</h5>
+                <h5 class="modal-title" id="errorModalTitle">Connection error</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body" id="errorModalMessage">
             </div>
-            <div class="modal-footer">
+            <div class="modal-footer"id="errorModalFooter">
                 <a class="btn btn-secondary" asp-area="" asp-controller="Game" asp-action="Matches">Matches</a>
                 <button class="btn btn-primary" onClick="window.location.reload();">Try again!</button>
             </div>

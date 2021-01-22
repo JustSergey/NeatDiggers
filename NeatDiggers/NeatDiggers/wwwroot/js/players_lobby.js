@@ -1,7 +1,7 @@
 ﻿"use strict";
 
 import * as game from "./game.js";
-import { Conection } from "./util.js";
+import { Conection, getKeyByValue, Message, WeaponType } from "./util.js";
 
 let connection;
 
@@ -97,11 +97,32 @@ function PlayersIsReady(roomPlayers) {
     return ready;
 }
 
-function SelectCharacter(name) {
-    connection.invoke("ChangeCharacter", parseInt(name)).catch(function (err) {
+async function SelectCharacter(name) {
+    let character = await connection.invoke("ChangeCharacter", parseInt(name)).catch(function (err) {
         return console.error(err.toString());
     });
     document.getElementById("ChangeReady").disabled = false;
+
+    let div = $("#info")[0];
+
+    while (div.firstChild)
+        div.removeChild(div.firstChild);
+
+    let maxHealth = document.createElement("p");
+    maxHealth.innerText = Message.Health + character.maxHealth;
+    let weaponType = document.createElement("p");
+    weaponType.innerText = Message.WeaponType + getKeyByValue(WeaponType, character.weaponType);
+    let abilities = document.createElement("div");
+
+    for (var i = 0; i < character.abilities.length; i++) {
+        let description = document.createElement("p");
+        description.innerText = "Level [" + i + "] " + character.abilities[i].description;
+        abilities.appendChild(description);
+    }
+
+    div.append(maxHealth);
+    div.append(weaponType);
+    div.append(abilities);
 }
 
 function ChangeReady() {
