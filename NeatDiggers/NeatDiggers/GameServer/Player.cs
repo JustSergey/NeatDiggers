@@ -43,10 +43,10 @@ namespace NeatDiggers.GameServer
             Speed = 0;
             MeleeDistance = 0;
             RangedDistance = 0;
-            DigPower = 0;
             MeleeDamage = 0;
             RangedDamage = 0;
             MultiplyDamage = 1.0;
+            DigPower = 0;
             Hands = 2;
             Armor = 0;
             Score = 0;
@@ -86,8 +86,10 @@ namespace NeatDiggers.GameServer
         public void Respawn()
         {
             Health = Character.MaxHealth;
-            Inventory = new Inventory();
+            Inventory.Clear(this);
             Position = SpawnPoint;
+            Effects.ForEach(f => f.Cancel(this));
+            Effects = new List<Effect>();
         }
 
         public void SetTurn()

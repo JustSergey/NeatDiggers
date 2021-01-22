@@ -25,7 +25,7 @@ namespace NeatDiggers.GameServer.Items
                 Item item = items[rand];
                 items.RemoveAt(rand);
                 if (item.Type == ItemType.Passive)
-                    item.Get(room, gameAction);
+                    item.Get(gameAction.CurrentPlayer);
                 gameAction.CurrentPlayer.Inventory.Items.Add(item);
                 return true;
             }

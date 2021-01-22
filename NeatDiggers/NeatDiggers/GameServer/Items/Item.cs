@@ -71,9 +71,9 @@ namespace NeatDiggers.GameServer.Items
         public  int ArmorStrength { get; set; }
         public int ArmorDurability { get; set; }
 
-        public virtual void Get(Room room, GameAction gameAction) { }
+        public virtual void Get(Player player) { }
         public virtual bool Use(Room room, GameAction gameAction) { return false; }
-        public virtual void Drop(Room room, GameAction gameAction) { }
+        public virtual void Drop(Player player) { }
 
         public static Item CreateItem(ItemName name) =>
             name switch

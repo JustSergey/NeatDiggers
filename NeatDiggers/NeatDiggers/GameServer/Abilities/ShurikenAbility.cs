@@ -31,8 +31,13 @@ namespace NeatDiggers.GameServer.Abilities
                 {
                     gameAction.CurrentPlayer.Inventory.Drop -= consumption;
                     targetPlayer.Health -= damage;
+                    if (targetPlayer.WithFlag)
+                        room.DropTheFlag(targetPlayer);
                     if (targetPlayer.Health <= 0)
+                    {
+                        gameAction.CurrentPlayer.LevelUp();
                         targetPlayer.Respawn();
+                    }
                     return true;
                 }
             }

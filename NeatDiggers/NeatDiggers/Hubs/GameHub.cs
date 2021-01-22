@@ -204,7 +204,7 @@ namespace NeatDiggers.Hubs
                             GameActionType.Dig => () => Dig(room, gameAction),
                             GameActionType.Attack => () => Attack(room, gameAction),
                             GameActionType.UseItem => () => UseItem(room, gameAction),
-                            GameActionType.DropItem => () => DropItem(room, gameAction),
+                            GameActionType.DropItem => () => DropItem(gameAction),
                             GameActionType.UseAbility => () => UseAbility(room, gameAction),
                             GameActionType.TakeTheFlag => () => TakeTheFlag(room, gameAction),
                             _ => null
@@ -217,6 +217,14 @@ namespace NeatDiggers.Hubs
                             {
                                 Context.Items["Actions"] = actionsCount + 1;
                                 Context.Items["PrevAction"] = gameAction.Type;
+                            }
+                            if (player.WithFlag && player.Position.Equals(player.SpawnPoint))
+                            {
+                                player.Score++;
+                                room.DropTheFlag(player);
+                                room.FlagPosition = room.GetGameMap().FlagSpawnPoint;
+                                if (room.CheckWinner(player))
+                                    Server.RemoveRoom(room.Code);
                             }
                             await Clients.Group(room.Code).ChangeStateWithAction(room, gameAction);
                             return true;
@@ -241,14 +249,6 @@ namespace NeatDiggers.Hubs
                     room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
                 {
                     player.Position = targetPosition;
-                    if (player.WithFlag && targetPosition.Equals(player.SpawnPoint))
-                    {
-                        player.Score++;
-                        room.DropTheFlag(player);
-                        room.FlagPosition = room.GetGameMap().FlagSpawnPoint;
-                        if (room.CheckWinner(player))
-                            Server.RemoveRoom(room.Code);
-                    }
                     return true;
                 }
             }
@@ -315,7 +315,7 @@ namespace NeatDiggers.Hubs
                     {
                         Item item = room.Dig();
                         if (item.Type == ItemType.Passive)
-                            item.Get(room, gameAction);
+                            item.Get(gameAction.CurrentPlayer);
 
                         gameAction.CurrentPlayer.Inventory.Items.Add(item);
                     }
@@ -339,9 +339,9 @@ namespace NeatDiggers.Hubs
             return false;
         }
 
-        private bool DropItem(Room room, GameAction gameAction)
+        private bool DropItem(GameAction gameAction)
         {
-            return gameAction.CurrentPlayer.Inventory.DropItem(gameAction.Item, room, gameAction);
+            return gameAction.CurrentPlayer.Inventory.DropItem(gameAction.Item, gameAction.CurrentPlayer);
         }
 
         private bool UseAbility(Room room, GameAction gameAction)

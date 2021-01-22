@@ -24,7 +24,21 @@ namespace NeatDiggers.GameServer
             Drop = 0;
         }
 
-        public bool DropItem(Item item, Room room, GameAction gameAction)
+        public void Clear(Player player)
+        {
+            LeftWeapon = new EmptyItem();
+            RightWeapon = new EmptyItem();
+            Armor = new EmptyItem();
+            for (int i = 0; i < Items.Count; i++)
+            {
+                if (Items[i].Type == ItemType.Passive)
+                    Items[i].Drop(player);
+            }
+            Items = new List<Item>();
+            Drop = 0;
+        }
+
+        public bool DropItem(Item item, Player player)
         {
             if (item.Name == ItemName.Empty)
                 return false;
@@ -32,7 +46,7 @@ namespace NeatDiggers.GameServer
             if (invItem != null)
             {
                 if (invItem.Type == ItemType.Passive)
-                    invItem.Drop(room, gameAction);
+                    invItem.Drop(player);
                 Items.Remove(invItem);
             }
             else if (LeftWeapon.Name == item.Name)

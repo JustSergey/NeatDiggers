@@ -18,14 +18,14 @@ namespace NeatDiggers.GameServer.Items
             WeaponType = WeaponType.None;
         }
 
-        public override void Get(Room room, GameAction gameAction)
+        public override void Get(Player player)
         {
-            gameAction.CurrentPlayer.Speed += 2;
+            player.Speed += 2;
         }
 
-        public override void Drop(Room room, GameAction gameAction)
+        public override void Drop(Player player)
         {
-            gameAction.CurrentPlayer.Speed -= 2;
+            player.Speed -= 2;
         }
     }
 }
