@@ -133,7 +133,6 @@ let ui = {
                                 let canUse = true;
                                 if (core.sPlayer.info.character.weaponType != WeaponType.None)
                                     canUse = core.sPlayer.info.character.weaponType == item.weaponType;
-                                canUse = canUse && Action.count > 0;
 
                                 switch (item.weaponHanded) {
                                     case WeaponHanded.One:
@@ -177,10 +176,13 @@ let ui = {
 
                 this.leftWeaponTakeOff.style.display = "none";
                 this.leftWeaponTakeOff.style.pointerEvents = "all";
+                this.leftWeaponTakeOff.classList.add("itemButton-nohiden");
                 this.rightWeaponTakeOff.style.display = "none";
                 this.rightWeaponTakeOff.style.pointerEvents = "all";
+                this.rightWeaponTakeOff.classList.add("itemButton-nohiden");
                 this.armorTakeOff.style.display = "none";
                 this.armorTakeOff.style.pointerEvents = "all";
+                this.armorTakeOff.classList.add("itemButton-nohiden");
 
                 this.container.appendChild(this.leftWeapon);
                 this.container.appendChild(this.leftWeaponTakeOff);
@@ -203,14 +205,14 @@ let ui = {
                     this.rightWeaponTakeOff.innerText = Message.TakeOff;
                     this.rightWeaponTakeOff.onclick = function () {
                         ItemsActions.takeOff(inventory.rightWeapon);
-                        this.rightWeaponTakeOff.style.display = "none";
+                        ui.contorls.inventory.rightWeaponTakeOff.style.display = "none";
                     };
                 }
                 else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
                     this.leftWeapon.innerText = Message.Inventory.Two;
                     this.leftWeaponTakeOff.style.display = "block";
                     this.rightWeapon.innerText = "";
-                    this.rightWeaponTakeOff.style.display = "none";
+                    ui.contorls.inventory.rightWeaponTakeOff.style.display = "none";
                 }
                 if (inventory.leftWeapon.title != null) {
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
@@ -229,7 +231,7 @@ let ui = {
                     this.armorTakeOff.innerText = Message.TakeOff;
                     this.armorTakeOff.onclick = function () {
                         ItemsActions.takeOff(inventory.armor);
-                        this.armorTakeOff.style.display = "none";
+                        ui.contorls.inventory.armorTakeOff.style.display = "none";
                     };
                 }
 
@@ -451,8 +453,10 @@ let ui = {
 
         if (isMyTurn)
             $(".ui").show();
-        else
+        else {
             $(".ui").hide();
+            $(".itemButton-nohiden").hide();
+        }
     },
     resize: function () {
         ui.div.style.width = window.innerWidth + 'px';
