@@ -756,15 +756,15 @@ let ItemsActions = {
         let inventory = core.sPlayer.info.inventory;
         if (inventory.leftWeapon != null && inventory.leftWeapon.name == item.name) {
             inventory.items.push(inventory.leftWeapon);
-            inventory.leftWeapon.name = 0;
+            inventory.leftWeapon = { name: 0 };
         }
         if (inventory.rightWeapon != null && inventory.rightWeapon.name == item.name) {
             inventory.items.push(inventory.rightWeapon);
-            inventory.rightWeapon.name = 0;
+            inventory.rightWeapon = { name: 0 };
         }
         if (inventory.armor != null && inventory.armor.name == item.name) {
             inventory.items.push(inventory.armor);
-            inventory.armor.name = 0;
+            inventory.armor = { name: 0 };
         }
         ChangeInventory(inventory);
     },

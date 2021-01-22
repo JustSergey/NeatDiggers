@@ -26,6 +26,8 @@ namespace NeatDiggers.GameServer
 
         public bool DropItem(Item item, Room room, GameAction gameAction)
         {
+            if (item.Name == ItemName.Empty)
+                return false;
             Item invItem = Items.Find(i => i.Name == item.Name);
             if (invItem != null)
             {
