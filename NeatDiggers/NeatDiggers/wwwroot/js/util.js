@@ -15,42 +15,42 @@ export async function modelLoader(name) {
 
 export const Message = {
     Inventory: {
-        Title: "Inventory:",
-        LeftWeapon: "Left weapon:",
-        RightWeapon: "Right weapon:",
-        Two: "Two-handed:",
-        Armor: "Armor:",
-        Drop: "Drop:",
+        Title: "Инвентарь:",
+        LeftWeapon: "Оружие левой руки:",
+        RightWeapon: "Оружие правой руки:",
+        Two: "Двуручное оружие:",
+        Armor: "Броня:",
+        Drop: "Сброс:",
     },
-    Log: "Log:",
-    Effects: "Effects:",
-    NeedRollDice: "You need to roll the dice.",
-    Health: "Health: ",
-    Level: "Level: ",
-    Score: "Score: ",
-    WeaponType: "Weapon type: ",
-    Abilities: "Abilities: ",
-    YouMove: "Your move!",
-    ActionRemains: "Actions remains:",
-    ItemLimit: "Reduce the number of items in your inventory down to 6 to complete your turn.",
+    Log: "Лог:",
+    Effects: "Эффекты:",
+    NeedRollDice: "Вам нужно бросить кубик.",
+    Health: "Здоровье: ",
+    Level: "Уровень: ",
+    Score: "Счёт: ",
+    WeaponType: "Тип оружия: ",
+    Abilities: "Способности: ",
+    YouMove: "Ваш ход!",
+    ActionRemains: "Осталось очков действий:",
+    ItemLimit: "В инвентаре может быть максимально 6 предметов",
     Button: {
-        TakeFlag: "Take flag",
-        Drop: "Drop",
-        Passive: "Is Passive Item",
+        TakeFlag: "Взять флаг",
+        Drop: "Выкинуть",
+        Passive: "Пассивный предмет",
         Use: {
-            None: "Use",
-            Player: "Use on player",
-            Position: "Use on position",
+            None: "Использовать",
+            Player: "Использовать на игрока",
+            Position: "Использовать на позицию",
         },
         Equip: {
-            Armor: "Equip",
-            Left: "Left",
-            Right: "Right",
-            Two: "Two-handed",
+            Armor: "Экипировать",
+            Left: "Взять в левую руку",
+            Right: "Взять в правую руку",
+            Two: "Взять в две руки",
         },
-        RollDice: "Roll dice",
-        Dig: "Dig",
-        EndTurn: "End turn"
+        RollDice: "Бросить кубик",
+        Dig: "Копать",
+        EndTurn: "Закончить ход"
     }
 }
 
@@ -58,15 +58,15 @@ export const Conection = {
     Error: {
         Full: {
             Code: "full",
-            Message: "The lobby is full."
+            Message: "Лобби заполнено."
         },
         Started: {
             Code: "started",
-            Message: "This game is already started."
+            Message: "Эта игра уже начата."
         },
         WrongCode: {
             Code: "wrongCode",
-            Description: "You entered the wrong code."
+            Description: "По данному коду не существует комнаты."
         },
     }
 }

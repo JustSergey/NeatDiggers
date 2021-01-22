@@ -350,27 +350,27 @@ let ui = {
                         case GameActionType.Attack:
                             targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
                             currentPlayer = this.log[i].currentPlayer;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " attacked " +
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " атаковал " +
                                 targetPlayer.name + " (" + targetPlayer.character.title + ").";
                             break;
                         case GameActionType.TakeTheFlag:
                             currentPlayer = this.log[i].currentPlayer;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " take the flag.";
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " взял флаг.";
                             break;
                         case GameActionType.UseAbility:
                             break;
                         case GameActionType.UseItem:
                             currentPlayer = this.log[i].currentPlayer;
                             let item = this.log[i].item;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " use item " + item.title;
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " использовал предмет " + item.title;
                             switch (item.target) {
                                 case Target.Player:
                                     targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
-                                    message.innerText += " on " + targetPlayer.name + " (" + targetPlayer.character.title + ").";
+                                    message.innerText += " на " + targetPlayer.name + " (" + targetPlayer.character.title + ").";
                                     break;
                                 case Target.Position:
                                     targetPosition = this.log[i].targetPosition;
-                                    message.innerText += " on position " + targetPosition;
+                                    message.innerText += " на позицию {x:" + targetPosition.x + ",y:" + targetPosition.y + "}.";
                                     break;
                             }
                             break;
@@ -664,7 +664,7 @@ let AbilitiesActions = {
 
                 let playerId = players[i].info.id;
                 let playerName = players[i].info.name;
-                btn.innerText = "Use on: " + playerName;
+                btn.innerText = "Использовать на: " + playerName;
                 btn.onmousedown = async function () {
                     let action = {
                         Type: GameActionType.UseAbility,
