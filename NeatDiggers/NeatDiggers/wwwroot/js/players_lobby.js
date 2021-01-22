@@ -129,6 +129,7 @@ function ChangeReady() {
     connection.invoke("ChangeReady").catch(function (err) {
         return console.error(err.toString());
     });
+    $('.SelectCharacter').prop('disabled', function (i, v) { return !v; });
 }
 
 async function StartGame() {
