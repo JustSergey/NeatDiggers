@@ -51,6 +51,7 @@ namespace NeatDiggers.GameServer
             Armor = 0;
             Score = 0;
             Effects = new List<Effect>();
+            Inventory = new Inventory();
         }
 
         public void LevelUp()
