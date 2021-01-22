@@ -125,6 +125,10 @@ let ui = {
                                 itemUse.onclick = function () { ItemsActions.equipArmor(item); };
                                 break;
                             case ItemType.Weapon:
+                                let canUse = true;
+                                if (core.sPlayer.info.character.weaponType != WeaponType.None)
+                                    canUse = core.sPlayer.info.character.weaponType == item.weaponType;
+                                
                                 switch (item.weaponHanded) {
                                     case WeaponHanded.One:
                                         itemRight = document.createElement("button");
@@ -133,8 +137,11 @@ let ui = {
                                         itemRight.innerText = Message.Button.Equip.Right;
                                         itemUse.onclick = function () { ItemsActions.equipLeft(item); };
                                         itemRight.onclick = function () { ItemsActions.equipRight(item); };
+                                        itemUse.disabled = !canUse;
+                                        itemRight.disabled = !canUse;
                                         break;
                                     case WeaponHanded.Two:
+                                        itemUse.disabled = !canUse;
                                         itemUse.innerText = Message.Button.Equip.Two;
                                         itemUse.onclick = function () { ItemsActions.equipTwo(item); };
                                         break;
