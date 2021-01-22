@@ -7,6 +7,8 @@ import { checkAvailability, Message, GameActionType, ItemType, Target, WeaponHan
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+
+
 let ui = {
     div: document.createElement("div"),
     contorls: {
@@ -93,6 +95,8 @@ let ui = {
                         let itemUse = document.createElement("button");
                         let itemDrop = document.createElement("button");
                         let itemDescription = document.createElement("p");
+
+                        itemUse.disabled = Action.count < 1;
                         let itemRight = null;
 
                         itemUse.style.pointerEvents = "all";
@@ -128,11 +132,13 @@ let ui = {
                                 let canUse = true;
                                 if (core.sPlayer.info.character.weaponType != WeaponType.None)
                                     canUse = core.sPlayer.info.character.weaponType == item.weaponType;
+                                canUse = canUse && Action.count > 0;
                                 
                                 switch (item.weaponHanded) {
                                     case WeaponHanded.One:
                                         itemRight = document.createElement("button");
                                         itemRight.style.pointerEvents = "all";
+                                        itemRight.classList.add("ui");
                                         itemUse.innerText = Message.Button.Equip.Left;
                                         itemRight.innerText = Message.Button.Equip.Right;
                                         itemUse.onclick = function () { ItemsActions.equipLeft(item); };
@@ -299,16 +305,56 @@ let ui = {
     },
     log: {
         container: document.createElement("div"),
-        title: document.createElement("p"),
+        log: new Array(),
         init: function () {
-            this.title.innerText = Message.Log;
             this.container.classList.add("log");
             this.container.classList.add("col-6");
             this.container.style.textAlign = "center";
             ui.div.appendChild(this.container);
-            this.container.appendChild(this.title);
         },
         update(action) {
+            if (action != null && action.type != GameActionType.Move && action.type != GameActionType.Dig && action.type != GameActionType.DropItem) {
+                this.log.push(action);
+                this.log = this.log.slice(Math.max(this.log.length - 3, 0));
+
+                this.clear();
+                for (var i = 0; i < this.log.length; i++) {
+                    let message = document.createElement("p");
+                    let targetPlayer;
+                    let targetPosition;
+                    let currentPlayer;
+                    switch (this.log[i].type) {
+                        case GameActionType.Attack:
+                            targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
+                            currentPlayer = this.log[i].currentPlayer;
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " attacked " +
+                                targetPlayer.name + " (" + targetPlayer.character.title + ").";
+                            break;
+                        case GameActionType.TakeTheFlag:
+                            currentPlayer = this.log[i].currentPlayer;
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " take the flag.";
+                            break;
+                        case GameActionType.UseAbility:
+                            break;
+                        case GameActionType.UseItem:
+                            currentPlayer = this.log[i].currentPlayer;
+                            let item = this.log[i].item;
+                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " use item " + item.title;
+                            switch (item.target) {
+                                case Target.Player:
+                                    targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
+                                    message.innerText += " on " + targetPlayer.name + " (" + targetPlayer.character.title + ").";
+                                    break;
+                                case Target.Position:
+                                    targetPosition = this.log[i].targetPosition;
+                                    message.innerText += " on position " + targetPosition;
+                                    break;
+                            }
+                            break;
+                    }
+                    this.container.appendChild(message);
+                }
+            }
         },
         clear: function () { ui.clear(this.container); }
     },
@@ -335,6 +381,7 @@ let ui = {
     },
     update: function (player, action, isMyTurn) {
         this.contorls.update(action, player.inventory);
+        this.log.update(action);
         this.log.update();
         this.player.update(player);
 
@@ -674,7 +721,7 @@ let ItemsActions = {
             target.position.set();
         },
         use: async function () {
-            if (!this.listen || action.count < 1) return;
+            if (!this.listen || Action.count < 1) return;
             let action = {
                 Type: GameActionType.UseItem,
                 TargetPosition: target.position,

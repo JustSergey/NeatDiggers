@@ -276,7 +276,7 @@ function sceneInit(target) {
 
 
 
-function getPlayer(userId) {
+export function getPlayer(userId) {
     for (var i = 0; i < sPlayers.children.length; i++)
         if (sPlayers.children[i].info.id == userId)
             return sPlayers.children[i];

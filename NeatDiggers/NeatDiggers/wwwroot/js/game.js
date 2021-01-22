@@ -3,7 +3,6 @@ import * as actions from "./actions.js";
 
 let connection, userId;
 
-
 export async function init(connect, id) {
     connection = connect;
     userId = id;
@@ -21,12 +20,10 @@ export async function updateRoom(room, action) {
         await actions.init()
         isActionInit = true;
     }
-
     core.updatePlayers(room.players, userId);
     let flagPosition = getFlagPosition(room);
     core.UpdateFlag(flagPosition, room.flagOnTheGround);
     let playerPosition = room.players[room.playerTurn].position;
-    let ss = isEqualVector(playerPosition, flagPosition);
     actions.ShowTakeFlagButton(room.flagOnTheGround && isEqualVector(playerPosition, flagPosition));
     actions.updateTurn(room.players[room.playerTurn].id == userId, action);
 }
