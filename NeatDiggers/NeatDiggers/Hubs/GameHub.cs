@@ -511,7 +511,7 @@ namespace NeatDiggers.Hubs
                 }
             }
 
-            return CalculateAttackDamage(handsAttackDamage, player.MeleeDamage, player.MultiplyDamage);
+            return CalculateAttackDamage(handsAttackDamage, 0, player.MultiplyDamage);
         }
 
         private int CalculateAttackDamage(int weaponDamage, int damageBuff, double damageMultipluyer)

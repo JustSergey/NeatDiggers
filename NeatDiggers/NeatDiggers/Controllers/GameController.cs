@@ -18,6 +18,7 @@ namespace NeatDiggers.Controllers
 
         public IActionResult CreateLobby(int map, int maxScore)
         {
+            DeckType deckType = DeckType.Standart;
             GameMap gameMap = (GameMapType)map switch
             {
                 GameMapType.Diagonal => LoadMap("DiagonalGameMap.txt"),
@@ -28,11 +29,20 @@ namespace NeatDiggers.Controllers
             if (gameMap == null)
                 gameMap = LoadMap("StandartGameMap.txt");
 
-            string code = Server.CreateRoom(gameMap, new StandartDeck(), maxScore);
+            Deck deck = deckType switch
+            {
+                DeckType.Custom => Deck.Parse("CustomDeckContent"),
+                _ => null
+            };
+            if (deck == null)
+                deck = LoadDeck("StandartDeck.txt");
+
+            string code = Server.CreateRoom(gameMap, deck, maxScore);
             return RedirectToAction("Watch", "Game", new { code });
         }
 
         private GameMap LoadMap(string path) => GameMap.Parse(System.IO.File.ReadAllText(path));
+        private Deck LoadDeck(string path) => Deck.Parse(System.IO.File.ReadAllText(path));
 
         public IActionResult Watch(string code)
         {
