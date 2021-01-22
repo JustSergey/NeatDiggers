@@ -201,7 +201,7 @@ let ui = {
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
                     this.rightWeaponTakeOff.style.display = "block";
                     this.rightWeaponTakeOff.innerText = Message.TakeOff;
-                    this.rightWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.rightWeapon);
+                    this.rightWeaponTakeOff.onclick = function () { ItemsActions.takeOff(inventory.rightWeapon); };
                 }
                 else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
                     this.leftWeapon.innerText = Message.Inventory.Two;
@@ -213,7 +213,7 @@ let ui = {
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
                     this.leftWeaponTakeOff.style.display = "block";
                     this.leftWeaponTakeOff.innerText = Message.TakeOff;
-                    this.leftWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.leftWeapon);
+                    this.leftWeaponTakeOff.onclick = function () { ItemsActions.takeOff(inventory.leftWeapon); };
                 }
 
 
@@ -221,7 +221,7 @@ let ui = {
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
                     this.armorTakeOff.style.display = "block";
                     this.armorTakeOff.innerText = Message.TakeOff;
-                    this.armorTakeOff.onclick = ItemsActions.takeOff(inventory.armor);
+                    this.armorTakeOff.onclick = function () { ItemsActions.takeOff(inventory.armor); };
                 }
 
                 this.drop.innerText = Message.Inventory.Drop + inventory.drop;
@@ -756,16 +756,17 @@ let ItemsActions = {
         let inventory = core.sPlayer.info.inventory;
         if (inventory.leftWeapon != null && inventory.leftWeapon.name == item.name) {
             inventory.items.push(inventory.leftWeapon);
-            inventory.leftWeapon = null;
+            inventory.leftWeapon.name = 0;
         }
         if (inventory.rightWeapon != null && inventory.rightWeapon.name == item.name) {
             inventory.items.push(inventory.rightWeapon);
-            inventory.rightWeapon = null;
+            inventory.rightWeapon.name = 0;
         }
         if (inventory.armor != null && inventory.armor.name == item.name) {
             inventory.items.push(inventory.armor);
-            inventory.armor = null;
+            inventory.armor.name = 0;
         }
+        ChangeInventory(inventory);
     },
     drop: function (item) {
         let action = {
