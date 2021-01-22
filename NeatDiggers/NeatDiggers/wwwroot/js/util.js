@@ -15,15 +15,15 @@ export async function modelLoader(name) {
 
 export const Message = {
     Inventory: {
-        Title: "Инвентарь:",
-        LeftWeapon: "Оружие левой руки:",
-        RightWeapon: "Оружие правой руки:",
-        Two: "Двуручное оружие:",
-        Armor: "Броня:",
-        Drop: "Сброс:",
+        Title: "Инвентарь: ",
+        LeftWeapon: "Оружие левой руки: ",
+        RightWeapon: "Оружие правой руки: ",
+        Two: "Двуручное оружие: ",
+        Armor: "Броня: ",
+        Drop: "Сброс: ",
     },
-    Log: "Лог:",
-    Effects: "Эффекты:",
+    Log: "Лог: ",
+    Effects: "Эффекты: ",
     NeedRollDice: "Вам нужно бросить кубик.",
     Health: "Здоровье: ",
     Level: "Уровень: ",
@@ -31,11 +31,11 @@ export const Message = {
     WeaponType: "Тип оружия: ",
     Abilities: "Способности: ",
     YouMove: "Ваш ход!",
-    ActionRemains: "Осталось очков действий:",
+    ActionRemains: "Осталось очков действий: ",
     ItemLimit: "В инвентаре может быть максимально 6 предметов",
     Button: {
         TakeFlag: "Взять флаг",
-        Drop: "Выкинуть",
+        Drop: "Сброс",
         Passive: "Пассивный предмет",
         Use: {
             None: "Использовать",
