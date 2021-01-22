@@ -81,7 +81,7 @@ export const Ability = {
         Distance: 4,
         Armor: 5,
         Invul: 6,
-        ArmorBreak: 6
+        ArmorBreak: 7
     },
     Type: {
         Passive: 0,
