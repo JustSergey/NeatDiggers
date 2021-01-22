@@ -9,102 +9,65 @@ const mouse = new THREE.Vector2();
 
 let ui = {
     div: document.createElement("div"),
-    hint: {
+    contorls: {
         container: document.createElement("div"),
-        clear: function () { ui.clear(this.container); },
-        setPosition: function (x, y) {
-            this.container.style.left = x + "px";
-            this.container.style.top = y + "px";
-        },
-        hide: function () { this.container.style.display = 'none'; },
-        show: function () { this.container.style.display = 'block'; }
-    },
-    message: {
-        turn: document.createElement("p"),
-        error: document.createElement("p"),
-        actionCount: document.createElement("p"),
-        init: function () {
-            this.turn.classList.add("ui");
-            this.actionCount.classList.add("ui");
-            this.error.classList.add("ui");
-
-            this.error.style.color = "red";
-
-            ui.div.appendChild(this.turn);
-            ui.div.appendChild(this.actionCount);
-            ui.div.appendChild(this.error);
-        },
-        update: function (action) {
-            if (action != null && action.type == GameActionType.DropItem) return;
-            Action.finishAction();
-        }
-    },
-    button: {
-        dig: document.createElement("button"),
-        rollDice: document.createElement("button"),
-        takeFlag: document.createElement("button"),
-        end: document.createElement("button"),
-        init: function () {
-            this.dig.style.pointerEvents = "all";
-            this.rollDice.style.pointerEvents = "all";
-            this.takeFlag.style.pointerEvents = "all";
-            this.end.style.pointerEvents = "all";
-
-            this.dig.classList.add("ui");
-            this.rollDice.classList.add("ui");
-            this.takeFlag.classList.add("ui");
-            this.end.classList.add("ui");
-
-            this.dig.disabled = true;
-            this.takeFlag.disabled = true;
-
-            this.dig.innerText = Message.Button.Dig;
-            this.rollDice.innerText = Message.Button.RollDice;
-            this.takeFlag.innerText = Message.Button.TakeFlag;
-            this.end.innerText = Message.Button.EndTurn;
-
-            this.dig.onclick = Action.Dig.dig;
-            this.rollDice.onclick = Action.RollDise;
-            this.takeFlag.onclick = Action.TakeFlag;
-            this.end.onclick = Action.EndTurn;
-
-            ui.div.appendChild(this.dig);
-            ui.div.appendChild(this.rollDice);
-            ui.div.appendChild(this.takeFlag);
-            ui.div.appendChild(this.end);
-        },
-        update: function () {
-            this.rollDice.disabled = Action.count < 1;
-        }
-    },
-    player: {
-        container: document.createElement("div"),
-        name: document.createElement("p"),
-        health: document.createElement("p"),
-        level: document.createElement("p"),
-        score: document.createElement("p"),
-        weaponType: document.createElement("p"),
-        abilities: {
-            container: document.createElement("div"),
-            title: document.createElement("p"),
+        message: {
+            turn: document.createElement("p"),
+            error: document.createElement("p"),
+            actionCount: document.createElement("p"),
             init: function () {
-                this.title.innerText = Message.Abilities;
-                this.title.classList.add("ui");
-                this.container.classList.add("abilities");
-                ui.player.container.appendChild(this.title);
-                ui.player.container.appendChild(this.container);
+                this.turn.classList.add("ui");
+                this.actionCount.classList.add("ui");
+                this.error.classList.add("ui");
+
+                this.error.style.color = "red";
+
+                ui.contorls.container.appendChild(this.turn);
+                ui.contorls.container.appendChild(this.actionCount);
+                ui.contorls.container.appendChild(this.error);
             },
-            update: function (abilities) {
-                this.clear();
-                for (var i = 0; i < abilities.length; i++) {
-                    if (abilities[i].isActive) {
-                        let description = document.createElement("p");
-                        description.innerText = getKeyByValue(Ability.Name, abilities[i].name) + " (" + abilities[i].description + ")";
-                        this.container.appendChild(description);
-                    }
-                }
+            update: function (action) {
+                if (action != null && action.type == GameActionType.DropItem) return;
+                Action.finishAction();
+            }
+        },
+        button: {
+            dig: document.createElement("button"),
+            rollDice: document.createElement("button"),
+            takeFlag: document.createElement("button"),
+            end: document.createElement("button"),
+            init: function () {
+                this.dig.style.pointerEvents = "all";
+                this.rollDice.style.pointerEvents = "all";
+                this.takeFlag.style.pointerEvents = "all";
+                this.end.style.pointerEvents = "all";
+
+                this.dig.classList.add("ui");
+                this.rollDice.classList.add("ui");
+                this.takeFlag.classList.add("ui");
+                this.end.classList.add("ui");
+
+                this.dig.disabled = true;
+                this.takeFlag.disabled = true;
+
+                this.dig.innerText = Message.Button.Dig;
+                this.rollDice.innerText = Message.Button.RollDice;
+                this.takeFlag.innerText = Message.Button.TakeFlag;
+                this.end.innerText = Message.Button.EndTurn;
+
+                this.dig.onclick = Action.Dig.dig;
+                this.rollDice.onclick = Action.RollDise;
+                this.takeFlag.onclick = Action.TakeFlag;
+                this.end.onclick = Action.EndTurn;
+
+                ui.contorls.container.appendChild(this.dig);
+                ui.contorls.container.appendChild(this.rollDice);
+                ui.contorls.container.appendChild(this.takeFlag);
+                ui.contorls.container.appendChild(this.end);
             },
-            clear: function () { ui.clear(this.container); }
+            update: function () {
+                this.rollDice.disabled = Action.count < 1;
+            }
         },
         inventory: {
             container: document.createElement("div"),
@@ -119,8 +82,8 @@ let ui = {
                     this.title.innerText = Message.Inventory.Title;
                     this.title.classList.add("ui");
                     this.container.classList.add("items");
-                    ui.player.inventory.container.appendChild(this.title);
-                    ui.player.inventory.container.appendChild(this.container);
+                    ui.contorls.inventory.container.appendChild(this.title);
+                    ui.contorls.inventory.container.appendChild(this.container);
                 },
                 update: function (items) {
                     this.clear();
@@ -196,7 +159,7 @@ let ui = {
             },
             init: function () {
                 this.container.classList.add("inventory");
-                ui.player.container.appendChild(this.container);
+                ui.contorls.container.appendChild(this.container);
                 this.container.appendChild(this.leftWeapon);
                 this.container.appendChild(this.rightWeapon);
                 this.container.appendChild(this.armor);
@@ -225,6 +188,61 @@ let ui = {
                 this.items.update(inventory.items);
             }
         },
+        init: function () {
+            this.container.classList.add("contorls");
+            this.container.classList.add("col-3");
+            this.container.style.textAlign = "left";
+            ui.div.appendChild(this.container);
+
+            this.message.init();
+            this.button.init();
+            this.inventory.init();
+        },
+        update: function (action, inventory) {
+            this.message.update(action);
+            this.button.update();
+            this.inventory.update(inventory);
+        }
+    },
+    hint: {
+        container: document.createElement("div"),
+        clear: function () { ui.clear(this.container); },
+        setPosition: function (x, y) {
+            this.container.style.left = x + "px";
+            this.container.style.top = y + "px";
+        },
+        hide: function () { this.container.style.display = 'none'; },
+        show: function () { this.container.style.display = 'block'; }
+    },
+    player: {
+        container: document.createElement("div"),
+        name: document.createElement("p"),
+        health: document.createElement("p"),
+        level: document.createElement("p"),
+        score: document.createElement("p"),
+        weaponType: document.createElement("p"),
+        abilities: {
+            container: document.createElement("div"),
+            title: document.createElement("p"),
+            init: function () {
+                this.title.innerText = Message.Abilities;
+                this.title.classList.add("ui");
+                this.container.classList.add("abilities");
+                ui.player.container.appendChild(this.title);
+                ui.player.container.appendChild(this.container);
+            },
+            update: function (abilities) {
+                this.clear();
+                for (var i = 0; i < abilities.length; i++) {
+                    if (abilities[i].isActive) {
+                        let description = document.createElement("p");
+                        description.innerText = getKeyByValue(Ability.Name, abilities[i].name) + " (" + abilities[i].description + ")";
+                        this.container.appendChild(description);
+                    }
+                }
+            },
+            clear: function () { ui.clear(this.container); }
+        },
         effects: {
             container: document.createElement("div"),
             title: document.createElement("p"),
@@ -232,8 +250,8 @@ let ui = {
                 this.title.innerText = Message.Effects;
                 this.title.classList.add("ui");
                 this.container.classList.add("effects");
-                ui.player.inventory.container.appendChild(this.title);
-                ui.player.inventory.container.appendChild(this.container);
+                ui.player.container.appendChild(this.title);
+                ui.player.container.appendChild(this.container);
             },
             update: function (effects) {
                 this.clear();
@@ -247,18 +265,19 @@ let ui = {
         },
         init: function () {
             this.container.classList.add("player");
+            this.container.classList.add("col-3");
             this.container.style.pointerEvents = "none";
             this.container.style.color = "white";
-            ui.div.appendChild(this.container);
-
+            this.container.style.textAlign = "right";
             this.container.appendChild(this.name);
             this.container.appendChild(this.health);
             this.container.appendChild(this.level);
             this.container.appendChild(this.score);
             this.container.appendChild(this.weaponType);
+
             this.abilities.init();
-            this.inventory.init();
             this.effects.init();
+            ui.div.appendChild(this.container);
         },
         update: function (player) {
             this.name.innerText = player.name + " (" + player.character.title + ")";
@@ -268,37 +287,58 @@ let ui = {
             this.weaponType.innerText = Message.WeaponType + getKeyByValue(WeaponType, player.character.weaponType);
 
             this.abilities.update(player.character.abilities);
-            this.inventory.update(player.inventory);
             this.effects.update(player.effects);
         }
+    },
+    log: {
+        container: document.createElement("div"),
+        title: document.createElement("p"),
+        init: function () {
+            this.title.innerText = Message.Log;
+            this.container.classList.add("log");
+            this.container.classList.add("col-6");
+            this.container.style.textAlign = "center";
+            ui.div.appendChild(this.container);
+            this.container.appendChild(this.title);
+        },
+        update(action) {
+        },
+        clear: function () { ui.clear(this.container); }
     },
     init: function () {
         this.div.style.position = 'absolute';
         this.div.style.pointerEvents = "none";
-        this.div.style.width = core.screen.width + 'px';
-        this.div.style.height = core.screen.height + 'px';
+        this.div.style.width = window.innerWidth + 'px';
+        this.div.style.height = window.innerWidth + 'px';
         this.div.style.margin = 'auto';
         this.div.style.color = "white";
         this.div.style.top = $('header').outerHeight() + 'px';
+        this.div.classList.add("gui");
+        this.div.classList.add("row");
         document.body.appendChild(this.div);
 
         this.hint.container.id = "hint";
         this.div.appendChild(this.hint.container);
 
+        this.contorls.init();
+        this.log.init();
         this.player.init();
-        this.message.init();
-        this.button.init();
+        window.addEventListener('resize', this.resize, false);
         $(".ui").hide();
     },
     update: function (player, action, isMyTurn) {
+        this.contorls.update(action, player.inventory);
+        this.log.update();
         this.player.update(player);
-        this.message.update(action);
-        this.button.update();
 
         if (isMyTurn)
             $(".ui").show();
         else
             $(".ui").hide();
+    },
+    resize: function () {
+        ui.div.style.width = window.innerWidth + 'px';
+        ui.div.style.height = window.innerWidth + 'px';
     },
     clear: function (container) {
         while (container.firstChild)
@@ -308,7 +348,7 @@ let ui = {
 let target;
 
 export function ShowTakeFlagButton(isActive) {
-    ui.button.takeFlag.disabled = !isActive;
+    ui.contorls.button.takeFlag.disabled = !isActive;
 }
 
 function isPlayerCanDig() {
@@ -322,15 +362,15 @@ const Action = {
     count: 2,
     diceValue: -1,
     finishAction: function () {
-        ui.message.turn.innerText = Message.ActionRemains + Action.count;
+        ui.contorls.message.turn.innerText = Message.ActionRemains + Action.count;
         Action.diceValue = -1;
-        ui.message.actionCount.innerText = Message.NeedRollDice;
-        ui.button.dig.disabled = !isPlayerCanDig();
+        ui.contorls.message.actionCount.innerText = Message.NeedRollDice;
+        ui.contorls.button.dig.disabled = !isPlayerCanDig();
         if (this.count < 1) {
-            ui.button.dig.disabled = true;
-            ui.button.rollDice.disabled = true;
-            ui.button.takeFlag.disabled = true;
-            ui.message.actionCount.innerText = "";
+            ui.contorls.button.dig.disabled = true;
+            ui.contorls.button.rollDice.disabled = true;
+            ui.contorls.button.takeFlag.disabled = true;
+            ui.contorls.message.actionCount.innerText = "";
             $(".itemButton").prop("disabled", true);
         }
     },
@@ -410,7 +450,7 @@ const Action = {
             };
             let success = await doAction(action);
             if (success) {
-                ui.button.dig.disabled = true;
+                ui.contorls.button.dig.disabled = true;
                 Action.Dig.Can = false;
                 Action.count--;
                 Action.finishAction();
@@ -453,8 +493,8 @@ const Action = {
     },
     RollDise: async function () {
         Action.diceValue = await invoke('RollTheDice');
-        ui.message.actionCount.innerText = Action.diceValue;
-        ui.button.dig.disabled = !isPlayerCanDig();
+        ui.contorls.message.actionCount.innerText = Action.diceValue;
+        ui.contorls.button.dig.disabled = !isPlayerCanDig();
     },
     EndTurn: async function () {
         let success = await invoke('EndTurn');
@@ -468,7 +508,7 @@ const Action = {
             target.visible = false;
             ItemsActions.onPlayer.listen = false;
             ItemsActions.onPosition.listen = false;
-            ui.button.dig.disabled = true;
+            ui.contorls.button.dig.disabled = true;
         }
     },
     TakeFlag: async function () {
@@ -477,7 +517,7 @@ const Action = {
         };
         let success = await doAction(action);
         if (success) {
-            ui.button.takeFlag.disabled = true;
+            ui.contorls.button.takeFlag.disabled = true;
             Action.count--;
             Action.finishAction();
         }

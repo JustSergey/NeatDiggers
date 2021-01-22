@@ -22,6 +22,7 @@ export const Message = {
         Armor: "Armor:",
         Drop: "Drop:",
     },
+    Log: "Log:",
     Effects: "Effects:",
     NeedRollDice: "You need to roll the dice.",
     Health: "Health: ",

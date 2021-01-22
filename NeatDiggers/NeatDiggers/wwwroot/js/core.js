@@ -3,7 +3,6 @@ import * as actions from "./actions.js";
 import { OrbitControls } from '../lib/three/examples/jsm/controls/OrbitControls.js';
 import { modelLoader } from './util.js';
 
-
 export let controls;
 let  camera, renderer;
 export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
@@ -20,7 +19,6 @@ let models = {
     flag: null,
     flag_taked: null
 }
-
 
 let centerMap;
 
@@ -125,10 +123,6 @@ function placePlayers(players, userId) {
         }
     }
 }
-
-//export function moveFlag(pos) {
-//    util.move(sFlag, pos);
-//}
 
 async function drawMap(map) {
     await loadModels();
@@ -241,7 +235,6 @@ function cameraInit(target) {
 
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
-    //controls.screenSpacePanning = false;
     controls.minDistance = 5;
     controls.maxDistance = target.x * 2;
     controls.target = target;
