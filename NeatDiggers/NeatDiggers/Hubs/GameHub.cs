@@ -97,30 +97,10 @@ namespace NeatDiggers.Hubs
             return null;
         }
 
-        private bool TryChangeItem(Item oldItem, Item newItem, 
-            Inventory playerInventory, Func<Item, bool> condition)
+        private bool CheckWeaponAvailability(Item weapon, WeaponType weaponType)
         {
-            if (oldItem.Name != newItem.Name)
-            {
-                if (newItem.Name == ItemName.Empty)
-                {
-                    playerInventory.Items.Add(oldItem);
-                    oldItem = new EmptyItem();
-                }
-                else
-                {
-                    if (!condition(newItem))
-                        return false;
-                    Item item = playerInventory.Items.Find(i => i.Name == newItem.Name);
-                    if (item == null)
-                        return false;
-                    if (oldItem.Name != ItemName.Empty)
-                        playerInventory.Items.Add(oldItem);
-                    oldItem = item;
-                    playerInventory.Items.Remove(item);
-                }
-            }
-            return true;
+            return weapon.Name == ItemName.Empty || (weapon.Type == ItemType.Weapon &&
+                (weapon.WeaponType == weaponType || weaponType == WeaponType.None));
         }
 
         public async Task<bool> ChangeInventory(Inventory inventory)
@@ -157,23 +137,24 @@ namespace NeatDiggers.Hubs
                             return false;
                     }
 
-                    int hands = 0;
                     WeaponType weaponType = player.Character.WeaponType;
-                    if (!TryChangeItem(player.Inventory.LeftWeapon, inventory.LeftWeapon, player.Inventory, 
-                        w => w.Type == ItemType.Weapon && (w.WeaponType == weaponType || weaponType == WeaponType.None)))
+                    Inventory newInventory = new Inventory
+                    {
+                        LeftWeapon = Item.CreateItem(inventory.LeftWeapon.Name),
+                        RightWeapon = Item.CreateItem(inventory.RightWeapon.Name),
+                        Armor = inventory.Armor,
+                        Items = inventory.Items.Select(i => i.Type == ItemType.Armor ? i : Item.CreateItem(i.Name)).ToList(),
+                        Drop = player.Inventory.Drop
+                    };
+                    if (!CheckWeaponAvailability(newInventory.LeftWeapon, weaponType) ||
+                        !CheckWeaponAvailability(newInventory.RightWeapon, weaponType) ||
+                        !(newInventory.Armor.Type == ItemType.Armor || newInventory.Armor.Name == ItemName.Empty))
                         return false;
-                    hands += (int)player.Inventory.LeftWeapon.WeaponHanded;
-                    if (!TryChangeItem(player.Inventory.RightWeapon, inventory.RightWeapon, player.Inventory,
-                        w => w.Type == ItemType.Weapon && (w.WeaponType == weaponType || weaponType == WeaponType.None)))
-                        return false;
-                    hands += (int)player.Inventory.RightWeapon.WeaponHanded;
+                    int hands = (int)newInventory.LeftWeapon.WeaponHanded + (int)newInventory.RightWeapon.WeaponHanded;
                     if (hands > player.Hands)
                         return false;
 
-                    if (!TryChangeItem(player.Inventory.Armor, inventory.Armor, player.Inventory,
-                        a => a.Type == ItemType.Armor))
-                        return false;
-
+                    player.Inventory = newInventory;
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;
                 }

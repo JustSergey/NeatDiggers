@@ -15,7 +15,7 @@ namespace NeatDiggers.GameServer.Abilities
             this.distance = distance;
             this.type = type;
             Name = AbilityName.Distance;
-            Description = $"+{distance} {(type == WeaponType.Melee ? "ближней" : "дальней")} дальности атаки";
+            Description = $"+{distance} дальности к {(type == WeaponType.Melee ? "ближней" : "дальней")} атаке";
             Type = AbilityType.Passive;
             Target = Target.None;
         }
