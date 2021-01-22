@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using NeatDiggers.GameServer;
 using NeatDiggers.GameServer.Decks;
-using NeatDiggers.GameServer.Maps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,23 +18,21 @@ namespace NeatDiggers.Controllers
 
         public IActionResult CreateLobby(int map, int maxScore)
         {
-            GameMap gameMap;
-            switch ((GameMapType)map)
+            GameMap gameMap = (GameMapType)map switch
             {
-                case GameMapType.Diagonal:
-                    gameMap = new DiagonalGameMap();
-                    break;
-                case GameMapType.Large:
-                    gameMap = new LargeGameMap();
-                    break;
-                default:
-                    gameMap = new StandartGameMap();
-                    break;
-            }
+                GameMapType.Diagonal => LoadMap("DiagonalGameMap.txt"),
+                GameMapType.Large => LoadMap("LargeGameMap.txt"),
+                GameMapType.Custom => GameMap.Parse("CustomGameMapContent"),
+                _ => null,
+            };
+            if (gameMap == null)
+                gameMap = LoadMap("StandartGameMap.txt");
 
             string code = Server.CreateRoom(gameMap, new StandartDeck(), maxScore);
             return RedirectToAction("Watch", "Game", new { code });
         }
+
+        private GameMap LoadMap(string path) => GameMap.Parse(System.IO.File.ReadAllText(path));
 
         public IActionResult Watch(string code)
         {

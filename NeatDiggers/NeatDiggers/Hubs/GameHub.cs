@@ -8,7 +8,6 @@ using NeatDiggers.GameServer.Characters;
 using NeatDiggers.GameServer.Items;
 using Microsoft.AspNetCore.Authorization;
 using NeatDiggers.GameServer.Abilities;
-using NeatDiggers.GameServer.Maps;
 
 namespace NeatDiggers.Hubs
 {
