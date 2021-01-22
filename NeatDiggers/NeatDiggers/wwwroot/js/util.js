@@ -81,8 +81,11 @@ export const Ability = {
         Armor: 5,
         Invul: 6,
         ArmorBreak: 6
+    },
+    Type: {
+        Passive: 0,
+        Active: 1
     }
-
 }
 
 export const Target = {
@@ -124,7 +127,3 @@ export const WeaponType = {
 export function getKeyByValue(object, value) {
     return Object.keys(object).find(key => object[key] === value);
 }
-
-//export function move(obj, pos) {
-//    obj.position.set(pos.x, pos.y, pos.z);
-//}
