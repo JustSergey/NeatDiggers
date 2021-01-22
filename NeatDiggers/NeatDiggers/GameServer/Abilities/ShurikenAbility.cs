@@ -17,7 +17,7 @@ namespace NeatDiggers.GameServer.Abilities
             this.range = range;
             this.consumption = consumption;
             Name = AbilityName.Shuriken;
-            Description = $"Сурикен на {damage} урона, {range} дальности за {consumption} сброса";
+            Description = $"Сюрикен на {damage} урона, {range} дальности за {consumption} сброса";
             Type = AbilityType.Active;
             Target = Target.Player;
         }

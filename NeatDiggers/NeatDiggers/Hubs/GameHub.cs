@@ -47,18 +47,19 @@ namespace NeatDiggers.Hubs
             return "wrongCode";
         }
 
-        public async Task ChangeCharacter(CharacterName characterName)
+        public async Task<Character> ChangeCharacter(CharacterName characterName)
         {
             Room room = Server.GetRoomByUserId(Context.ConnectionId);
             if (room != null && !room.IsStarted)
             {
                 Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null && !player.IsReady)
+                if (player != null && !player.IsReady && player.ChangeCharacter(characterName))
                 {
-                    player.ChangeCharacter(characterName);
                     await Clients.Group(room.Code).ChangeState(room);
+                    return player.Character;
                 }
             }
+            return null;
         }
 
         public async Task ChangeReady()
@@ -96,6 +97,32 @@ namespace NeatDiggers.Hubs
             return null;
         }
 
+        private bool TryChangeItem(Item oldItem, Item newItem, 
+            Inventory playerInventory, Func<Item, bool> condition)
+        {
+            if (oldItem.Name != newItem.Name)
+            {
+                if (newItem.Name == ItemName.Empty)
+                {
+                    playerInventory.Items.Add(oldItem);
+                    oldItem = new EmptyItem();
+                }
+                else
+                {
+                    if (!condition(newItem))
+                        return false;
+                    Item item = playerInventory.Items.Find(i => i.Name == newItem.Name);
+                    if (item == null)
+                        return false;
+                    if (oldItem.Name != ItemName.Empty)
+                        playerInventory.Items.Add(oldItem);
+                    oldItem = item;
+                    playerInventory.Items.Remove(item);
+                }
+            }
+            return true;
+        }
+
         public async Task<bool> ChangeInventory(Inventory inventory)
         {
             Room room = Server.GetRoomByUserId(Context.ConnectionId);
@@ -104,57 +131,49 @@ namespace NeatDiggers.Hubs
                 Player player = room.GetPlayer(Context.ConnectionId);
                 if (player != null && player.IsTurn)
                 {
-                    List<Item> newItems = inventory.Items.Where(i => i.Name != ItemName.Empty).ToList();
-                    int hands = 0;
-                    WeaponType weaponType = player.Character.WeaponType;
-                    if (inventory.LeftWeapon != null && inventory.LeftWeapon.Type == ItemType.Weapon)
-                    {
-                        if (weaponType == WeaponType.None || inventory.LeftWeapon.WeaponType == weaponType)
-                        {
-                            newItems.Add(inventory.LeftWeapon);
-                            hands += (int)inventory.LeftWeapon.WeaponHanded;
-                        }
-                        else
-                            return false;
-                    }
-
-                    if (inventory.RightWeapon != null && inventory.RightWeapon.Type == ItemType.Weapon)
-                    {
-                        if (weaponType == WeaponType.None || inventory.RightWeapon.WeaponType == weaponType)
-                        {
-                            newItems.Add(inventory.RightWeapon);
-                            hands += (int) inventory.RightWeapon.WeaponHanded;
-                        }
-                        else
-                            return false;
-                    }
-
-                    if (hands > player.Hands)
-                        return false;
-
-                    if (inventory.Armor != null && inventory.Armor.Type == ItemType.Armor)
-                        newItems.Add(inventory.Armor);
-
-                    List<Item> oldItems = new List<Item>(player.Inventory.Items)
+                    List<ItemName> oldItems = new List<Item>(player.Inventory.Items)
                     {
                         player.Inventory.LeftWeapon,
                         player.Inventory.RightWeapon,
                         player.Inventory.Armor
-                    }.Where(i => i.Name != ItemName.Empty).ToList();
+                    }.Select(i => i.Name).Where(i => i != ItemName.Empty).ToList();
+
+                    List<ItemName> newItems = new List<Item>(inventory.Items)
+                    {
+                        inventory.LeftWeapon,
+                        inventory.RightWeapon,
+                        inventory.Armor
+                    }.Select(i => i.Name).Where(i => i != ItemName.Empty).ToList();
 
                     if (oldItems.Count != newItems.Count)
                         return false;
 
-                    newItems.Sort((item1, item2) => item2.Name - item1.Name);
-                    oldItems.Sort((item1, item2) => item2.Name - item1.Name);
+                    oldItems.Sort();
+                    newItems.Sort();
 
-                    for (int i = 0; i < newItems.Count; i++)
+                    for (int i = 0; i < oldItems.Count; i++)
                     {
-                        if (newItems[i].Name != oldItems[i].Name)
+                        if (oldItems[i] != newItems[i])
                             return false;
                     }
 
-                    player.Inventory = inventory;
+                    int hands = 0;
+                    WeaponType weaponType = player.Character.WeaponType;
+                    if (!TryChangeItem(player.Inventory.LeftWeapon, inventory.LeftWeapon, player.Inventory, 
+                        w => w.Type == ItemType.Weapon && (w.WeaponType == weaponType || weaponType == WeaponType.None)))
+                        return false;
+                    hands += (int)player.Inventory.LeftWeapon.WeaponHanded;
+                    if (!TryChangeItem(player.Inventory.RightWeapon, inventory.RightWeapon, player.Inventory,
+                        w => w.Type == ItemType.Weapon && (w.WeaponType == weaponType || weaponType == WeaponType.None)))
+                        return false;
+                    hands += (int)player.Inventory.RightWeapon.WeaponHanded;
+                    if (hands > player.Hands)
+                        return false;
+
+                    if (!TryChangeItem(player.Inventory.Armor, inventory.Armor, player.Inventory,
+                        a => a.Type == ItemType.Armor))
+                        return false;
+
                     await Clients.Group(room.Code).ChangeState(room);
                     return true;
                 }
@@ -347,7 +366,7 @@ namespace NeatDiggers.Hubs
         {
             Ability ability = gameAction.CurrentPlayer.Character.Abilities.Find(a => a.Name == gameAction.Ability.Name);
             if (ability != null && ability.Type == AbilityType.Active && ability.IsActive)
-                return gameAction.Ability.Use(room, gameAction);
+                return ability.Use(room, gameAction);
             return false;
         }
 

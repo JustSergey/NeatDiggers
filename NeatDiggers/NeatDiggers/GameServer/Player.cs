@@ -64,11 +64,15 @@ namespace NeatDiggers.GameServer
             Level++;
         }
 
-        public void ChangeCharacter(CharacterName characterName)
+        public bool ChangeCharacter(CharacterName characterName)
         {
             Character newCharacter = Character.CreateCharacter(characterName);
             if (newCharacter != null)
+            {
                 Character = newCharacter;
+                return true;
+            }
+            return false;
         }
 
         public void ChangeReady()
