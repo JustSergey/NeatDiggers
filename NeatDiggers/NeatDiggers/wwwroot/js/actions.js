@@ -82,7 +82,6 @@ let ui = {
                 title: document.createElement("p"),
                 init: function () {
                     this.title.innerText = Message.Inventory.Title;
-                    this.title.classList.add("ui");
                     this.container.classList.add("items");
                     ui.contorls.inventory.container.appendChild(this.title);
                     ui.contorls.inventory.container.appendChild(this.container);
@@ -98,12 +97,10 @@ let ui = {
 
                         itemUse.disabled = Action.count < 1;
                         let itemRight = null;
-
+                        itemUse.classList.add("itemButton");
                         itemUse.style.pointerEvents = "all";
-                        itemUse.classList.add("ui");
                         switch (item.type) {
                             case ItemType.Active:
-                                itemUse.classList.add("itemButton");
                                 switch (item.target) {
                                     case Target.None:
                                         itemUse.innerText = Message.Button.Use.None;
@@ -138,7 +135,7 @@ let ui = {
                                     case WeaponHanded.One:
                                         itemRight = document.createElement("button");
                                         itemRight.style.pointerEvents = "all";
-                                        itemRight.classList.add("ui");
+                                        itemRight.classList.add("itemButton");
                                         itemUse.innerText = Message.Button.Equip.Left;
                                         itemRight.innerText = Message.Button.Equip.Right;
                                         itemUse.onclick = function () { ItemsActions.equipLeft(item); };
@@ -156,7 +153,7 @@ let ui = {
                                 break;
                         }
                         itemDrop.style.pointerEvents = "all";
-                        itemDrop.classList.add("ui");
+                        itemDrop.classList.add("itemButton");
                         itemDrop.innerText = Message.Button.Drop;
                         itemDrop.onclick = function () { ItemsActions.drop(item); };
 
@@ -239,7 +236,6 @@ let ui = {
             title: document.createElement("p"),
             init: function () {
                 this.title.innerText = Message.Abilities;
-                this.title.classList.add("ui");
                 this.container.classList.add("abilities");
                 ui.player.container.appendChild(this.title);
                 ui.player.container.appendChild(this.container);
@@ -247,11 +243,15 @@ let ui = {
             update: function (abilities) {
                 this.clear();
                 for (var i = 0; i < abilities.length; i++) {
-                    if (abilities[i].isActive) {
-                        let description = document.createElement("p");
-                        description.innerText = getKeyByValue(Ability.Name, abilities[i].name) + " (" + abilities[i].description + ")";
-                        this.container.appendChild(description);
-                    }
+                    let description = document.createElement("p");
+                    if (abilities[i].isActive)
+                        description.style.color = "#ffffff"; 
+                    else
+                        description.style.color = "#b0b0b0";
+
+
+                    description.innerText = getKeyByValue(Ability.Name, abilities[i].name) + " (" + abilities[i].description + ")";
+                    this.container.appendChild(description);
                 }
             },
             clear: function () { ui.clear(this.container); }
@@ -261,7 +261,6 @@ let ui = {
             title: document.createElement("p"),
             init: function () {
                 this.title.innerText = Message.Effects;
-                this.title.classList.add("ui");
                 this.container.classList.add("effects");
                 ui.player.container.appendChild(this.title);
                 ui.player.container.appendChild(this.container);
@@ -373,17 +372,20 @@ let ui = {
         this.hint.container.id = "hint";
         this.div.appendChild(this.hint.container);
 
-        this.contorls.init();
+        if (core.sPlayer != undefined)
+            this.contorls.init();
         this.log.init();
-        this.player.init();
+        if (core.sPlayer != undefined)
+            this.player.init();
         window.addEventListener('resize', this.resize, false);
         $(".ui").hide();
     },
     update: function (player, action, isMyTurn) {
-        this.contorls.update(action, player.inventory);
+        if (player != null)
+            this.contorls.update(action, player.inventory);
         this.log.update(action);
-        this.log.update();
-        this.player.update(player);
+        if (player != null)
+            this.player.update(player);
 
         if (isMyTurn)
             $(".ui").show();
@@ -761,7 +763,8 @@ export async function init() {
 }
 
 export function updateTurn(bool, action) {
-    ui.update(core.sPlayer.info, action, bool);
+    let player = core.sPlayer != undefined ? core.sPlayer.info : null;
+    ui.update(player, action, bool);
     isMyTurn = bool;
 }
 
