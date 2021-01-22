@@ -100,10 +100,10 @@ let ui = {
                         itemUse.classList.add("ui");
                         itemDrop.classList.add("ui");
                         let itemRight = null;
-                        itemUse.classList.add("itemButton");
                         itemUse.style.pointerEvents = "all";
                         switch (item.type) {
                             case ItemType.Active:
+                                itemUse.classList.add("itemButton");
                                 itemUse.disabled = Action.count < 1;
                                 switch (item.target) {
                                     case Target.None:
@@ -176,8 +176,11 @@ let ui = {
                 ui.contorls.container.appendChild(this.container);
 
                 this.leftWeaponTakeOff.style.display = "none";
+                this.leftWeaponTakeOff.style.pointerEvents = "all";
                 this.rightWeaponTakeOff.style.display = "none";
+                this.rightWeaponTakeOff.style.pointerEvents = "all";
                 this.armorTakeOff.style.display = "none";
+                this.armorTakeOff.style.pointerEvents = "all";
 
                 this.container.appendChild(this.leftWeapon);
                 this.container.appendChild(this.leftWeaponTakeOff);
@@ -197,6 +200,7 @@ let ui = {
                 if (inventory.rightWeapon.title != null) {
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
                     this.rightWeaponTakeOff.style.display = "block";
+                    this.rightWeaponTakeOff.innerText = Message.TakeOff;
                     this.rightWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.rightWeapon);
                 }
                 else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
@@ -208,6 +212,7 @@ let ui = {
                 if (inventory.leftWeapon.title != null) {
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
                     this.leftWeaponTakeOff.style.display = "block";
+                    this.leftWeaponTakeOff.innerText = Message.TakeOff;
                     this.leftWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.leftWeapon);
                 }
 
@@ -215,6 +220,7 @@ let ui = {
                 if (inventory.armor.title != null) {
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
                     this.armorTakeOff.style.display = "block";
+                    this.armorTakeOff.innerText = Message.TakeOff;
                     this.armorTakeOff.onclick = ItemsActions.takeOff(inventory.armor);
                 }
 
@@ -747,15 +753,16 @@ let AbilitiesActions = {
 
 let ItemsActions = {
     takeOff: function (item) {
-        if (inventory.leftWeapon.name == item.name) {
+        let inventory = core.sPlayer.info.inventory;
+        if (inventory.leftWeapon != null && inventory.leftWeapon.name == item.name) {
             inventory.items.push(inventory.leftWeapon);
             inventory.leftWeapon = null;
         }
-        if (inventory.rightWeapon.name == item.name) {
+        if (inventory.rightWeapon != null && inventory.rightWeapon.name == item.name) {
             inventory.items.push(inventory.rightWeapon);
             inventory.rightWeapon = null;
         }
-        if (inventory.armor.name == item.name) {
+        if (inventory.armor != null && inventory.armor.name == item.name) {
             inventory.items.push(inventory.armor);
             inventory.armor = null;
         }
@@ -769,7 +776,7 @@ let ItemsActions = {
     },
     equipArmor: async function (item) {
         let inventory = core.sPlayer.info.inventory;
-        if (inventory.armor.title != null)
+        if (inventory.armor != null && inventory.armor.title != null)
             inventory.items.push(inventory.armor);
         inventory.armor = item;
         arrayRemove(inventory.items, item);
@@ -778,7 +785,7 @@ let ItemsActions = {
     },
     equipLeft: async function (item) {
         let inventory = core.sPlayer.info.inventory;
-        if (inventory.leftWeapon.title != null)
+        if (inventory.leftWeapon != null && inventory.leftWeapon.title != null)
             inventory.items.push(inventory.leftWeapon);
         inventory.leftWeapon = item;
         arrayRemove(inventory.items, item);
@@ -787,12 +794,12 @@ let ItemsActions = {
     },
     equipRight: function (item) {
         let inventory = core.sPlayer.info.inventory;
-        if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
+        if (inventory.leftWeapon != null && inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
             inventory.items.push(inventory.leftWeapon);
             inventory.leftWeapon = null;
         }
 
-        if (inventory.rightWeapon.title != null)
+        if (inventory.rightWeapon != null && inventory.rightWeapon.title != null)
             inventory.items.push(inventory.rightWeapon);
         inventory.rightWeapon = item;
         arrayRemove(inventory.items, item);

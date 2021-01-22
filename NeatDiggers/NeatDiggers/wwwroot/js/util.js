@@ -23,6 +23,7 @@ export const Message = {
         Drop: "Сброс: ",
     },
     Log: "Лог: ",
+    TakeOff: "Снять",
     Effects: "Эффекты: ",
     NeedRollDice: "Вам нужно бросить кубик.",
     Health: "Здоровье: ",
