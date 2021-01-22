@@ -110,9 +110,9 @@ function placePlayers(players, userId) {
             if (players[i].id == userId) {
                 sPlayer = cube;
                 let offset = new THREE.Vector3(camera.position.x - sPlayer.position.x, camera.position.y - sPlayer.position.y, 0).normalize();
-                camera.position.x = sPlayer.position.x - offset.x * 3;
-                camera.position.y = sPlayer.position.y - offset.y * 3;
-                camera.position.z = 5;
+                camera.position.x = sPlayer.position.x - offset.x * 4;
+                camera.position.y = sPlayer.position.y - offset.y * 4;
+                camera.position.z = 7;
             }
             cube.up.set(0, 0, 1);
             cube.lookAt(centerMap);
@@ -236,7 +236,7 @@ function cameraInit(target) {
     controls.enableDamping = true;
     controls.dampingFactor = 0.05;
     controls.minDistance = 5;
-    controls.maxDistance = target.x * 2;
+    controls.maxDistance = target.x * 2 + 5;
     controls.target = target;
     controls.maxPolarAngle = Math.PI / 2;
     controls.update();
