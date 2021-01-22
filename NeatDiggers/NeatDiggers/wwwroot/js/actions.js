@@ -72,8 +72,11 @@ let ui = {
         inventory: {
             container: document.createElement("div"),
             leftWeapon: document.createElement("p"),
+            leftWeaponTakeOff: document.createElement("button"),
             rightWeapon: document.createElement("p"),
+            rightWeaponTakeOff: document.createElement("button"),
             armor: document.createElement("p"),
+            armorTakeOff: document.createElement("button"),
             drop: document.createElement("p"),
             items: {
                 container: document.createElement("div"),
@@ -171,9 +174,17 @@ let ui = {
             init: function () {
                 this.container.classList.add("inventory");
                 ui.contorls.container.appendChild(this.container);
+
+                this.leftWeaponTakeOff.style.display = "none";
+                this.rightWeaponTakeOff.style.display = "none";
+                this.armorTakeOff.style.display = "none";
+
                 this.container.appendChild(this.leftWeapon);
+                this.container.appendChild(this.leftWeaponTakeOff);
                 this.container.appendChild(this.rightWeapon);
+                this.container.appendChild(this.rightWeaponTakeOff);
                 this.container.appendChild(this.armor);
+                this.container.appendChild(this.armorTakeOff);
                 this.container.appendChild(this.drop);
                 this.items.init();
             },
@@ -183,17 +194,29 @@ let ui = {
                 this.rightWeapon.innerText = Message.Inventory.RightWeapon;
 
 
-                if (inventory.rightWeapon.title != null)
+                if (inventory.rightWeapon.title != null) {
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
+                    this.rightWeaponTakeOff.style.display = "block";
+                    this.rightWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.rightWeapon);
+                }
                 else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
                     this.leftWeapon.innerText = Message.Inventory.Two;
+                    this.leftWeaponTakeOff.style.display = "block";
                     this.rightWeapon.innerText = "";
+                    this.rightWeaponTakeOff.style.display = "none";
                 }
-                if (inventory.leftWeapon.title != null)
+                if (inventory.leftWeapon.title != null) {
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
+                    this.leftWeaponTakeOff.style.display = "block";
+                    this.leftWeaponTakeOff.onclick = ItemsActions.takeOff(inventory.leftWeapon);
+                }
 
-                if (inventory.armor.title != null)
+
+                if (inventory.armor.title != null) {
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
+                    this.armorTakeOff.style.display = "block";
+                    this.armorTakeOff.onclick = ItemsActions.takeOff(inventory.armor);
+                }
 
                 this.drop.innerText = Message.Inventory.Drop + inventory.drop;
                 this.items.update(inventory.items);
@@ -723,6 +746,20 @@ let AbilitiesActions = {
 }
 
 let ItemsActions = {
+    takeOff: function (item) {
+        if (inventory.leftWeapon.name == item.name) {
+            inventory.items.push(inventory.leftWeapon);
+            inventory.leftWeapon = null;
+        }
+        if (inventory.rightWeapon.name == item.name) {
+            inventory.items.push(inventory.rightWeapon);
+            inventory.rightWeapon = null;
+        }
+        if (inventory.armor.name == item.name) {
+            inventory.items.push(inventory.armor);
+            inventory.armor = null;
+        }
+    },
     drop: function (item) {
         let action = {
             Type: GameActionType.DropItem,
