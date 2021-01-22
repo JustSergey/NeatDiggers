@@ -750,6 +750,11 @@ let ItemsActions = {
     },
     equipRight: function (item) {
         let inventory = core.sPlayer.info.inventory;
+        if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
+            inventory.items.push(inventory.leftWeapon);
+            inventory.leftWeapon = null;
+        }
+
         if (inventory.rightWeapon.title != null)
             inventory.items.push(inventory.rightWeapon);
         inventory.rightWeapon = item;
