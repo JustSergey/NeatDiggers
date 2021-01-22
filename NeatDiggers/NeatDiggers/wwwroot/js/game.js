@@ -32,8 +32,8 @@ export async function updateRoom(room, action) {
 function CheckWiner(winner) {
     if (winner != null) {
         $("#errorModal").modal();
-        $("#errorModalMessage").text("The winner is determined!");
-        $("#errorModalMessage").text(winner.name + " (" + winner.character.name + ")");
+        $("#errorModalTitle").text("Поздравляем с победой!");
+        $("#errorModalMessage").text(winner.name + " (" + winner.character.title + ")");
         $("#errorModalFooter").hide();
     }
 }
