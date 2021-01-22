@@ -92,6 +92,8 @@ let ui = {
                         let itemUse = document.createElement("button");
                         let itemDrop = document.createElement("button");
                         let itemDescription = document.createElement("p");
+                        itemDescription.style.marginBottom = "0";
+                        itemDescription.style.marginTop = "1.25rem";
                         itemUse.classList.add("ui");
                         itemDrop.classList.add("ui");
                         let itemRight = null;
@@ -249,6 +251,8 @@ let ui = {
                         description.style.color = "#b0b0b0";
 
                     description.innerText = getKeyByValue(Ability.Name, abilities[i].name) + " (" + abilities[i].description + ")";
+                    description.style.marginBottom = "0";
+                    description.style.marginTop = "1.25rem";
                     this.container.appendChild(description);
 
                     if (abilities[i].type == Ability.Type.Active) {
