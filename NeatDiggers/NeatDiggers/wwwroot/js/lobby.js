@@ -12,6 +12,7 @@ window.onload = async function () {
 
     connection.start().then(async function () {
         let code = $("#code").text();
+        $("#codeInput").val(code);
         let room = await connection.invoke("ConnectToRoomAsSpectator", code).catch(function (err) {
             return console.error(err.toString());
         });

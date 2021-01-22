@@ -94,13 +94,12 @@ let ui = {
                         let itemDescription = document.createElement("p");
                         itemUse.classList.add("ui");
                         itemDrop.classList.add("ui");
-
-                        itemUse.disabled = Action.count < 1;
                         let itemRight = null;
                         itemUse.classList.add("itemButton");
                         itemUse.style.pointerEvents = "all";
                         switch (item.type) {
                             case ItemType.Active:
+                                itemUse.disabled = Action.count < 1;
                                 switch (item.target) {
                                     case Target.None:
                                         itemUse.innerText = Message.Button.Use.None;
