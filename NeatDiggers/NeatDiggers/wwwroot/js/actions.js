@@ -201,7 +201,10 @@ let ui = {
                     this.rightWeapon.innerText += inventory.rightWeapon.title + " (" + inventory.rightWeapon.description + ")";
                     this.rightWeaponTakeOff.style.display = "block";
                     this.rightWeaponTakeOff.innerText = Message.TakeOff;
-                    this.rightWeaponTakeOff.onclick = function () { ItemsActions.takeOff(inventory.rightWeapon); };
+                    this.rightWeaponTakeOff.onclick = function () {
+                        ItemsActions.takeOff(inventory.rightWeapon);
+                        this.rightWeaponTakeOff.style.display = "none";
+                    };
                 }
                 else if (inventory.leftWeapon.weaponHanded == WeaponHanded.Two) {
                     this.leftWeapon.innerText = Message.Inventory.Two;
@@ -213,7 +216,10 @@ let ui = {
                     this.leftWeapon.innerText += inventory.leftWeapon.title + " (" + inventory.leftWeapon.description + ")";
                     this.leftWeaponTakeOff.style.display = "block";
                     this.leftWeaponTakeOff.innerText = Message.TakeOff;
-                    this.leftWeaponTakeOff.onclick = function () { ItemsActions.takeOff(inventory.leftWeapon); };
+                    this.leftWeaponTakeOff.onclick = function () {
+                        ItemsActions.takeOff(inventory.leftWeapon);
+                        this.leftWeaponTakeOff.style.display = "none";
+                    };
                 }
 
 
@@ -221,7 +227,10 @@ let ui = {
                     this.armor.innerText += inventory.armor.title + " (" + inventory.armor.description + ")";
                     this.armorTakeOff.style.display = "block";
                     this.armorTakeOff.innerText = Message.TakeOff;
-                    this.armorTakeOff.onclick = function () { ItemsActions.takeOff(inventory.armor); };
+                    this.armorTakeOff.onclick = function () {
+                        ItemsActions.takeOff(inventory.armor);
+                        this.armorTakeOff.style.display = "none";
+                    };
                 }
 
                 this.drop.innerText = Message.Inventory.Drop + inventory.drop;
