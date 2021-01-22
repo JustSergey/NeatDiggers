@@ -110,9 +110,9 @@ function placePlayers(players, userId) {
             if (players[i].id == userId) {
                 sPlayer = cube;
                 let offset = new THREE.Vector3(camera.position.x - sPlayer.position.x, camera.position.y - sPlayer.position.y, 0).normalize();
-                camera.position.x = sPlayer.position.x - offset.x * 4;
-                camera.position.y = sPlayer.position.y - offset.y * 4;
-                camera.position.z = 7;
+                camera.position.x = sPlayer.position.x - offset.x * 3;
+                camera.position.y = sPlayer.position.y - offset.y * 3;
+                camera.position.z = 8;
             }
             cube.up.set(0, 0, 1);
             cube.lookAt(centerMap);
