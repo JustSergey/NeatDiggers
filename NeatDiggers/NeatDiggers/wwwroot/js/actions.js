@@ -519,9 +519,9 @@ const Action = {
         Action.diceValue = -1;
         ui.contorls.message.actionCount.innerText = Message.NeedRollDice;
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
+        ui.contorls.button.move.disabled = true;
         if (this.count < 1) {
             ui.contorls.button.dig.disabled = true;
-            ui.contorls.button.move.disabled = true;
             ui.contorls.button.rollDice.disabled = true;
             ui.contorls.button.takeFlag.disabled = true;
             ui.contorls.message.actionCount.innerText = "";
@@ -536,7 +536,11 @@ const Action = {
             target.visible = true;
         },
         showHint: function () {
-            if (!this.listen || Action.count < 1 || !Action.Move.Can) return;
+            if (!this.listen || Action.count < 1 || !Action.Move.Can) {
+                ui.hint.hide();
+                ui.hint.clear();
+                return;
+            }
             target.visible = false;
             let btn = document.createElement('button');
             btn.style.pointerEvents = "all";
@@ -554,14 +558,13 @@ const Action = {
                     Action.Move.Can = false;
                     ui.contorls.button.move.disabled = true;
                 }
-
                 ui.hint.hide();
                 ui.hint.clear();
-                this.listen = false;
                 target.position.set();
             }
             ui.hint.container.appendChild(btn);
             ui.hint.show();
+            this.listen = false;
         }
     },
     Dig: {
@@ -708,7 +711,11 @@ let AbilitiesActions = {
             target.visible = true;
         },
         showHint: function (players) {
-            if (!this.listen || Action.count < 1) return;
+            if (!this.listen || Action.count < 1) {
+                ui.hint.hide();
+                ui.hint.clear();
+                return;
+            }
             target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
@@ -732,12 +739,12 @@ let AbilitiesActions = {
 
                     ui.hint.hide();
                     ui.hint.clear();
-                    this.listen = false;
-                    this.ability = null;
                     target.position.set();
+                    this.ability = null;
                 }
                 ui.hint.container.appendChild(btn);
                 ui.hint.show();
+                this.listen = false;
             }
         }
     },
@@ -748,7 +755,6 @@ let AbilitiesActions = {
             this.ability = ability;
             this.listen = true;
             target.visible = true;
-            target.position.set();
         },
         use: async function () {
             if (!this.listen || Action.count < 1) return;
@@ -858,7 +864,11 @@ let ItemsActions = {
             target.visible = true;
         },
         showHint: function (players) {
-            if (!this.listen || Action.count < 1) return;
+            if (!this.listen || Action.count < 1) {
+                ui.hint.hide();
+                ui.hint.clear();
+                return;
+            }
             target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
@@ -882,12 +892,12 @@ let ItemsActions = {
 
                     ui.hint.hide();
                     ui.hint.clear();
-                    this.listen = false;
                     this.item = null;
                     target.position.set();
                 }
                 ui.hint.container.appendChild(btn);
                 ui.hint.show();
+                this.listen = false;
             }
         }
     },
@@ -898,7 +908,6 @@ let ItemsActions = {
             this.item = item;
             this.listen = true;
             target.visible = true;
-            target.position.set();
         },
         use: async function () {
             if (!this.listen || Action.count < 1) return;
@@ -959,10 +968,9 @@ function pointerUp(event) {
         ItemsActions.onPlayer.showHint(players);
         AbilitiesActions.onPlayer.showHint(players);
     }
-    Action.Move.showHint();
-        
 
-    if (!isMyTurn || Action.count < 1) return;
+    if (!isMyTurn || Action.count < 1 || target.position.x == undefined || target.position.y == undefined) return;
+    Action.Move.showHint();
     ItemsActions.onPosition.use();
     AbilitiesActions.onPosition.use();
 }
