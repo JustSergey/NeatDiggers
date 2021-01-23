@@ -4,11 +4,13 @@ import { OrbitControls } from '../lib/three/examples/jsm/controls/OrbitControls.
 import { modelLoader } from './util.js';
 
 export let controls;
-let  camera, renderer;
+let camera, renderer;
 export let mapArray, scene, sFlag, sPlayer, sPlayers = new THREE.Group();
 let models = {
     pandora: null,
+    kirill: null,
     jupiter: null,
+    sirius: null,
     box_1: null,
     box_2: null,
     box_3: null,
@@ -30,10 +32,11 @@ export let screen = {
 
         this.width = window.innerWidth;
         this.height = window.innerHeight - $('header').outerHeight();
-        renderer = new THREE.WebGLRenderer({ canvas: $("#game")[0]});
+        renderer = new THREE.WebGLRenderer({ canvas: $("#game")[0] });
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap;
         renderer.setSize(screen.width, screen.height);
+
         window.addEventListener('resize', this.onResize, false);
     },
     'onResize': function () {
@@ -101,7 +104,9 @@ function placePlayers(players, userId) {
             let cube = new THREE.Mesh(boxGeometry, material)
             switch (players[i].character.name) {
                 case 1: cube = models.pandora.clone(); break;
+                case 2: cube = models.kirill.clone(); break;
                 case 3: cube = models.jupiter.clone(); break;
+                case 4: cube = models.sirius.clone(); break;
             }
 
             cube.position.set(players[i].position.x, players[i].position.y, 1);
@@ -118,7 +123,7 @@ function placePlayers(players, userId) {
             cube.lookAt(centerMap);
         }
         else {
-            player.info = players[i]; 
+            player.info = players[i];
             player.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
         }
     }
@@ -136,9 +141,15 @@ async function loadModels() {
     models.pandora = await modelLoader("pandora");
     models.pandora.castShadow = true;
     models.pandora.receiveShadow = true;
+    models.kirill = await modelLoader("kirill");
+    models.kirill.castShadow = true;
+    models.kirill.receiveShadow = true;
     models.jupiter = await modelLoader("jupiter");
     models.jupiter.castShadow = true;
     models.jupiter.receiveShadow = true;
+    models.sirius = await modelLoader("sirius");
+    models.sirius.castShadow = true;
+    models.sirius.receiveShadow = true;
 
     models.flag = await modelLoader("flag");
     models.flag.castShadow = true;
@@ -244,7 +255,7 @@ function cameraInit(target) {
 
 function sceneInit(target) {
     scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x000000, 0.02);
+    scene.fog = new THREE.FogExp2(0xffffff, 0.02);
 
     const dirLight1 = new THREE.DirectionalLight(0xffffff);
     dirLight1.position.set(target.x * 2, target.y * 2, 20);
@@ -270,9 +281,19 @@ function sceneInit(target) {
     dirLight2.castShadow = true;
     scene.add(dirLight2);
 
-    const ambientLight = new THREE.AmbientLight(0x555555);
+    const ambientLight = new THREE.AmbientLight(0xcccccc);
     scene.add(ambientLight);
-    scene.add(sPlayers);}
+    scene.add(sPlayers);
+
+    const loader = new THREE.TextureLoader();
+    const texture = loader.load(
+        '../../StaticFiles/tears_of_steel_bridge_2k.jpg',
+        () => {
+            const rt = new THREE.WebGLCubeRenderTarget(texture.image.height);
+            rt.fromEquirectangularTexture(renderer, texture);
+            scene.background = rt;
+        });
+}
 
 
 
