@@ -33,11 +33,13 @@ let ui = {
         },
         button: {
             dig: document.createElement("button"),
+            move: document.createElement("button"),
             rollDice: document.createElement("button"),
             takeFlag: document.createElement("button"),
             end: document.createElement("button"),
             init: function () {
                 this.dig.style.pointerEvents = "all";
+                this.move.style.pointerEvents = "all";
                 this.rollDice.style.pointerEvents = "all";
                 this.takeFlag.style.pointerEvents = "all";
                 this.end.style.pointerEvents = "all";
@@ -45,6 +47,9 @@ let ui = {
                 this.dig.classList.add("ui");
                 this.dig.classList.add("btn");
                 this.dig.classList.add("btn-success");
+                this.move.classList.add("ui");
+                this.move.classList.add("btn");
+                this.move.classList.add("btn-success");
                 this.rollDice.classList.add("ui");
                 this.rollDice.classList.add("btn");
                 this.rollDice.classList.add("btn-success");
@@ -56,19 +61,23 @@ let ui = {
                 this.end.classList.add("btn-success");
 
                 this.dig.disabled = true;
+                this.move.disabled = true;
                 this.takeFlag.disabled = true;
 
                 this.dig.innerText = Message.Button.Dig;
+                this.move.innerText = Message.Button.Move;
                 this.rollDice.innerText = Message.Button.RollDice;
                 this.takeFlag.innerText = Message.Button.TakeFlag;
                 this.end.innerText = Message.Button.EndTurn;
 
                 this.dig.onclick = Action.Dig.dig;
+                this.move.onclick = function () { Action.Move.init(); } ;
                 this.rollDice.onclick = Action.RollDise;
                 this.takeFlag.onclick = Action.TakeFlag;
                 this.end.onclick = Action.EndTurn;
 
                 ui.contorls.container.appendChild(this.dig);
+                ui.contorls.container.appendChild(this.move);
                 ui.contorls.container.appendChild(this.rollDice);
                 ui.contorls.container.appendChild(this.takeFlag);
                 ui.contorls.container.appendChild(this.end);
@@ -191,12 +200,18 @@ let ui = {
                 this.leftWeaponTakeOff.style.display = "none";
                 this.leftWeaponTakeOff.style.pointerEvents = "all";
                 this.leftWeaponTakeOff.classList.add("itemButton-nohiden");
+                this.leftWeaponTakeOff.classList.add("btn");
+                this.leftWeaponTakeOff.classList.add("btn-success");
                 this.rightWeaponTakeOff.style.display = "none";
                 this.rightWeaponTakeOff.style.pointerEvents = "all";
                 this.rightWeaponTakeOff.classList.add("itemButton-nohiden");
+                this.rightWeaponTakeOff.classList.add("btn");
+                this.rightWeaponTakeOff.classList.add("btn-success");
                 this.armorTakeOff.style.display = "none";
                 this.armorTakeOff.style.pointerEvents = "all";
                 this.armorTakeOff.classList.add("itemButton-nohiden");
+                this.armorTakeOff.classList.add("btn");
+                this.armorTakeOff.classList.add("btn-success");
 
                 this.container.appendChild(this.leftWeapon);
                 this.container.appendChild(this.leftWeaponTakeOff);
@@ -506,6 +521,7 @@ const Action = {
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
         if (this.count < 1) {
             ui.contorls.button.dig.disabled = true;
+            ui.contorls.button.move.disabled = true;
             ui.contorls.button.rollDice.disabled = true;
             ui.contorls.button.takeFlag.disabled = true;
             ui.contorls.message.actionCount.innerText = "";
@@ -514,66 +530,38 @@ const Action = {
     },
     Move: {
         Can: true,
-        Add: {
-            plane: new THREE.Plane(),
-            planeIntersect: new THREE.Vector3(),
-            objIntersect: new THREE.Vector3(),
-            shift: new THREE.Vector3(),
-            isDragging: false,
-            dragObject: null,
-            oldPosition: new THREE.Vector3()
+        listen: false,
+        init: function () {
+            this.listen = true;
+            target.visible = true;
         },
-        take: function (player) {
-            if (player != null && this.Can) {
-                core.controls.enabled = false;
-                if (this.Can) {
-                    this.Add.objIntersect.copy(player.point);
-                    this.Add.plane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 0, 1), this.Add.objIntersect);
-                    this.Add.shift.subVectors(player.position, player.point);
-                    this.Add.isDragging = true;
-                    this.Add.dragObject = player;
-                    this.Add.oldPosition.x = player.position.x;
-                    this.Add.oldPosition.y = player.position.y;
-                    this.Add.oldPosition.z = player.position.z;
+        showHint: function () {
+            if (!this.listen || Action.count < 1 || !Action.Move.Can) return;
+            target.visible = false;
+            let btn = document.createElement('button');
+            btn.style.pointerEvents = "all";
+            btn.innerText = "Move";
+            btn.onmousedown = async function () {
+                let action = {
+                    Type: GameActionType.Move,
+                    TargetPosition: target.position,
+                };
+                let success = await doAction(action);
+
+                if (success) {
+                    Action.count--;
+                    Action.finishAction();
+                    Action.Move.Can = false;
+                    ui.contorls.button.move.disabled = true;
                 }
-            }
-        },
-        drop: async function () {
-            if (this.Add.dragObject == null) return;
-            let pos = this.Add.dragObject.position;
-            let oldPos = this.Add.oldPosition;
 
-            if (!this.Add.isDragging) return;
-            this.Add.isDragging = false;
-
-            if (pos.x == oldPos.x && pos.y == oldPos.y) {
-                core.sPlayer.position.set(this.Add.oldPosition.x, this.Add.oldPosition.y, this.Add.oldPosition.z);
-                return;
+                ui.hint.hide();
+                ui.hint.clear();
+                this.listen = false;
+                target.position.set();
             }
-
-            let action = {
-                Type: GameActionType.Move,
-                targetPosition: {
-                    x: this.Add.dragObject.position.x,
-                    y: this.Add.dragObject.position.y
-                }
-            }
-
-            let success = await doAction(action);
-            if (success) {
-                this.Can = false;
-                Action.count--;
-                Action.finishAction();
-            }
-            else
-                core.sPlayer.position.set(this.Add.oldPosition.x, this.Add.oldPosition.y, this.Add.oldPosition.z);
-        },
-        move: function (raycaster) {
-            if (this.Add.isDragging) {
-                raycaster.ray.intersectPlane(this.Add.plane, this.Add.planeIntersect);
-                this.Add.dragObject.position.addVectors(this.Add.planeIntersect, this.Add.shift);
-                this.Add.dragObject.position.set(Math.round(this.Add.dragObject.position.x), Math.round(this.Add.dragObject.position.y));
-            }
+            ui.hint.container.appendChild(btn);
+            ui.hint.show();
         }
     },
     Dig: {
@@ -618,6 +606,7 @@ const Action = {
                     }
                     let success = doAction(action);
                     ui.hint.hide();
+                    ui.hint.clear();
                     if (success) {
                         Action.Attack.Can = false;
                         Action.count--;
@@ -633,6 +622,7 @@ const Action = {
         Action.diceValue = await invoke('RollTheDice');
         ui.contorls.message.actionCount.innerText = Action.diceValue;
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
+        ui.contorls.button.move.disabled = !Action.Move.Can;
     },
     EndTurn: async function () {
         let success = await invoke('EndTurn');
@@ -741,6 +731,7 @@ let AbilitiesActions = {
                     }
 
                     ui.hint.hide();
+                    ui.hint.clear();
                     this.listen = false;
                     this.ability = null;
                     target.position.set();
@@ -890,6 +881,7 @@ let ItemsActions = {
                     }
 
                     ui.hint.hide();
+                    ui.hint.clear();
                     this.listen = false;
                     this.item = null;
                     target.position.set();
@@ -943,7 +935,6 @@ export async function init() {
     core.scene.add(target);
     document.addEventListener('pointerup', pointerUp, false);
     document.addEventListener('pointermove', pointerMove, false);
-    document.addEventListener('pointerdown', pointerDown, false);
 
     ui.init();
 }
@@ -959,20 +950,19 @@ function pointerUp(event) {
     mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
+    ui.hint.setPosition(event.clientX, event.clientY);
     let players = getPlayers(raycaster).other;
     if (players.length > 0) {
         ui.hint.clear();
-        ui.hint.setPosition(event.clientX, event.clientY);
-
+        
         Action.Attack.showHint(players);
         ItemsActions.onPlayer.showHint(players);
         AbilitiesActions.onPlayer.showHint(players);
     }
-    else
-        ui.hint.hide();
+    Action.Move.showHint();
+        
 
     if (!isMyTurn || Action.count < 1) return;
-    Action.Move.drop();
     ItemsActions.onPosition.use();
     AbilitiesActions.onPosition.use();
 }
@@ -984,8 +974,6 @@ function pointerMove(event) {
     mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    Action.Move.move(raycaster);
-
     if (target.visible) {
         let intersectsObjects = raycaster.intersectObjects(core.scene.children);
         if (intersectsObjects.length > 0)
@@ -993,16 +981,4 @@ function pointerMove(event) {
         else
             target.position.set();
     }
-}
-
-function pointerDown(event) {
-    if (!isMyTurn || Action.count < 1) return;
-
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
-
-    raycaster.setFromCamera(mouse, camera);
-
-    let player = getPlayers(raycaster).user;
-    Action.Move.take(player);
 }
