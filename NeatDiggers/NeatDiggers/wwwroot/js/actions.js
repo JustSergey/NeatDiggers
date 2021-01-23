@@ -43,9 +43,17 @@ let ui = {
                 this.end.style.pointerEvents = "all";
 
                 this.dig.classList.add("ui");
+                this.dig.classList.add("btn");
+                this.dig.classList.add("btn-success");
                 this.rollDice.classList.add("ui");
+                this.rollDice.classList.add("btn");
+                this.rollDice.classList.add("btn-success");
                 this.takeFlag.classList.add("ui");
+                this.takeFlag.classList.add("btn");
+                this.takeFlag.classList.add("btn-success");
                 this.end.classList.add("ui");
+                this.end.classList.add("btn");
+                this.end.classList.add("btn-success");
 
                 this.dig.disabled = true;
                 this.takeFlag.disabled = true;
@@ -98,7 +106,11 @@ let ui = {
                         itemDescription.style.marginBottom = "0";
                         itemDescription.style.marginTop = "1.25rem";
                         itemUse.classList.add("ui");
+                        itemUse.classList.add("btn");
+                        itemUse.classList.add("btn-success");
                         itemDrop.classList.add("ui");
+                        itemDrop.classList.add("btn");
+                        itemDrop.classList.add("btn-success");
                         let itemRight = null;
                         itemUse.style.pointerEvents = "all";
                         switch (item.type) {
@@ -139,6 +151,8 @@ let ui = {
                                         itemRight = document.createElement("button");
                                         itemRight.style.pointerEvents = "all";
                                         itemRight.classList.add("itemButton");
+                                        itemRight.classList.add("btn");
+                                        itemRight.classList.add("btn-success");
                                         itemUse.innerText = Message.Button.Equip.Left;
                                         itemRight.innerText = Message.Button.Equip.Right;
                                         itemUse.onclick = function () { ItemsActions.equipLeft(item); };
@@ -300,6 +314,8 @@ let ui = {
                         let abilityUse = document.createElement("button");
                         abilityUse.disabled = !(Action.count > 0 && ability.isActive);
                         abilityUse.classList.add("ui");
+                        abilityUse.classList.add("btn");
+                        abilityUse.classList.add("btn-success");
 
                         abilityUse.classList.add("itemButton");
                         abilityUse.style.pointerEvents = "all";
