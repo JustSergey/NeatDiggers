@@ -39,6 +39,8 @@ namespace NeatDiggers.Hubs
 
         public async Task<Room> ConnectToRoom(User user)
         {
+            Context.Items["Actions"] = 0;
+            Context.Items["PrevAction"] = GameActionType.DropItem;
             Room room = Server.GetRoom(user.Code);
             if (room != null && user.Token != null)
             {
@@ -88,8 +90,6 @@ namespace NeatDiggers.Hubs
                     await Clients.Group(room.Code).ChangeState(room);
                 }
             }
-            Context.Items["Actions"] = 0;
-            Context.Items["PrevAction"] = GameActionType.DropItem;
         }
 
         public async Task StartGame()
