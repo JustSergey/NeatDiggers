@@ -7,6 +7,21 @@ import { checkAvailability, Message, GameActionType, ItemType, Target, WeaponHan
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+let audio = new Audio("https://neat-diggers.fun/StaticFiles/start.mp3");
+
+function rollDice(number) {
+    const dice = [...document.querySelectorAll(".die-list")];
+    dice.forEach((die) => {
+        toggleClasses(die);
+        die.dataset.roll = number;
+    });
+}
+
+function toggleClasses(die) {
+    die.classList.toggle("odd-roll");
+    die.classList.toggle("even-roll");
+}
+
 let ui = {
     div: document.createElement("div"),
     contorls: {
@@ -14,16 +29,13 @@ let ui = {
         message: {
             turn: document.createElement("p"),
             error: document.createElement("p"),
-            actionCount: document.createElement("p"),
             init: function () {
                 this.turn.classList.add("ui");
-                this.actionCount.classList.add("ui");
                 this.error.classList.add("ui");
 
                 this.error.style.color = "red";
 
                 ui.contorls.container.appendChild(this.turn);
-                ui.contorls.container.appendChild(this.actionCount);
                 ui.contorls.container.appendChild(this.error);
             },
             update: function (action) {
@@ -53,6 +65,7 @@ let ui = {
                 this.rollDice.classList.add("ui");
                 this.rollDice.classList.add("btn");
                 this.rollDice.classList.add("btn-success");
+                this.rollDice.id = "roll-button";
                 this.takeFlag.classList.add("ui");
                 this.takeFlag.classList.add("btn");
                 this.takeFlag.classList.add("btn-success");
@@ -401,60 +414,96 @@ let ui = {
             this.effects.update(player.effects);
         }
     },
-    log: {
+    middle: {
         container: document.createElement("div"),
-        log: new Array(),
+        log: {
+            array: new Array(),
+            container: document.createElement("div"),
+            init: function () {
+                ui.middle.container.appendChild(this.container);
+            },
+            update(action) {
+                if (action != null && action.type != GameActionType.Move && action.type != GameActionType.Dig && action.type != GameActionType.DropItem) {
+                    this.array.push(action);
+                    this.log = this.array.slice(Math.max(this.array.length - 3, 0));
+
+                    this.clear();
+                    for (var i = 0; i < this.array.length; i++) {
+                        let message = document.createElement("p");
+                        let targetPlayer;
+                        let targetPosition;
+                        let currentPlayer;
+                        switch (this.array[i].type) {
+                            case GameActionType.Attack:
+                                targetPlayer = (core.getPlayer(this.array[i].targetPlayerId)).info;
+                                currentPlayer = this.array[i].currentPlayer;
+                                message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " атаковал " +
+                                    targetPlayer.name + " (" + targetPlayer.character.title + ").";
+                                break;
+                            case GameActionType.TakeTheFlag:
+                                currentPlayer = this.array[i].currentPlayer;
+                                message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " взял флаг.";
+                                break;
+                            case GameActionType.UseAbility:
+                                break;
+                            case GameActionType.UseItem:
+                                currentPlayer = this.array[i].currentPlayer;
+                                let item = this.array[i].item;
+                                message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " использовал предмет " + item.title;
+                                switch (item.target) {
+                                    case Target.Player:
+                                        targetPlayer = (core.getPlayer(this.array[i].targetPlayerId)).info;
+                                        message.innerText += " на " + targetPlayer.name + " (" + targetPlayer.character.title + ").";
+                                        break;
+                                    case Target.Position:
+                                        targetPosition = this.array[i].targetPosition;
+                                        message.innerText += " на позицию {x:" + targetPosition.x + ",y:" + targetPosition.y + "}.";
+                                        break;
+                                }
+                                break;
+                        }
+                        this.container.appendChild(message);
+                    }
+                }
+            },
+            clear: function () { ui.clear(this.container); }
+        },
+        dice: {
+            container: document.createElement("div"),
+            init: function() {
+                this.container.classList.add("dice");
+                this.container.classList.add("ui");
+                let ol = document.createElement("ol");
+                ol.classList.add("die-list");
+                ol.classList.add("even-roll");
+                ol.setAttribute("data-roll", "1");
+                ol.id = "die-1";
+                this.container.appendChild(ol);
+                for (var i = 1; i < 7; i++) {
+                    let li = document.createElement("li");
+                    li.classList.add("die-item");
+                    li.setAttribute("data-side", i);
+
+                    for (var j = 0; j < i; j++) {
+                        let span = document.createElement("span");
+                        span.classList.add("dot");
+                        li.appendChild(span);
+                    }
+                    ol.appendChild(li);
+                }
+                ui.middle.container.appendChild(this.container);
+                this.container.style.disabled = true;
+            }
+        },
         init: function () {
             this.container.classList.add("log");
             this.container.classList.add("col-6");
             this.container.style.textAlign = "center";
+            this.log.init();
+            this.dice.init();
             ui.div.appendChild(this.container);
         },
-        update(action) {
-            if (action != null && action.type != GameActionType.Move && action.type != GameActionType.Dig && action.type != GameActionType.DropItem) {
-                this.log.push(action);
-                this.log = this.log.slice(Math.max(this.log.length - 3, 0));
-
-                this.clear();
-                for (var i = 0; i < this.log.length; i++) {
-                    let message = document.createElement("p");
-                    let targetPlayer;
-                    let targetPosition;
-                    let currentPlayer;
-                    switch (this.log[i].type) {
-                        case GameActionType.Attack:
-                            targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
-                            currentPlayer = this.log[i].currentPlayer;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " атаковал " +
-                                targetPlayer.name + " (" + targetPlayer.character.title + ").";
-                            break;
-                        case GameActionType.TakeTheFlag:
-                            currentPlayer = this.log[i].currentPlayer;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " взял флаг.";
-                            break;
-                        case GameActionType.UseAbility:
-                            break;
-                        case GameActionType.UseItem:
-                            currentPlayer = this.log[i].currentPlayer;
-                            let item = this.log[i].item;
-                            message.innerText = currentPlayer.name + " (" + currentPlayer.character.title + ") " + " использовал предмет " + item.title;
-                            switch (item.target) {
-                                case Target.Player:
-                                    targetPlayer = (core.getPlayer(this.log[i].targetPlayerId)).info;
-                                    message.innerText += " на " + targetPlayer.name + " (" + targetPlayer.character.title + ").";
-                                    break;
-                                case Target.Position:
-                                    targetPosition = this.log[i].targetPosition;
-                                    message.innerText += " на позицию {x:" + targetPosition.x + ",y:" + targetPosition.y + "}.";
-                                    break;
-                            }
-                            break;
-                    }
-                    this.container.appendChild(message);
-                }
-            }
-        },
-        clear: function () { ui.clear(this.container); }
+       
     },
     init: function () {
         this.div.style.position = 'absolute';
@@ -472,18 +521,24 @@ let ui = {
         this.div.appendChild(this.hint.container);
 
         this.contorls.init();
-        this.log.init();
+        this.middle.init();
         this.player.init();
         window.addEventListener('resize', this.resize, false);
         $(".ui").hide();
     },
     update: function (player, action, isMyTurn) {
         this.contorls.update(action, player.inventory);
-        this.log.update(action);
+        this.middle.log.update(action);
         this.player.update(player);
 
-        if (isMyTurn)
+        if (isMyTurn) {
+            if (isFirst) {
+                audio.play();
+                isFirst = false;
+            }
+
             $(".ui").show();
+        }
         else {
             $(".ui").hide();
             $(".itemButton-nohiden").hide();
@@ -517,14 +572,13 @@ const Action = {
     finishAction: function () {
         ui.contorls.message.turn.innerText = Message.ActionRemains + Action.count;
         Action.diceValue = -1;
-        ui.contorls.message.actionCount.innerText = Message.NeedRollDice;
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
         ui.contorls.button.move.disabled = true;
         if (this.count < 1) {
             ui.contorls.button.dig.disabled = true;
             ui.contorls.button.rollDice.disabled = true;
+            ui.middle.dice.container.style.disabled = true;
             ui.contorls.button.takeFlag.disabled = true;
-            ui.contorls.message.actionCount.innerText = "";
             $(".itemButton").prop("disabled", true);
         }
     },
@@ -544,7 +598,7 @@ const Action = {
             target.visible = false;
             let btn = document.createElement('button');
             btn.style.pointerEvents = "all";
-            btn.innerText = "Move";
+            btn.innerText = "Сходить";
             btn.onmousedown = async function () {
                 let action = {
                     Type: GameActionType.Move,
@@ -623,7 +677,8 @@ const Action = {
     },
     RollDise: async function () {
         Action.diceValue = await invoke('RollTheDice');
-        ui.contorls.message.actionCount.innerText = Action.diceValue;
+        rollDice(Action.diceValue);
+        ui.middle.dice.container.style.disabled = false;
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
         ui.contorls.button.move.disabled = !Action.Move.Can;
     },
@@ -640,6 +695,7 @@ const Action = {
             ItemsActions.onPlayer.listen = false;
             ItemsActions.onPosition.listen = false;
             ui.contorls.button.dig.disabled = true;
+            isFirst = true;
         }
     },
     TakeFlag: async function () {
@@ -930,7 +986,7 @@ let ItemsActions = {
     }
 }
 
-let isMyTurn;
+let isMyTurn, isFirst = true;
 let camera;
 
 export function setCamera(cam) {
