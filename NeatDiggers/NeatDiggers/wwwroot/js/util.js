@@ -51,7 +51,8 @@ export const Message = {
         },
         RollDice: "Бросить кубик",
         Dig: "Копать",
-        EndTurn: "Закончить ход"
+        EndTurn: "Закончить ход",
+        Move: "Ходить"
     }
 }
 
