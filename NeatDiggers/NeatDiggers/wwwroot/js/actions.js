@@ -426,7 +426,7 @@ let ui = {
             update(action) {
                 if (action != null && action.type != GameActionType.Move && action.type != GameActionType.Dig && action.type != GameActionType.DropItem) {
                     this.array.push(action);
-                    this.log = this.array.slice(Math.max(this.array.length - 3, 0));
+                    this.array = this.array.slice(Math.max(this.array.length - 3, 0));
 
                     this.clear();
                     for (var i = 0; i < this.array.length; i++) {
@@ -592,13 +592,12 @@ const Action = {
             target.visible = true;
         },
         showHint: function () {
-            if (!this.listen || Action.count < 1 || !Action.Move.Can) {
-                ui.hint.hide();
-                ui.hint.clear();
+            if (!this.listen || Action.count < 1 || !Action.Move.Can)
                 return;
-            }
             target.visible = false;
             let btn = document.createElement('button');
+            btn.classList.add("btn");
+            btn.classList.add("btn-light");
             btn.style.pointerEvents = "all";
             btn.innerText = "Сходить";
             btn.onmousedown = async function () {
@@ -614,8 +613,6 @@ const Action = {
                     Action.Move.Can = false;
                     ui.contorls.button.move.disabled = true;
                 }
-                ui.hint.hide();
-                ui.hint.clear();
                 target.position.set();
             }
             ui.hint.container.appendChild(btn);
@@ -649,6 +646,8 @@ const Action = {
 
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
+                btn.classList.add("btn");
+                btn.classList.add("btn-light");
                 btn.style.pointerEvents = "all";
                 if (!(checkAvailability(core.sPlayer.position, players[i].info.position, radius) && this.Can && Action.count > 0))
                     btn.disabled = true;
@@ -664,8 +663,6 @@ const Action = {
                         TargetPlayerId: playerId
                     }
                     let success = doAction(action);
-                    ui.hint.hide();
-                    ui.hint.clear();
                     if (success) {
                         Action.Attack.Can = false;
                         Action.count--;
@@ -680,7 +677,7 @@ const Action = {
     RollDise: async function () {
         Action.diceValue = await invoke('RollTheDice');
         ui.middle.dice.container.style.display = "grid";
-        setTimeout(function () { rollDice(Action.diceValue); }, 10);
+        setTimeout(function () { rollDice(Action.diceValue); }, 50);
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
         ui.contorls.button.move.disabled = !Action.Move.Can;
     },
@@ -769,14 +766,13 @@ let AbilitiesActions = {
             target.visible = true;
         },
         showHint: function (players) {
-            if (!this.listen || Action.count < 1) {
-                ui.hint.hide();
-                ui.hint.clear();
+            if (!this.listen || Action.count < 1)
                 return;
-            }
             target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
+                btn.classList.add("btn");
+                btn.classList.add("btn-light");
                 btn.style.pointerEvents = "all";
 
                 let playerId = players[i].info.id;
@@ -794,9 +790,6 @@ let AbilitiesActions = {
                         Action.count--;
                         Action.finishAction();
                     }
-
-                    ui.hint.hide();
-                    ui.hint.clear();
                     target.position.set();
                     this.ability = null;
                 }
@@ -922,19 +915,18 @@ let ItemsActions = {
             target.visible = true;
         },
         showHint: function (players) {
-            if (!this.listen || Action.count < 1) {
-                ui.hint.hide();
-                ui.hint.clear();
+            if (!this.listen || Action.count < 1)
                 return;
-            }
             target.visible = false;
             for (var i = 0; i < players.length; i++) {
                 let btn = document.createElement('button');
+                btn.classList.add("btn");
+                btn.classList.add("btn-light");
                 btn.style.pointerEvents = "all";
 
                 let playerId = players[i].info.id;
                 let playerName = players[i].info.name;
-                btn.innerText = "Use on: " + playerName;
+                btn.innerText = "Использовать на: " + playerName;
                 btn.onmousedown = async function () {
                     let action = {
                         Type: GameActionType.UseItem,
@@ -947,9 +939,6 @@ let ItemsActions = {
                         Action.count--;
                         Action.finishAction();
                     }
-
-                    ui.hint.hide();
-                    ui.hint.clear();
                     this.item = null;
                     target.position.set();
                 }

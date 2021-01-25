@@ -221,21 +221,6 @@ html {
     grid-area: nine;
 }
 
-button {
-    align-self: center;
-    background-color: #efefef;
-    border: none;
-    color: #333;
-    font-size: 1.25rem;
-    font-weight: 700;
-    justify-self: center;
-    padding: 0.5rem 1rem;
-}
-
-    button:hover {
-        cursor: pointer;
-    }
-
 @media (min-width: 900px) {
     .dice {
         perspective: 1300px;
