@@ -16,6 +16,7 @@ namespace NeatDiggers.GameServer.Items
             Target = Target.None;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
+            Rarity = Rarity.Common;
         }
 
         public override bool Use(Room room, GameAction gameAction)

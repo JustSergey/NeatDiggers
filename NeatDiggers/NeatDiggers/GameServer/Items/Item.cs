@@ -56,6 +56,16 @@ namespace NeatDiggers.GameServer.Items
         Armor
     }
 
+    public enum Rarity
+    {
+        None,
+        Common,
+        Uncommon,
+        Rare,
+        Epic,
+        Legendary
+    }
+
     public class Item
     {
         public ItemName Name { get; set; }
@@ -70,6 +80,7 @@ namespace NeatDiggers.GameServer.Items
         public int WeaponDistance { get; set; }
         public  int ArmorStrength { get; set; }
         public int ArmorDurability { get; set; }
+        public Rarity Rarity { get; set; }
 
         public virtual void Get(Player player) { }
         public virtual bool Use(Room room, GameAction gameAction) { return false; }
@@ -124,6 +135,7 @@ namespace NeatDiggers.GameServer.Items
             ArmorDurability = 0;
             WeaponHanded = WeaponHanded.None;
             WeaponType = WeaponType.None;
+            Rarity = Rarity.None;
         }
     }
 }

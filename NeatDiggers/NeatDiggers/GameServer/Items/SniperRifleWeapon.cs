@@ -14,6 +14,7 @@
             WeaponDamage = 3;
             WeaponDistance = 4;
             WeaponConsumption = 2;
+            Rarity = Rarity.Rare;
         }
     }
 }

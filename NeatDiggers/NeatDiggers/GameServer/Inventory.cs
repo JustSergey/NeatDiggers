@@ -42,22 +42,33 @@ namespace NeatDiggers.GameServer
         {
             if (item.Name == ItemName.Empty)
                 return false;
+            int value = 0;
             Item invItem = Items.Find(i => i.Name == item.Name);
             if (invItem != null)
             {
                 if (invItem.Type == ItemType.Passive)
                     invItem.Drop(player);
+                value = (int)invItem.Rarity;
                 Items.Remove(invItem);
             }
             else if (LeftWeapon.Name == item.Name)
+            {
+                value = (int)LeftWeapon.Rarity;
                 LeftWeapon = new EmptyItem();
+            }
             else if (RightWeapon.Name == item.Name)
+            {
+                value = (int)RightWeapon.Rarity;
                 RightWeapon = new EmptyItem();
+            }
             else if (Armor.Name == item.Name)
+            {
+                value = (int)Armor.Rarity;
                 Armor = new EmptyItem();
+            }
             else
                 return false;
-            Drop++;
+            Drop += value;
             return true;
         }
     }

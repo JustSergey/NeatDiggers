@@ -18,6 +18,7 @@ namespace NeatDiggers.GameServer.Items
             WeaponType = WeaponType.None;
             ArmorStrength = 2;
             ArmorDurability = 2;
+            Rarity = Rarity.Uncommon;
         }
     }
 }
