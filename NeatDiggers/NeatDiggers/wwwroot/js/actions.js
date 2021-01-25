@@ -8,6 +8,7 @@ const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
 let audio = new Audio("https://neat-diggers.fun/StaticFiles/start.mp3");
+audio.volume = 0.1;
 
 function rollDice(number) {
     const dice = [...document.querySelectorAll(".die-list")];
@@ -1014,11 +1015,12 @@ function pointerUp(event) {
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = - ((event.clientY - ($('header').outerHeight() / 2)) / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
+    ui.hint.hide();
+    ui.hint.clear();
 
     ui.hint.setPosition(event.clientX, event.clientY);
     let players = getPlayers(raycaster).other;
     if (players.length > 0) {
-        ui.hint.clear();
         
         Action.Attack.showHint(players);
         ItemsActions.onPlayer.showHint(players);
