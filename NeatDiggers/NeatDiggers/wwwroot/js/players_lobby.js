@@ -14,30 +14,29 @@ window.onload = async function(){
     $("#ChangeReady").prop("disabled", true);
 
     connection.start().then(async function () {
-        let code = $("#code").text();
-        let name = $("#name").text();
-        let userId = await connection.invoke("ConnectToRoom", code, name).catch(function (err) {
+        let user = {
+            name: $("#name").text(),
+            code: $("#code").text(),
+            token: $("#token").text(),
+        }
+        let room = await connection.invoke("ConnectToRoom", user).catch(function (err) {
             return console.error(err.toString());
         });
 
-        switch (userId) {
-            case Conection.Error.Full.Code:
-                $("#errorModal").modal();
-                $("#errorModalMessage").text(Conection.Error.Full.Description);
-                return;
-            case Conection.Error.Started.Code:
-                $("#errorModal").modal();
-                $("#errorModalMessage").text(Conection.Error.Started.Description);
-                return;
-            case Conection.Error.WrongCode.Code:
-                $("#errorModal").modal();
-                $("#errorModalMessage").text(Conection.Error.WrongCode.Description);
-                return;
+        if (room == null) {
+            $("#errorModal").modal();
+            $("#errorModalMessage").text(Conection.Error.WrongCode.Description);
+            return;
         }
+
+        let userId = await connection.invoke("GetUserId").catch(function (err) {
+            return console.error(err.toString());
+        });
 
         console.log(`Player ${name} connected to lobby: ${code}`);
 
-        game.init(connection, userId);
+        await game.init(connection, userId);
+        UpdateRoom(room, null);
     }).catch(function (err) {
         return console.error(err.toString());
     });
