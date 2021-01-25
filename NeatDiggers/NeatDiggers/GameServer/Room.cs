@@ -91,7 +91,7 @@ namespace NeatDiggers.GameServer
         public void NextTurn()
         {
             Players[PlayerTurn].EndTurn();
-            do
+            for (int i = 0; i < Players.Count; i++)
             {
                 PlayerTurn++;
                 if (PlayerTurn >= Players.Count)
@@ -99,7 +99,9 @@ namespace NeatDiggers.GameServer
                     PlayerTurn = 0;
                     Round++;
                 }
-            } while (Players[PlayerTurn].Devices > 0);
+                if (Players[PlayerTurn].Devices > 0)
+                    break;
+            }
             Players[PlayerTurn].SetTurn();
         }
 
