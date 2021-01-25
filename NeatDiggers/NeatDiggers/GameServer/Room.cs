@@ -19,6 +19,7 @@ namespace NeatDiggers.GameServer
         public bool FlagOnTheGround { get; set; }
         public int Round { get; private set; }
         public Player Winner { get; private set; }
+        public bool IsFull => Players.Count >= gameMap.SpawnPoints.Count;
         private GameMap gameMap;
         private int scoreToWin;
         
@@ -49,14 +50,18 @@ namespace NeatDiggers.GameServer
             return true;
         }
 
-        public bool AddPlayer(string id, string name)
+        public bool Connect(string id, string name)
         {
-            if (Players.Any(p => p.Id == id))
-                return false;
-            if (Players.Count >= gameMap.SpawnPoints.Count)
-                return false;
-            Player player = new Player(id, name);
-            Players.Add(player);
+            Player player = Players.Find(p => p.Id == id);
+            if (player == null)
+            {
+                if (IsFull || IsStarted)
+                    return false;
+                player = new Player(id, name);
+                Players.Add(player);
+            }
+            else
+                player.Devices++;
             return true;
         }
 
@@ -86,12 +91,15 @@ namespace NeatDiggers.GameServer
         public void NextTurn()
         {
             Players[PlayerTurn].EndTurn();
-            PlayerTurn++;
-            if (PlayerTurn >= Players.Count)
+            do
             {
-                PlayerTurn = 0;
-                Round++;
-            }
+                PlayerTurn++;
+                if (PlayerTurn >= Players.Count)
+                {
+                    PlayerTurn = 0;
+                    Round++;
+                }
+            } while (Players[PlayerTurn].Devices > 0);
             Players[PlayerTurn].SetTurn();
         }
 
@@ -158,12 +166,15 @@ namespace NeatDiggers.GameServer
                 Player player = Players.Find(p => p.Id == id);
                 if (player != null)
                 {
-                    if (player.IsTurn)
-                        NextTurn();
-                    if (Players.IndexOf(player) < PlayerTurn)
-                        PlayerTurn--;
-                    Players.Remove(player);
-                    return true;
+                    if (IsStarted)
+                    {
+                        player.Devices--;
+                        if (player.Devices <= 0 && player.IsTurn)
+                            NextTurn();
+                        return true;
+                    }
+                    else
+                        Players.Remove(player);
                 }
             }
             return false;

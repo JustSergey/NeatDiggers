@@ -18,45 +18,56 @@ namespace NeatDiggers.Hubs
             Room room = Server.GetRoom(code);
             if (room != null)
             {
-                if (Server.AddUser(Context.ConnectionId, code) && room.AddSpectator(Context.ConnectionId))
+                if (room.AddSpectator(Context.ConnectionId))
                 {
+                    Server.AddUser(Context.ConnectionId, new User { Code = code, Token = null });
                     await Groups.AddToGroupAsync(Context.ConnectionId, code);
                     await Clients.Group(code).ChangeState(room);
+                    return room;
                 }
             }
-            return room;
+            return null;
         }
 
-        public async Task<string> ConnectToRoom(string code, string name)
+        public string GetUserId()
         {
-            Room room = Server.GetRoom(code);
-            if (room != null)
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
+                return user.Id;
+            return null;
+        }
+
+        public async Task<Room> ConnectToRoom(User user)
+        {
+            Room room = Server.GetRoom(user.Code);
+            if (room != null && user.Token != null)
             {
-                if (!room.IsStarted)
+                user.Id = user.GetId();
+                if (room.Connect(user.Id, user.Name))
                 {
-                    if (Server.AddUser(Context.ConnectionId, code) && room.AddPlayer(Context.ConnectionId, name))
-                    {
-                        await Groups.AddToGroupAsync(Context.ConnectionId, code);
-                        await Clients.Group(code).ChangeState(room);
-                        return Context.ConnectionId;
-                    }
-                    return "full";
+                    Server.AddUser(Context.ConnectionId, user);
+                    await Groups.AddToGroupAsync(Context.ConnectionId, user.Code);
+                    await Clients.Group(user.Code).ChangeState(room);
+                    return room;
                 }
-                return "started";
             }
-            return "wrongCode";
+            return null;
         }
 
         public async Task<Character> ChangeCharacter(CharacterName characterName)
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
-            if (room != null && !room.IsStarted)
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null && !player.IsReady && player.ChangeCharacter(characterName))
+                Room room = Server.GetRoom(user.Code);
+                if (room != null && !room.IsStarted)
                 {
-                    await Clients.Group(room.Code).ChangeState(room);
-                    return player.Character;
+                    Player player = room.GetPlayer(user.Id);
+                    if (player != null && !player.IsReady && player.ChangeCharacter(characterName))
+                    {
+                        await Clients.Group(room.Code).ChangeState(room);
+                        return player.Character;
+                    }
                 }
             }
             return null;
@@ -64,10 +75,13 @@ namespace NeatDiggers.Hubs
 
         public async Task ChangeReady()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user == null)
+                return;
+            Room room = Server.GetRoom(user.Code);
             if (room != null && !room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(user.Id);
                 if (player != null)
                 {
                     player.ChangeReady();
@@ -80,10 +94,13 @@ namespace NeatDiggers.Hubs
 
         public async Task StartGame()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user == null)
+                return;
+            Room room = Server.GetRoom(user.Code);
             if (room != null && !room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(user.Id);
                 if (player != null && room.Start())
                     await Clients.Group(room.Code).ChangeState(room);
             }
@@ -91,9 +108,13 @@ namespace NeatDiggers.Hubs
 
         public GameMap GetGameMap()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
-            if (room != null)
-                return room.GetGameMap();
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
+            {
+                Room room = Server.GetRoom(user.Code);
+                if (room != null)
+                    return room.GetGameMap();
+            }
             return null;
         }
 
@@ -105,10 +126,13 @@ namespace NeatDiggers.Hubs
 
         public async Task<bool> ChangeInventory(Inventory inventory)
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user == null)
+                return false;
+            Room room = Server.GetRoom(user.Code);
             if (room != null && room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(user.Id);
                 if (player != null && player.IsTurn)
                 {
                     List<ItemName> oldItems = new List<Item>(player.Inventory.Items)
@@ -165,19 +189,23 @@ namespace NeatDiggers.Hubs
 
         public int RollTheDice()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
-            if (room != null && room.IsStarted)
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null && player.IsTurn)
+                Room room = Server.GetRoom(user.Code);
+                if (room != null && room.IsStarted)
                 {
-                    if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
-                        return (int)Context.Items["Dice"];
-                    Random random = new Random();
-                    int dice = random.Next(1, 7);
-                    Context.Items["IsDice"] = true;
-                    Context.Items["Dice"] = dice;
-                    return dice;
+                    Player player = room.GetPlayer(user.Id);
+                    if (player != null && player.IsTurn)
+                    {
+                        if (Context.Items.ContainsKey("IsDice") && (bool)Context.Items["IsDice"])
+                            return (int)Context.Items["Dice"];
+                        Random random = new Random();
+                        int dice = random.Next(1, 7);
+                        Context.Items["IsDice"] = true;
+                        Context.Items["Dice"] = dice;
+                        return dice;
+                    }
                 }
             }
             return -1;
@@ -185,10 +213,13 @@ namespace NeatDiggers.Hubs
 
         public async Task<bool> DoAction(GameAction gameAction)
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user == null)
+                return false;
+            Room room = Server.GetRoom(user.Code);
             if (room != null && room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(user.Id);
                 if (player.IsTurn)
                 {
                     int actionsCount = (int)Context.Items["Actions"];
@@ -359,10 +390,13 @@ namespace NeatDiggers.Hubs
 
         public async Task<bool> EndTurn()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user == null)
+                return false;
+            Room room = Server.GetRoom(user.Code);
             if (room != null && room.IsStarted)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
+                Player player = room.GetPlayer(user.Id);
                 if (player != null && player.IsTurn && player.Inventory.Items.Count <= Inventory.MaxItems)
                 {
                     Context.Items["IsDice"] = false;
@@ -377,26 +411,35 @@ namespace NeatDiggers.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
-            if (room != null)
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
             {
-                Server.RemoveUser(Context.ConnectionId);
-                await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
-                if (room.Disconnect(Context.ConnectionId))
-                    Server.RemoveEmptyRoom(room);
-                await Clients.Group(room.Code).ChangeState(room);
+                Room room = Server.GetRoom(user.Code);
+                if (room != null)
+                {
+                    Server.RemoveUser(Context.ConnectionId);
+                    await Groups.RemoveFromGroupAsync(Context.ConnectionId, room.Code);
+                    string id = user.Token == null ? Context.ConnectionId : user.Id;
+                    if (room.Disconnect(id))
+                        Server.RemoveEmptyRoom(room);
+                    await Clients.Group(room.Code).ChangeState(room);
+                }
             }
             await base.OnDisconnectedAsync(exception);
         }
 
         public int GetAttackRadius()
         {
-            Room room = Server.GetRoomByUserId(Context.ConnectionId);
-            if (room != null && room.IsStarted)
+            User user = Server.GetUser(Context.ConnectionId);
+            if (user != null)
             {
-                Player player = room.GetPlayer(Context.ConnectionId);
-                if (player != null && player.IsTurn)
-                    return CalculateAttackRadius(player);
+                Room room = Server.GetRoom(user.Code);
+                if (room != null && room.IsStarted)
+                {
+                    Player player = room.GetPlayer(user.Id);
+                    if (player != null && player.IsTurn)
+                        return CalculateAttackRadius(player);
+                }
             }
             return -1;
         }

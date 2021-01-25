@@ -50,12 +50,15 @@ namespace NeatDiggers.Controllers
             return View(room);
         }
 
-        public IActionResult PlayersLobby(string code, string name) 
+        public IActionResult PlayersLobby(string code, string name, string token) 
         {
-            Room room = Server.GetRoom(code);
-            ViewData["name"] = name;
+            if (token == null)
+            {
+                token = Server.ConnectToRoom(code);
+                return RedirectToAction("PlayersLobby", "Game", new { code, name, token });
+            }
             ViewData["CharacterNames"] = Enum.GetNames(typeof(GameServer.Characters.CharacterName));
-            return View(room);
+            return View(new User { Code = code, Name = name, Token = token });
         }
     }
 }

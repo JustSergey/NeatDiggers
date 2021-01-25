@@ -10,6 +10,7 @@ namespace NeatDiggers.GameServer
     {
         public string Id { get; }
         public string Name { get; }
+        public int Devices { get; set; }
         public bool IsReady { get; private set; }
         public bool IsTurn { get; set; }
         public bool WithFlag { get; set; }
@@ -35,6 +36,7 @@ namespace NeatDiggers.GameServer
         {
             Id = id;
             Name = name;
+            Devices = 1;
             IsReady = false;
             IsTurn = false;
             WithFlag = false;

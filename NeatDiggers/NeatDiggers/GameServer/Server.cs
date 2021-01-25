@@ -10,20 +10,46 @@ namespace NeatDiggers.GameServer
     public static class Server
     {
         const int codeLength = 5;
-        static Dictionary<string, string> users = new Dictionary<string, string>();
+        const int tokenLength = 10;
+        static Dictionary<string, User> users = new Dictionary<string, User>();
         static Dictionary<string, Room> rooms = new Dictionary<string, Room>();
+        static Dictionary<string, List<string>> tokens = new Dictionary<string, List<string>>();
+        static Random random = new Random();
+        static HashSet<string> codes = new HashSet<string>();
 
-        public static string CreateRoom(GameMap gameMap, Deck deck, int scoreToWin)
+        private static string GenerateCode(int length, bool upper)
         {
-            Random random = new Random();
             string code;
             do
             {
                 code = "";
-                for (int i = 0; i < codeLength; i++)
-                    code += (char)random.Next('A', 'Z' + 1);
-            } while (rooms.ContainsKey(code));
+                for (int i = 0; i < length; i++)
+                    code += (char)random.Next('a', 'z' + 1);
+                if (upper)
+                    code = code.ToUpper();
+            } while (codes.Contains(code));
+            codes.Add(code);
+            return code;
+        }
 
+        public static string ConnectToRoom(string code)
+        {
+            Room room = GetRoom(code);
+            if (room != null && !room.IsStarted && !room.IsFull)
+            {
+                string token = GenerateCode(tokenLength, false);
+                if (tokens.ContainsKey(code))
+                    tokens[code].Add(token);
+                else
+                    tokens[code] = new List<string> { token };
+                return token;
+            }
+            return null;
+        }
+
+        public static string CreateRoom(GameMap gameMap, Deck deck, int scoreToWin)
+        {
+            string code = GenerateCode(codeLength, true);
             rooms.Add(code, new Room(code, gameMap, deck, scoreToWin));
             return code;
         }
@@ -47,28 +73,25 @@ namespace NeatDiggers.GameServer
 
         public static bool RemoveEmptyRoom(Room room)
         {
-            if (room.Players.Count == 0)
-                return rooms.Remove(room.Code);
-            return false;
-        }
-
-        public static bool AddUser(string id, string code)
-        {
-            if (!users.ContainsKey(id))
+            if (room.Players.All(p => p.Devices <= 0))
             {
-                users.Add(id, code);
-                return true;
+                if (tokens.ContainsKey(room.Code))
+                    tokens[room.Code].ForEach(t => codes.Remove(t));
+                codes.Remove(room.Code);
+                return rooms.Remove(room.Code);
             }
             return false;
         }
 
-        public static bool RemoveUser(string id) => users.Remove(id);
+        public static void AddUser(string connectionId, User user) => users.Add(connectionId, user);
 
-        public static Room GetRoomByUserId(string id)
+        public static User GetUser(string connectionId)
         {
-            if (users.ContainsKey(id))
-                return GetRoom(users[id]);
+            if (users.ContainsKey(connectionId))
+                return users[connectionId];
             return null;
         }
+
+        public static void RemoveUser(string connectionId) => users.Remove(connectionId);
     }
 }
