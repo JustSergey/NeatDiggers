@@ -493,7 +493,7 @@ let ui = {
                     ol.appendChild(li);
                 }
                 ui.middle.container.appendChild(this.container);
-                this.container.style.disabled = true;
+                this.container.style.display = "none";
             }
         },
         init: function () {
@@ -539,6 +539,7 @@ let ui = {
             }
 
             $(".ui").show();
+            $(".dice").hide();
         }
         else {
             $(".ui").hide();
@@ -571,6 +572,7 @@ const Action = {
     count: 2,
     diceValue: -1,
     finishAction: function () {
+        ui.middle.dice.container.style.display = "none";
         ui.contorls.message.turn.innerText = Message.ActionRemains + Action.count;
         Action.diceValue = -1;
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
@@ -578,7 +580,6 @@ const Action = {
         if (this.count < 1) {
             ui.contorls.button.dig.disabled = true;
             ui.contorls.button.rollDice.disabled = true;
-            ui.middle.dice.container.style.disabled = true;
             ui.contorls.button.takeFlag.disabled = true;
             $(".itemButton").prop("disabled", true);
         }
@@ -678,8 +679,8 @@ const Action = {
     },
     RollDise: async function () {
         Action.diceValue = await invoke('RollTheDice');
-        rollDice(Action.diceValue);
-        ui.middle.dice.container.style.disabled = false;
+        ui.middle.dice.container.style.display = "grid";
+        setTimeout(function () { rollDice(Action.diceValue); }, 10);
         ui.contorls.button.dig.disabled = !isPlayerCanDig();
         ui.contorls.button.move.disabled = !Action.Move.Can;
     },
