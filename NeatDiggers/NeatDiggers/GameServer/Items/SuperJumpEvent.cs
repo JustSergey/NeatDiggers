@@ -17,8 +17,11 @@
         {
             Vector playerPosition = gameAction.CurrentPlayer.Position;
             if (playerPosition.CheckAvailability(gameAction.TargetPosition, gameAction.CurrentPlayer.Speed + 4))
+            {
                 gameAction.CurrentPlayer.Position = gameAction.TargetPosition;
-            return true;
+                return true;
+            }
+            return false;
         }
     }
 }
