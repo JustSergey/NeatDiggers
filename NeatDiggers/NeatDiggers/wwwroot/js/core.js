@@ -108,7 +108,9 @@ function placePlayers(players, userId) {
                 case 3: cube = models.jupiter.clone(); break;
                 case 4: cube = models.sirius.clone(); break;
             }
-
+            cube.up.set(0, 0, 1);
+            cube.position.set(players[i].spawnPoint.x, players[i].spawnPoint.y, 1);
+            cube.lookAt(centerMap);
             cube.position.set(players[i].position.x, players[i].position.y, 1);
             cube.info = players[i];
             sPlayers.add(cube);
@@ -119,8 +121,8 @@ function placePlayers(players, userId) {
                 camera.position.y = sPlayer.position.y - offset.y * 3;
                 camera.position.z = 8;
             }
-            cube.up.set(0, 0, 1);
-            cube.lookAt(centerMap);
+
+            
         }
         else {
             player.info = players[i];
