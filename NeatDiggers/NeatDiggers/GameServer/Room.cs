@@ -168,15 +168,18 @@ namespace NeatDiggers.GameServer
                 Player player = Players.Find(p => p.Id == id);
                 if (player != null)
                 {
-                    if (IsStarted)
+                    player.Devices--;
+                    if (player.Devices <= 0)
                     {
-                        player.Devices--;
-                        if (player.Devices <= 0 && player.IsTurn)
-                            NextTurn();
-                        return true;
+                        if (IsStarted)
+                        {
+                            if (player.IsTurn)
+                                NextTurn();
+                        }
+                        else
+                            Players.Remove(player);
                     }
-                    else
-                        Players.Remove(player);
+                    return true;
                 }
             }
             return false;

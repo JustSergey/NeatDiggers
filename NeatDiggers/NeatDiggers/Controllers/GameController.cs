@@ -52,6 +52,7 @@ namespace NeatDiggers.Controllers
 
         public IActionResult PlayersLobby(string code, string name, string token) 
         {
+            code = code.ToUpper();
             if (token == null)
             {
                 token = Server.ConnectToRoom(code);

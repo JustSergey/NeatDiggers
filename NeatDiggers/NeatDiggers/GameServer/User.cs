@@ -12,6 +12,6 @@ namespace NeatDiggers.GameServer
         public string Token { get; set; }
         public string Id { get; set; }
 
-        public string GetId() => $"{Token.GetHashCode()}{Code.GetHashCode()}";
+        public string GetId() => $"{Token.GetHashCode()}{Code.GetHashCode()}".Replace('-', '1');
     }
 }
