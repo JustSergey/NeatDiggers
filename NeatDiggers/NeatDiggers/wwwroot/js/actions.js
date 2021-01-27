@@ -600,7 +600,7 @@ const Action = {
             btn.classList.add("btn-light");
             btn.style.pointerEvents = "all";
             btn.innerText = "Сходить";
-            btn.onmousedown = async function () {
+            btn.onpointerdown = async function () {
                 let action = {
                     Type: GameActionType.Move,
                     TargetPosition: target.position,
@@ -657,7 +657,7 @@ const Action = {
                 let playerHealth = players[i].info.health;
                 let playerMaxHealth = players[i].info.character.maxHealth;
                 btn.innerText = playerName + " (" + playerHealth + "/" + playerMaxHealth + ")";
-                btn.onmousedown = function () {
+                btn.onpointerdown = function () {
                     let action = {
                         Type: GameActionType.Attack,
                         TargetPlayerId: playerId
@@ -778,7 +778,7 @@ let AbilitiesActions = {
                 let playerId = players[i].info.id;
                 let playerName = players[i].info.name;
                 btn.innerText = "Использовать на: " + playerName;
-                btn.onmousedown = async function () {
+                btn.onpointerdown = async function () {
                     let action = {
                         Type: GameActionType.UseAbility,
                         TargetPlayerId: playerId,
@@ -927,7 +927,7 @@ let ItemsActions = {
                 let playerId = players[i].info.id;
                 let playerName = players[i].info.name;
                 btn.innerText = "Использовать на: " + playerName;
-                btn.onmousedown = async function () {
+                btn.onpointerdown = async function () {
                     let action = {
                         Type: GameActionType.UseItem,
                         TargetPlayerId: playerId,
