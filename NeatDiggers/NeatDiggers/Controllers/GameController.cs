@@ -55,7 +55,7 @@ namespace NeatDiggers.Controllers
             code = code.ToUpper();
             if (token == null)
             {
-                token = Server.ConnectToRoom(code);
+                token = Server.ConnectToRoom(code).Token;
                 return RedirectToAction("PlayersLobby", "Game", new { code, name, token });
             }
             ViewData["CharacterNames"] = Enum.GetNames(typeof(GameServer.Characters.CharacterName));

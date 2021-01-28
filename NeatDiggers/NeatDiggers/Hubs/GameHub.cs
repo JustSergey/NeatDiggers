@@ -37,7 +37,7 @@ namespace NeatDiggers.Hubs
             return null;
         }
 
-        public string GetToken(string code) => Server.ConnectToRoom(code);
+        public User Connect(string code) => Server.ConnectToRoom(code);
 
         public async Task<Room> ConnectToRoom(User user)
         {

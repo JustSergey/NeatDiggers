@@ -32,7 +32,7 @@ namespace NeatDiggers.GameServer
             return code;
         }
 
-        public static string ConnectToRoom(string code)
+        public static User ConnectToRoom(string code)
         {
             Room room = GetRoom(code);
             if (room != null && !room.IsStarted && !room.IsFull)
@@ -42,7 +42,9 @@ namespace NeatDiggers.GameServer
                     tokens[code].Add(token);
                 else
                     tokens[code] = new List<string> { token };
-                return token;
+                User user = new User { Token = token, Code = code };
+                user.Id = user.GetId();
+                return user;
             }
             return null;
         }
