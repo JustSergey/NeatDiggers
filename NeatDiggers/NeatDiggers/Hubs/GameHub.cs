@@ -279,7 +279,7 @@ namespace NeatDiggers.Hubs
                 if ((player.Position.CheckAvailability(targetPosition, 1) ||
                     player.Position.CheckAvailability(targetPosition, dice + player.Speed)) &&
                     targetPosition.IsInMap(room.GetGameMap()) &&
-                    room.GetGameMap().Map[x, y] != Cell.None && room.GetGameMap().Map[x, y] != Cell.Wall)
+                    room.GetGameMap().Map[x][y] != Cell.None && room.GetGameMap().Map[x][y] != Cell.Wall)
                 {
                     player.Position = targetPosition;
                     return true;
@@ -341,7 +341,7 @@ namespace NeatDiggers.Hubs
             if (Context.Items.TryGetValue("Dice", out object _dice) && _dice is int dice && (bool)Context.Items["IsDice"])
             {
                 Vector playerPosition = gameAction.CurrentPlayer.Position;
-                if (room.GetGameMap().Map[playerPosition.X, playerPosition.Y] == Cell.Digging && dice % 2 == 0)
+                if (room.GetGameMap().Map[playerPosition.X][playerPosition.Y] == Cell.Digging && dice % 2 == 0)
                 {
                     int count = dice / 2 + gameAction.CurrentPlayer.DigPower;
                     for (int i = 0; i < count; i++)
