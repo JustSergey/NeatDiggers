@@ -108,6 +108,7 @@ function placePlayers(players, userId) {
                 case 3: cube = models.jupiter.clone(); break;
                 case 4: cube = models.sirius.clone(); break;
             }
+            cube.material_standard = cube.material;
             cube.up.set(0, 0, 1);
             cube.position.set(players[i].spawnPoint.x, players[i].spawnPoint.y, 1);
             cube.lookAt(centerMap);
@@ -121,12 +122,19 @@ function placePlayers(players, userId) {
                 camera.position.y = sPlayer.position.y - offset.y * 3;
                 camera.position.z = 8;
             }
-
-            
         }
         else {
             player.info = players[i];
             player.position.set(players[i].position.x, players[i].position.y, players[i].position.z);
+            if (player.info.devices < 1) {
+                player.material.dispose();
+                player.material = new THREE.MeshPhongMaterial({ color: 0x454545 });
+                player.material.transparent = true;
+                player.material.opacity = 0.5;
+            } else {
+                player.material.dispose();
+                player.material = player.material_standard;
+            }
         }
     }
 }
