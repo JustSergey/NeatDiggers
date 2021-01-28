@@ -27,7 +27,7 @@ namespace NeatDiggers.GameServer
         public int Height { get; protected set; }
         public List<Vector> SpawnPoints { get; protected set; }
         public Vector FlagSpawnPoint { get; protected set; }
-        public Cell[,] Map { get; protected set; }
+        public Cell[][] Map { get; protected set; }
 
         public static GameMap Parse(string stringMap)
         {
@@ -44,28 +44,30 @@ namespace NeatDiggers.GameServer
                     return null;
             }
             var spawnPoints = new List<Vector>();
-            var map = new Cell[width, height];
+            var map = new Cell[width][];
+            for (int i = 0; i < width; i++)
+                map[i] = new Cell[height];
             var flagSpawnPoint = new Vector(-1, -1);
             for (int x = 0; x < width; x++)
             {
                 for (int y = 0; y < height; y++)
                 {
                     if (grid[y][x] == 'N')
-                        map[x, y] = Cell.None;
+                        map[x][y] = Cell.None;
                     else if (grid[y][x] == 'E')
-                        map[x, y] = Cell.Empty;
+                        map[x][y] = Cell.Empty;
                     else if (grid[y][x] == 'D')
-                        map[x, y] = Cell.Digging;
+                        map[x][y] = Cell.Digging;
                     else if (grid[y][x] == 'F')
                     {
-                        map[x, y] = Cell.Empty;
+                        map[x][y] = Cell.Empty;
                         flagSpawnPoint = new Vector(x, y);
                     }
                     else if (grid[y][x] == 'W')
-                        map[x, y] = Cell.Wall;
+                        map[x][y] = Cell.Wall;
                     else if (grid[y][x] == 'S')
                     {
-                        map[x, y] = Cell.Empty;
+                        map[x][y] = Cell.Empty;
                         spawnPoints.Add(new Vector(x, y));
                     }
                 }
