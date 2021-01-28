@@ -198,9 +198,9 @@ function drawFloor(map) {
 
     for (var x = 0; x < map.width; x++) {
         for (var y = 0; y < map.height; y++) {
-            if (map.map[x * map.width + y] != Cell.None) {
+            if (map.map[x][y] != Cell.None) {
                 let cube;
-                switch (map.map[x * map.width + y]) {
+                switch (map.map[x][y]) {
                     case Cell.Empty:
                         switch (getRandomInt(4)) {
                             case 0: cube = models.box_1.clone(); break;
