@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace NeatDiggers.GameServer
 {
-    public struct Vector
+    public class Vector
     {
         public int X { get; set; }
         public int Y { get; set; }
