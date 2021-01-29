@@ -9,6 +9,7 @@ namespace NeatDiggers.GameServer
     {
         public int X { get; set; }
         public int Y { get; set; }
+        public Vector() { }
 
         public Vector(int x, int y) => (X, Y) = (x, y);
 

@@ -21,6 +21,11 @@ namespace NeatDiggers
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.ConfigureLogging(logging =>
+                    {
+                        logging.AddFilter("Microsoft.AspNetCore.SignalR", LogLevel.Debug);
+                        logging.AddFilter("Microsoft.AspNetCore.Http.Connections", LogLevel.Debug);
+                    });
                     //webBuilder.UseUrls("http://0.0.0.0:80", "https://0.0.0.0:443");
                 });
     }
