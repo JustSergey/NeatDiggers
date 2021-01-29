@@ -564,7 +564,7 @@ export function ShowTakeFlagButton(isActive) {
 function isPlayerCanDig() {
     let playerPos = core.sPlayer.info.position;
     let map = core.mapArray;
-    return Action.diceValue % 2 == 0 && map.map[playerPos.x * map.width + playerPos.y] == 3 && Action.Dig.Can
+    return Action.diceValue % 2 == 0 && map.map[playerPos.x][playerPos.y] == 3 && Action.Dig.Can;
 }
 
 const Action = {
